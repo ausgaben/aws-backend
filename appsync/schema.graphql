@@ -1,0 +1,23 @@
+type Error {
+    type: String!
+    title: String!
+}
+
+type Mutation {
+    createAccount(name: String!, isSavingsAccount: Boolean): MutationResult!
+}
+
+type MutationResult {
+    error: Error
+    success: Boolean!
+    AWSrequestID: String!
+}
+
+type Query {
+    _: Boolean
+}
+
+type Schema {
+    mutation: Mutation
+    query: Query
+}

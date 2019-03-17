@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 import { NonEmptyString } from '../validation/NonEmptyString';
-import { AggregateEventWithPayload } from '../events/AggregateEvent';
+import { AggregateEventWithPayload } from '../eventsourcing/AggregateEvent';
 
 export const AccountCreatedEventName = 'AccountCreated';
 

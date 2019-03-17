@@ -8,6 +8,10 @@ Make sure your have AWS credentials in your environment.
 
     npm ci
     npx tsc
+    
+    # if this is the run the first time in an account
+    npx cdk -a 'node dist/aws/cloudformation-sourcecode.js' deploy
+
     npx cdk deploy
 
 ## Tests

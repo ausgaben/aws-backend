@@ -4,14 +4,14 @@ import {
     AccountCreatedEventName,
     AccountCreatedEventPayload,
 } from '../events/AccountCreated';
-import { AccountAggregateName } from '../aggregates/Account';
+import { AccountAggregateName } from '../account/Account';
 import { v4 } from 'uuid';
 
 export const createAccount = (
-    persist: (ev: AccountCreatedEvent) => Promise<AccountCreatedEvent>,
+    persist: (ev: AccountCreatedEvent) => Promise<void>,
     name: string,
     isSavingsAccount: boolean = false,
-): Promise<AccountCreatedEvent> => {
+): Promise<void> => {
     AccountCreatedEventPayload.decode({
         name,
         isSavingsAccount,

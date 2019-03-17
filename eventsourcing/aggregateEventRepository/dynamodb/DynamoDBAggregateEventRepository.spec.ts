@@ -1,20 +1,15 @@
-import * as DynamoDBAggregateEventRepository from './DynamoDBAggregateEventRepository';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node';
-import { AggregateEventWithPayload } from './AggregateEvent';
+import { AggregateEventWithPayload } from '../../AggregateEvent';
 import { v4 } from 'uuid';
+import { persist as persistDynamoDB } from './persist';
+import { getByAggregateUUID as getByAggregateUUIDDynamoDB } from './getByAggregateUUID';
 
 jest.setTimeout(60000);
 
 const db = new DynamoDBClient({});
 const TableName = process.env.AGGREGATES_EVENTS_TABLE!;
-const persist = DynamoDBAggregateEventRepository.persist(
-    db,
-    process.env.AGGREGATES_EVENTS_TABLE!,
-);
-const getByAggregateUUID = DynamoDBAggregateEventRepository.getByAggregateUUID(
-    db,
-    TableName,
-);
+const persist = persistDynamoDB(db, process.env.AGGREGATES_EVENTS_TABLE!);
+const getByAggregateUUID = getByAggregateUUIDDynamoDB(db, TableName);
 
 describe('DynamoDBAggregateEventRepository', () => {
     if (!process.env.AGGREGATES_EVENTS_TABLE) {

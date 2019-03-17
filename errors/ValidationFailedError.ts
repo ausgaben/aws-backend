@@ -6,7 +6,7 @@ export class ValidationFailedError extends Error {
 
     constructor(locationHint: string, errors: t.Errors) {
         super(`${failure(errors).join('\n')} at ${locationHint}`);
-        this.name = 'ValidationFailedError';
+        this.name = 'ValidationFailed';
         this.errors = errors;
         Error.captureStackTrace(this, ValidationFailedError);
         Object.setPrototypeOf(this, ValidationFailedError.prototype);

@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/ausgaben/aws-backend#readme",
   "devDependencies": {
+    "@aws-cdk/aws-appsync": "^0.25.3",
     "@aws-cdk/aws-cognito": "^0.25.3",
     "@aws-cdk/aws-dynamodb": "^0.25.3",
     "@aws-cdk/aws-iam": "^0.25.3",
@@ -33,6 +34,7 @@
     "@nrfcloud/aws-cf-stack-output": "^1.1.1",
     "@nrfcloud/package-layered-lambdas": "^1.0.1",
     "@nrfcloud/tslint-config": "^3.7.0",
+    "@types/aws-lambda": "^8.10.23",
     "@types/jest": "^24.0.11",
     "@types/uuid": "^3.4.4",
     "aws-cdk": "^0.25.3",
@@ -40,6 +42,7 @@
     "jest": "^24.5.0",
     "prettier": "^1.16.4",
     "ts-jest": "^24.0.0",
+    "ts-loader": "^5.3.3",
     "tslint": "^5.14.0",
     "typescript": "^3.3.3333"
   },
