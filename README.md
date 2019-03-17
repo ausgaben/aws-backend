@@ -1,3 +1,15 @@
+# Ausgaben AWS Backend
+
+5th iteration of the Ausgaben backend, built using AWS serverless components.
+
+## Deploy
+
+Make sure your have AWS credentials in your environment.
+
+    npm ci
+    npx tsc
+    npx cdk deploy
+
 ## Tests
 
     export STACK_NAME=${STACK_NAME:-ausgaben-dev}
