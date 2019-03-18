@@ -22,14 +22,14 @@ export const getByUUID = <A extends Aggregate>(
 ): AggregateRepository.getByUUID<A> => {
     TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
         throw new ValidationFailedError(
-            'aggregateRepository/dynamodb/getByAggregateUUID()',
+            'aggregateRepository/dynamodb/getByUUID()',
             errors,
         );
     });
     return async (aggregateUUID: string): Promise<A> => {
         aggregateUUID = UUIDv4.decode(aggregateUUID).getOrElseL(errors => {
             throw new ValidationFailedError(
-                'aggregateRepository/dynamodb/getByAggregateUUID()',
+                'aggregateRepository/dynamodb/getByUUID()',
                 errors,
             );
         });

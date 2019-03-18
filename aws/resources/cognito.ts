@@ -1,29 +1,32 @@
-import { Stack, Construct } from '@aws-cdk/cdk';
+import { Construct, Stack } from '@aws-cdk/cdk';
 import {
-    AuthFlow,
     CfnIdentityPool,
     CfnIdentityPoolRoleAttachment,
+    IUserPool,
+    SignInType,
     UserPool,
+    UserPoolAttribute,
     UserPoolClient,
 } from '@aws-cdk/aws-cognito';
 
 import { FederatedPrincipal, Role } from '@aws-cdk/aws-iam';
 
 export class Cognito extends Construct {
-    public readonly userPool: UserPool;
+    public readonly userPool: IUserPool;
     public readonly userRole: Role;
     public readonly identityPool: CfnIdentityPool;
     public readonly userPoolClient: UserPoolClient;
 
     constructor(stack: Stack, id: string) {
         super(stack, id);
-
-        this.userPool = new UserPool(this, 'userPool', {});
+        this.userPool = new UserPool(this, 'userPool', {
+            signInType: SignInType.Email,
+            autoVerifiedAttributes: [UserPoolAttribute.Email],
+        });
         this.userPoolClient = new UserPoolClient(this, 'userPoolClient', {
             userPool: this.userPool,
-            enabledAuthFlows: [AuthFlow.AdminNoSrp],
         });
-        this.identityPool = new CfnIdentityPool(this, 'identityPool', {
+        this.identityPool = new CfnIdentityPool(this, 'idPool', {
             allowUnauthenticatedIdentities: false,
             cognitoIdentityProviders: [
                 {
@@ -31,7 +34,7 @@ export class Cognito extends Construct {
                     providerName: this.userPool.userPoolProviderName,
                 },
             ],
-            developerProviderName: 'iris-backend',
+            developerProviderName: 'developerLogin',
         });
 
         this.userRole = new Role(this, 'userRole', {

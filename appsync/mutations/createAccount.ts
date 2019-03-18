@@ -2,7 +2,6 @@ import { Context } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node';
 import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRepository/dynamodb/persist';
 import { createAccount } from '../../commands/createAccount';
-import { GQLMutationResult } from '../GQLMutationResult';
 import { GQLError } from '../GQLError';
 
 const db = new DynamoDBClient({});
@@ -20,7 +19,9 @@ export const handler = async (
 ) => {
     try {
         await createAccount(persist, event.name, event.isSavingsAccount);
-        return GQLMutationResult(context);
+        return {
+            data: true,
+        };
     } catch (error) {
         return GQLError(context, error);
     }

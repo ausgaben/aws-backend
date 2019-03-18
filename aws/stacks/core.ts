@@ -84,9 +84,14 @@ export class CoreStack extends Stack {
                     sourceCodeBucket,
                     layeredLambdas.lambdaZipFileNames.createAccountMutation,
                 ),
+                accountsQuery: Code.bucket(
+                    sourceCodeBucket,
+                    layeredLambdas.lambdaZipFileNames.accountsQuery,
+                ),
             },
             baseLayer,
             this.aggregateEventsTable,
+            this.accountsTable,
             this.cognito.userRole,
         );
 

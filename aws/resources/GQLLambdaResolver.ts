@@ -10,7 +10,7 @@ export class GQLLambdaResolver extends Construct {
         parent: Construct,
         graphqlApi: CfnGraphQLApi,
         field: string,
-        type: 'Mutation',
+        type: 'Mutation' | 'Query',
         lambda: Function,
     ) {
         super(parent, `${field}${type}Resolver`);
@@ -52,8 +52,13 @@ export class GQLLambdaResolver extends Construct {
                 '$util.qr($payload.put($key, $context.arguments.get($key)))\n' +
                 '#end\n' +
                 '$util.qr($payload.put("cognitoIdentityId", $context.identity.cognitoIdentityId))\n' +
-                '{"version" : "2017-02-28",  "operation": "Invoke",  "payload": $util.toJson($payload)}',
-            responseMappingTemplate: '$util.toJson($context.result)',
+                '{"version" : "2018-05-29",  "operation": "Invoke",  "payload": $util.toJson($payload)}',
+            responseMappingTemplate:
+                '#if( $context.result && $context.result.errorMessage )\n' +
+                '  $utils.error($context.result.errorMessage, $context.result.errorType, $context.result.data, $context.result.errorInfo)\n' +
+                '#else\n' +
+                '  $utils.toJson($context.result.data)\n' +
+                '#end',
         });
     }
 }

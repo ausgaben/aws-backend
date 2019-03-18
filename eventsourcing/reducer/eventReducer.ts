@@ -9,6 +9,7 @@ import { getByUUID as getByUUIDDynamoDB } from '../aggregateRepository/dynamodb/
 import { persist as persistDynamoDB } from '../aggregateRepository/dynamodb/persist';
 import { findByUUID } from '../aggregateRepository/findByUUID';
 import { processGroupedEvents } from './processGroupedEvents';
+import { itemToAggregate as accountItemToAggregate } from '../../account/repository/dynamodb/itemToAggregate';
 
 const db = new DynamoDBClient({});
 const accountsTableName = process.env.ACCOUNTS_TABLE!;
@@ -16,11 +17,7 @@ const getByUUID = getByUUIDDynamoDB<Account>(
     db,
     accountsTableName,
     AccountAggregateName,
-    (item, $meta) => ({
-        name: item.name.S!,
-        isSavingsAccount: item.isSavingsAccount.BOOL!,
-        $meta,
-    }),
+    accountItemToAggregate,
 );
 const findAggregate = findByUUID<Account>(getByUUID);
 const persist = persistDynamoDB<Account>(db, accountsTableName, aggregate => ({

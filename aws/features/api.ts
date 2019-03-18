@@ -13,6 +13,7 @@ import { CfnGraphQLApi, CfnGraphQLSchema } from '@aws-cdk/aws-appsync';
 import { readFileSync } from 'fs';
 import * as path from 'path';
 import { GQLLambdaResolver } from '../resources/GQLLambdaResolver';
+import { AccountsTable } from '../resources/accounts-table';
 
 export class ApiFeature extends Construct {
     public readonly api: CfnGraphQLApi;
@@ -22,9 +23,11 @@ export class ApiFeature extends Construct {
         id: string,
         lambdas: {
             createAccountMutation: Code;
+            accountsQuery: Code;
         },
         baseLayer: ILayerVersion,
         aggregateEventsTable: AggregateEventsTable,
+        accountsTable: AccountsTable,
         userRole: IRole,
     ) {
         super(stack, id);
@@ -80,49 +83,84 @@ export class ApiFeature extends Construct {
             ),
         });
 
-        const createAccountMutation = new Function(
+        gqlLambda(
             this,
-            'createAccountMutation',
-            {
-                code: lambdas.createAccountMutation,
-                handler: 'index.handler',
-                runtime: Runtime.NodeJS810,
-                timeout: 30,
-                memorySize: 1792,
-                initialPolicy: [
-                    new PolicyStatement(PolicyStatementEffect.Allow)
-                        .addResource(
-                            `arn:aws:logs:${stack.region}:${
-                                stack.accountId
-                            }:/aws/lambda/*`,
-                        )
-                        .addAction('logs:CreateLogGroup')
-                        .addAction('logs:CreateLogStream')
-                        .addAction('logs:PutLogEvents'),
-                    new PolicyStatement(PolicyStatementEffect.Allow)
-                        .addResource(aggregateEventsTable.table.tableArn)
-                        .addAction('dynamodb:PutItem'),
-                ],
-                environment: {
-                    AGGREGATE_EVENTS_TABLE:
-                        aggregateEventsTable.table.tableName,
-                },
-                layers: [baseLayer],
-            },
-        );
-
-        new LogGroup(this, 'createAccountMutationLogGroup', {
-            retainLogGroup: false,
-            logGroupName: `/aws/lambda/${createAccountMutation.functionName}`,
-            retentionDays: 7,
-        });
-
-        new GQLLambdaResolver(
-            this,
+            stack,
+            baseLayer,
             this.api,
             'createAccount',
             'Mutation',
-            createAccountMutation,
+            lambdas.createAccountMutation,
+            [
+                new PolicyStatement(PolicyStatementEffect.Allow)
+                    .addResource(aggregateEventsTable.table.tableArn)
+                    .addAction('dynamodb:PutItem'),
+            ],
+            {
+                AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
+            },
+        );
+
+        gqlLambda(
+            this,
+            stack,
+            baseLayer,
+            this.api,
+            'accounts',
+            'Query',
+            lambdas.accountsQuery,
+            [
+                new PolicyStatement(PolicyStatementEffect.Allow)
+                    .addResource(accountsTable.table.tableArn)
+                    .addAction('dynamodb:Query'),
+            ],
+            {
+                ACCOUNTS_TABLE: accountsTable.table.tableName,
+            },
         );
     }
 }
+
+const gqlLambda = (
+    parent: Construct,
+    stack: Stack,
+    baseLayer: ILayerVersion,
+    api: CfnGraphQLApi,
+    field: string,
+    type: 'Query' | 'Mutation',
+    lambda: Code,
+    policies: PolicyStatement[],
+    environment: {
+        [key: string]: any;
+    },
+) => {
+    const f = new Function(parent, `${field}${type}`, {
+        handler: 'index.handler',
+        runtime: Runtime.NodeJS810,
+        timeout: 30,
+        memorySize: 1792,
+        initialPolicy: [
+            new PolicyStatement(PolicyStatementEffect.Allow)
+                .addResource(
+                    `arn:aws:logs:${stack.region}:${
+                        stack.accountId
+                    }:/aws/lambda/*`,
+                )
+                .addAction('logs:CreateLogGroup')
+                .addAction('logs:CreateLogStream')
+                .addAction('logs:PutLogEvents'),
+            ...policies,
+        ],
+        environment,
+        layers: [baseLayer],
+        code: lambda,
+    });
+
+    new LogGroup(parent, `${field}${type}LogGroup`, {
+        retainLogGroup: false,
+        logGroupName: `/aws/lambda/${f.functionName}`,
+        retentionDays: 7,
+    });
+
+    new GQLLambdaResolver(parent, api, field, type, f);
+};
