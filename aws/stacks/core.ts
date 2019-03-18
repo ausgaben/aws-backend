@@ -76,7 +76,7 @@ export class CoreStack extends Stack {
             this.accountsTable,
         );
 
-        new ApiFeature(
+        const api = new ApiFeature(
             this,
             'api',
             {
@@ -89,5 +89,10 @@ export class CoreStack extends Stack {
             this.aggregateEventsTable,
             this.cognito.userRole,
         );
+
+        new Output(this, 'apiUrl', {
+            value: api.api.graphQlApiGraphQlUrl,
+            export: `${this.name}:apiUrl`,
+        });
     }
 }
