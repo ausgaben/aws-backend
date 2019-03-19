@@ -8,6 +8,6 @@ export type AggregateMeta = {
 };
 
 export type Aggregate = {
-    $meta: AggregateMeta;
+    _meta: AggregateMeta;
     [key: string]: any;
 };

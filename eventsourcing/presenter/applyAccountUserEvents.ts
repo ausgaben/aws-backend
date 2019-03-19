@@ -1,31 +1,34 @@
 import { AggregateEvent } from '../AggregateEvent';
-import { Account, AccountAggregateName } from '../../account/Account';
+import {
+    AccountUser,
+    AccountUserAggregateName,
+} from '../../accountUser/AccountUser';
 import {
     AggregatePresentation,
     AggregateSnapshot,
     Create,
 } from './presentation';
 import {
-    AccountCreatedEvent,
-    AccountCreatedEventName,
-} from '../../events/AccountCreated';
+    AccountUserCreatedEvent,
+    AccountUserCreatedEventName,
+} from '../../events/AccountUserCreated';
 
-export const applyAccountEvents = (
-    snapshot: AggregateSnapshot<Account>,
+export const applyAccountUserEvents = (
+    snapshot: AggregateSnapshot<AccountUser>,
     events: AggregateEvent[],
 ): AggregatePresentation =>
     events.reduce(
         (presentation, event) => {
             switch (event.eventName) {
-                case AccountCreatedEventName:
-                    const { name, isSavingsAccount } = (<AccountCreatedEvent>(
+                case AccountUserCreatedEventName:
+                    const { accountId, userId } = (<AccountUserCreatedEvent>(
                         event
                     )).eventPayload;
-                    return Create<Account>({
-                        name,
-                        isSavingsAccount,
+                    return Create<AccountUser>({
+                        accountId,
+                        userId,
                         _meta: {
-                            name: AccountAggregateName,
+                            name: AccountUserAggregateName,
                             uuid: snapshot.aggregateUUID,
                             version: 1,
                             createdAt: event.eventCreatedAt,

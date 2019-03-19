@@ -8,10 +8,7 @@ import { ValidationFailedError } from '../../../errors/ValidationFailedError';
 import { UUIDv4 } from '../../../validation/UUIDv4';
 import { PersistedEvent } from '../PersistedEvent';
 import * as AggregateEventRepository from '../getByAggregateUUID';
-
-type DynamoDBItem = {
-    [key: string]: _UnmarshalledAttributeValue;
-};
+import { DynamoDBItem } from '../../aggregateRepository/dynamodb/DynamoDBItem';
 
 const fetchEvents = async (
     dynamodb: DynamoDBClient,

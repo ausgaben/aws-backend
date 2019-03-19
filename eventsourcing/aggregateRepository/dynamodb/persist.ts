@@ -3,7 +3,7 @@ import {
     DynamoDBClient,
     UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb-v2-node';
-import * as AggregateRepository from '../../aggregateRepository/persist';
+import * as AggregateRepository from '../persist';
 import { Aggregate } from '../Aggregate';
 import { NonEmptyString } from '../../../validation/NonEmptyString';
 import { ValidationFailedError } from '../../../errors/ValidationFailedError';
@@ -60,35 +60,35 @@ export const persist = <A extends Aggregate>(
                 {} as DynamoDBItem,
             ),
             ':version': {
-                N: `${aggregate.$meta.version}`,
+                N: `${aggregate._meta.version}`,
             },
             ':createdAt': {
-                S: aggregate.$meta.createdAt.toISOString(),
+                S: aggregate._meta.createdAt.toISOString(),
             },
         };
-        if (aggregate.$meta.updatedAt) {
+        if (aggregate._meta.updatedAt) {
             fields.push('#updatedAt');
             values[':updatedAt'] = {
-                S: aggregate.$meta.updatedAt
-                    ? aggregate.$meta.updatedAt.toISOString()
+                S: aggregate._meta.updatedAt
+                    ? aggregate._meta.updatedAt.toISOString()
                     : undefined,
             };
         }
-        if (aggregate.$meta.deletedAt) {
+        if (aggregate._meta.deletedAt) {
             fields.push('#deletedAt');
             values[':deletedAt'] = {
-                S: aggregate.$meta.deletedAt
-                    ? aggregate.$meta.deletedAt.toISOString()
+                S: aggregate._meta.deletedAt
+                    ? aggregate._meta.deletedAt.toISOString()
                     : '',
             };
         }
         let ConditionExpression;
-        if (aggregate.$meta.version === 1) {
+        if (aggregate._meta.version === 1) {
             ConditionExpression = 'attribute_not_exists(aggregateUUID)';
         } else {
             ConditionExpression = 'version < :nextversion';
             values[':nextversion'] = {
-                N: `${aggregate.$meta.version}`,
+                N: `${aggregate._meta.version}`,
             };
         }
 
@@ -98,7 +98,7 @@ export const persist = <A extends Aggregate>(
                     TableName,
                     Key: {
                         aggregateUUID: {
-                            S: aggregate.$meta.uuid,
+                            S: aggregate._meta.uuid,
                         },
                     },
                     UpdateExpression: `SET ${fields
@@ -120,7 +120,7 @@ export const persist = <A extends Aggregate>(
         } catch (error) {
             if (error.name === 'ConditionalCheckFailedException') {
                 throw new ConflictError(
-                    `Failed to persist "${aggregate.$meta.uuid}"!`,
+                    `Failed to persist "${aggregate._meta.uuid}"!`,
                 );
             }
             throw error;

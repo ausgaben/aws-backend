@@ -7,10 +7,12 @@ import { Code, LayerVersion, Runtime } from '@aws-cdk/aws-lambda';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { AusgabenLayeredLambdas } from '../resources/lambdas';
 import { ApiFeature } from '../features/api';
+import { AccountUsersTable } from '../resources/account-users-table';
 
 export class CoreStack extends Stack {
     public readonly aggregateEventsTable: AggregateEventsTable;
     public readonly accountsTable: AccountsTable;
+    public readonly accountUsersTable: AccountUsersTable;
     public readonly cognito: Cognito;
 
     constructor(
@@ -36,6 +38,16 @@ export class CoreStack extends Stack {
         new Output(this, 'accountsTableName', {
             value: this.accountsTable.table.tableName,
             export: `${this.name}:accountsTableName`,
+        });
+
+        this.accountUsersTable = new AccountUsersTable(
+            this,
+            'accountUsersTable',
+        );
+
+        new Output(this, 'accountUsersTableName', {
+            value: this.accountUsersTable.table.tableName,
+            export: `${this.name}:accountUsersTableName`,
         });
 
         this.cognito = new Cognito(this, 'cognito');
@@ -74,6 +86,7 @@ export class CoreStack extends Stack {
             baseLayer,
             this.aggregateEventsTable,
             this.accountsTable,
+            this.accountUsersTable,
         );
 
         const api = new ApiFeature(
@@ -92,6 +105,7 @@ export class CoreStack extends Stack {
             baseLayer,
             this.aggregateEventsTable,
             this.accountsTable,
+            this.accountUsersTable,
             this.cognito.userRole,
         );
 

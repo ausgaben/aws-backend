@@ -14,6 +14,7 @@ import { readFileSync } from 'fs';
 import * as path from 'path';
 import { GQLLambdaResolver } from '../resources/GQLLambdaResolver';
 import { AccountsTable } from '../resources/accounts-table';
+import { AccountUsersTable } from '../resources/account-users-table';
 
 export class ApiFeature extends Construct {
     public readonly api: CfnGraphQLApi;
@@ -28,6 +29,7 @@ export class ApiFeature extends Construct {
         baseLayer: ILayerVersion,
         aggregateEventsTable: AggregateEventsTable,
         accountsTable: AccountsTable,
+        accountUsersTable: AccountUsersTable,
         userRole: IRole,
     ) {
         super(stack, id);
@@ -112,10 +114,16 @@ export class ApiFeature extends Construct {
             [
                 new PolicyStatement(PolicyStatementEffect.Allow)
                     .addResource(accountsTable.table.tableArn)
-                    .addAction('dynamodb:Query'),
+                    .addResource(`${accountsTable.table.tableArn}/*`)
+                    .addResource(accountUsersTable.table.tableArn)
+                    .addResource(`${accountUsersTable.table.tableArn}/*`)
+                    .addAction('dynamodb:Query')
+                    .addAction('dynamodb:GetItem')
+                    .addAction('dynamodb:BatchGetItem'),
             ],
             {
                 ACCOUNTS_TABLE: accountsTable.table.tableName,
+                ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
             },
         );
     }

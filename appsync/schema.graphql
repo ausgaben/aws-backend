@@ -1,7 +1,11 @@
 type Account {
     name: String!
     isSavingsAccount: Boolean!
-    meta: EntityMeta!
+    _meta: EntityMeta!
+}
+
+input accountsFilterInput {
+    uuid: ID!
 }
 
 type AccountsQueryResult {
@@ -18,11 +22,11 @@ type EntityMeta {
 }
 
 type Mutation {
-    createAccount(name: String!, isSavingsAccount: Boolean): Boolean!
+    createAccount(name: String!, isSavingsAccount: Boolean): Boolean
 }
 
 type Query {
-    accounts(startKey: ID): AccountsQueryResult!
+    accounts(filter: accountsFilterInput, startKey: ID): AccountsQueryResult!
 }
 
 type Schema {

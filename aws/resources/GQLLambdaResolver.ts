@@ -57,7 +57,7 @@ export class GQLLambdaResolver extends Construct {
                 '#if( $context.result && $context.result.errorMessage )\n' +
                 '  $utils.error($context.result.errorMessage, $context.result.errorType, $context.result.data, $context.result.errorInfo)\n' +
                 '#else\n' +
-                '  $utils.toJson($context.result.data)\n' +
+                '  $utils.toJson($context.result)\n' +
                 '#end',
         });
     }

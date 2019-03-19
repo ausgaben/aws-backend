@@ -18,10 +18,12 @@ export const handler = async (
     context: Context,
 ) => {
     try {
-        await createAccount(persist, event.name, event.isSavingsAccount);
-        return {
-            data: true,
-        };
+        await createAccount(
+            persist,
+            event.cognitoIdentityId,
+            event.name,
+            event.isSavingsAccount,
+        );
     } catch (error) {
         return GQLError(context, error);
     }

@@ -10,6 +10,7 @@ import {
 } from '@aws-cdk/aws-lambda';
 import { LogGroup } from '@aws-cdk/aws-logs';
 import { AccountsTable } from '../resources/accounts-table';
+import { AccountUsersTable } from '../resources/account-users-table';
 import { AggregateEventsTable } from '../resources/aggregate-events-table';
 
 export class EventSourcingFeature extends Construct {
@@ -20,12 +21,12 @@ export class EventSourcingFeature extends Construct {
         baseLayer: ILayerVersion,
         aggregateEventsTable: AggregateEventsTable,
         accountsTable: AccountsTable,
+        accountUsersTable: AccountUsersTable,
     ) {
         super(stack, id);
 
         const l = new Function(this, 'eventReducer', {
             code: eventReducerLambda,
-
             handler: 'index.handler',
             runtime: Runtime.NodeJS810,
             timeout: 300,
@@ -45,6 +46,7 @@ export class EventSourcingFeature extends Construct {
                     .addAction('logs:PutLogEvents'),
                 new PolicyStatement(PolicyStatementEffect.Allow)
                     .addResource(accountsTable.table.tableArn)
+                    .addResource(accountUsersTable.table.tableArn)
                     .addActions('dynamodb:PutItem')
                     .addAction('dynamodb:GetItem')
                     .addAction('dynamodb:DeleteItem')
@@ -61,6 +63,7 @@ export class EventSourcingFeature extends Construct {
             ],
             environment: {
                 ACCOUNTS_TABLE: accountsTable.table.tableName,
+                ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
             },
             layers: [baseLayer],
         });

@@ -1,12 +1,12 @@
 import { AggregateMeta } from '../../../eventsourcing/aggregateRepository/Aggregate';
-import { Account } from '../../Account';
+import { AccountUser } from '../../AccountUser';
 import { DynamoDBItem } from '../../../eventsourcing/aggregateRepository/dynamodb/DynamoDBItem';
 
 export const itemToAggregate = (
     item: DynamoDBItem,
     _meta: AggregateMeta,
-): Account => ({
-    name: item.name.S!,
-    isSavingsAccount: item.isSavingsAccount.BOOL!,
+): AccountUser => ({
+    accountId: item.accountId.S!,
+    userId: item.userId.S!,
     _meta,
 });
