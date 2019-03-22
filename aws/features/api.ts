@@ -24,6 +24,7 @@ export class ApiFeature extends Construct {
         id: string,
         lambdas: {
             createAccountMutation: Code;
+            deleteAccountMutation: Code;
             accountsQuery: Code;
         },
         baseLayer: ILayerVersion,
@@ -100,6 +101,34 @@ export class ApiFeature extends Construct {
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
+            },
+        );
+
+        gqlLambda(
+            this,
+            stack,
+            baseLayer,
+            this.api,
+            'deleteAccount',
+            'Mutation',
+            lambdas.deleteAccountMutation,
+            [
+                new PolicyStatement(PolicyStatementEffect.Allow)
+                    .addResource(aggregateEventsTable.table.tableArn)
+                    .addAction('dynamodb:PutItem'),
+                new PolicyStatement(PolicyStatementEffect.Allow)
+                    .addResource(accountsTable.table.tableArn)
+                    .addResource(`${accountsTable.table.tableArn}/*`)
+                    .addResource(accountUsersTable.table.tableArn)
+                    .addResource(`${accountUsersTable.table.tableArn}/*`)
+                    .addAction('dynamodb:Query')
+                    .addAction('dynamodb:GetItem')
+                    .addAction('dynamodb:BatchGetItem'),
+            ],
+            {
+                AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
+                ACCOUNTS_TABLE: accountsTable.table.tableName,
+                ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
             },
         );
 

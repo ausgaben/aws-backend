@@ -7,6 +7,7 @@ import { groupEvents } from './groupEvents';
 import { applyAccountEvents } from '../presenter/applyAccountEvents';
 import { getByUUID as getByUUIDDynamoDB } from '../aggregateRepository/dynamodb/getByUUID';
 import { persist as persistDynamoDB } from '../aggregateRepository/dynamodb/persist';
+import { remove as removeDynamoDB } from '../aggregateRepository/dynamodb/remove';
 import { findByUUID } from '../aggregateRepository/findByUUID';
 import { processGroupedEvents } from './processGroupedEvents';
 import { itemToAggregate as accountItemToAggregate } from '../../account/repository/dynamodb/itemToAggregate';
@@ -40,6 +41,7 @@ const persistAccount = persistDynamoDB<Account>(
         },
     }),
 );
+const removeAccount = removeDynamoDB<Account>(db, accountsTableName);
 
 const getAccountUserByUUID = getByUUIDDynamoDB<AccountUser>(
     db,
@@ -61,6 +63,11 @@ const persistAccountUser = persistDynamoDB<AccountUser>(
     }),
 );
 
+const removeAccountUser = removeDynamoDB<AccountUser>(
+    db,
+    accountUsersTableName,
+);
+
 export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
     const events = event.Records.filter(
         ({ eventName, eventSource }) =>
@@ -78,12 +85,14 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
             applyAccountEvents,
             findAccountAggregate,
             persistAccount,
+            removeAccount,
         ),
         processGroupedEvents(
             accountUserEvents,
             applyAccountUserEvents,
             findAccountUserAggregate,
             persistAccountUser,
+            removeAccountUser,
         ),
     ]);
 };

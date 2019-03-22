@@ -97,6 +97,10 @@ export class CoreStack extends Stack {
                     sourceCodeBucket,
                     layeredLambdas.lambdaZipFileNames.createAccountMutation,
                 ),
+                deleteAccountMutation: Code.bucket(
+                    sourceCodeBucket,
+                    layeredLambdas.lambdaZipFileNames.deleteAccountMutation,
+                ),
                 accountsQuery: Code.bucket(
                     sourceCodeBucket,
                     layeredLambdas.lambdaZipFileNames.accountsQuery,

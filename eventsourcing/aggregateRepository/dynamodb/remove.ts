@@ -10,7 +10,7 @@ import { ValidationFailedError } from '../../../errors/ValidationFailedError';
 export const remove = <A extends Aggregate>(
     dynamodb: DynamoDBClient,
     TableName: string,
-): AggregateRepository.removeD<A> => {
+): AggregateRepository.remove<A> => {
     TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
         throw new ValidationFailedError(
             'aggregateRepository/dynamodb/removeD()',

@@ -13,6 +13,10 @@ type AccountsQueryResult {
     items: [Account]!
 }
 
+type CreateEntityResult {
+    uuid: ID!
+}
+
 type EntityMeta {
     uuid: ID!
     createdAt: String!
@@ -22,7 +26,8 @@ type EntityMeta {
 }
 
 type Mutation {
-    createAccount(name: String!, isSavingsAccount: Boolean): Boolean
+    createAccount(name: String!, isSavingsAccount: Boolean): CreateEntityResult!
+    deleteAccount(uuid: ID!): Boolean
 }
 
 type Query {

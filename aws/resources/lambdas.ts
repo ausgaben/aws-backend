@@ -5,6 +5,7 @@ import { packLayeredLambdasForCloudFormation } from '../packLambdas';
 export type AusgabenLayeredLambdas = LayeredLambdas<{
     eventReducer: string;
     createAccountMutation: string;
+    deleteAccountMutation: string;
     accountsQuery: string;
 }>;
 
@@ -25,6 +26,12 @@ export const lambdas = async (
             'appsync',
             'mutations',
             'createAccount.ts',
+        ),
+        deleteAccountMutation: path.resolve(
+            rootDir,
+            'appsync',
+            'mutations',
+            'deleteAccount.ts',
         ),
         accountsQuery: path.resolve(
             rootDir,

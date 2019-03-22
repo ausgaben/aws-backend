@@ -61,6 +61,17 @@ export type UpdateAggregatePresentation<
 /**
  * The Aggregate was deleted. It should be removed from the collection.
  */
-export type DeleteAggregatePresentation = AggregatePresentation & {
+export type DeleteAggregatePresentation<
+    A extends Aggregate
+> = AggregatePresentation & {
+    aggregate: A;
     type: AggregatePresentationStates.Delete;
 };
+
+export const Delete = <A extends Aggregate>(
+    aggregate: A,
+): DeleteAggregatePresentation<A> => ({
+    aggregateUUID: aggregate.aggregateUUID,
+    aggregate,
+    type: AggregatePresentationStates.Delete,
+});

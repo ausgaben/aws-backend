@@ -5,10 +5,12 @@ import {
     AggregatePresentationStates,
     AggregateSnapshot,
     CreateAggregatePresentation,
+    DeleteAggregatePresentation,
     Snapshot,
 } from '../presenter/presentation';
 import { Aggregate } from '../aggregateRepository/Aggregate';
 import { persist } from '../aggregateRepository/persist';
+import { remove } from '../aggregateRepository/remove';
 
 type AggregateEvents = {
     [key: string]: (AggregateEvent | AggregateEventWithPayload)[];
@@ -25,6 +27,7 @@ export const processGroupedEvents = async <A extends Aggregate>(
     ) => AggregatePresentation,
     findAggregate: findByUUID<A>,
     persist: persist<A>,
+    remove: remove<A>,
 ): Promise<void> => {
     await Promise.all(
         Object.keys(events).map(async aggregateUUID => {
@@ -41,6 +44,12 @@ export const processGroupedEvents = async <A extends Aggregate>(
                     case AggregatePresentationStates.Create:
                         await persist(
                             (<CreateAggregatePresentation<A>>presentation)
+                                .aggregate,
+                        );
+                        break;
+                    case AggregatePresentationStates.Delete:
+                        await remove(
+                            (<DeleteAggregatePresentation<A>>presentation)
                                 .aggregate,
                         );
                 }

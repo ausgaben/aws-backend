@@ -4,11 +4,13 @@ import {
     AggregatePresentation,
     AggregateSnapshot,
     Create,
+    Delete,
 } from './presentation';
 import {
     AccountCreatedEvent,
     AccountCreatedEventName,
 } from '../../events/AccountCreated';
+import { AccountDeletedEventName } from '../../events/AccountDeleted';
 
 export const applyAccountEvents = (
     snapshot: AggregateSnapshot<Account>,
@@ -29,6 +31,17 @@ export const applyAccountEvents = (
                             uuid: snapshot.aggregateUUID,
                             version: 1,
                             createdAt: event.eventCreatedAt,
+                        },
+                    });
+                case AccountDeletedEventName:
+                    const aggregate = (<AggregateSnapshot<Account>>presentation)
+                        .aggregate!;
+                    return Delete({
+                        ...aggregate,
+                        _meta: {
+                            ...aggregate._meta,
+                            version: aggregate._meta.version + 1,
+                            deletedAt: event.eventCreatedAt,
                         },
                     });
                 default:
