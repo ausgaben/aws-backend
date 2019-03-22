@@ -32,6 +32,7 @@ export const findByUserId = (
         const { Items, LastEvaluatedKey } = await dynamodb.send(
             new QueryCommand({
                 TableName,
+                Limit: 10,
                 IndexName: 'userIdIndex',
                 KeyConditionExpression: `userId = :userId`,
                 ExpressionAttributeValues: {

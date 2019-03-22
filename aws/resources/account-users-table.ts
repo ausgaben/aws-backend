@@ -24,12 +24,15 @@ export class AccountUsersTable extends Construct {
 
         this.table.addGlobalSecondaryIndex({
             indexName: 'userIdIndex',
-            projectionType: ProjectionType.Include,
+            projectionType: ProjectionType.KeysOnly,
             partitionKey: {
                 name: 'userId',
                 type: AttributeType.String,
             },
-            nonKeyAttributes: ['accountId'],
+            sortKey: {
+                name: 'accountId',
+                type: AttributeType.String,
+            },
         });
 
         this.table.addGlobalSecondaryIndex({
@@ -37,6 +40,10 @@ export class AccountUsersTable extends Construct {
             projectionType: ProjectionType.KeysOnly,
             partitionKey: {
                 name: 'accountId',
+                type: AttributeType.String,
+            },
+            sortKey: {
+                name: 'userId',
                 type: AttributeType.String,
             },
         });

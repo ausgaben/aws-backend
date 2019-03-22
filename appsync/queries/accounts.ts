@@ -5,6 +5,7 @@ import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId
 import { getById } from '../../eventsourcing/aggregateRepository/dynamodb/getById';
 import { AccountAggregateName } from '../../account/Account';
 import { itemToAggregate } from '../../account/repository/dynamodb/itemToAggregate';
+import { decodeStartKey, encodeStartKey } from '../startKey';
 
 const db = new DynamoDBClient({});
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE!;
@@ -31,6 +32,7 @@ export const handler = async (
     try {
         const { items, nextStartKey } = await findAccountUserByUserId(
             event.cognitoIdentityId,
+            decodeStartKey(event.startKey),
         );
         return {
             items: await Promise.all(
@@ -43,7 +45,7 @@ export const handler = async (
                     })
                     .map(({ accountId }) => getAccountById(accountId)),
             ),
-            nextStartKey,
+            nextStartKey: encodeStartKey(nextStartKey),
         };
     } catch (error) {
         return GQLError(context, error);

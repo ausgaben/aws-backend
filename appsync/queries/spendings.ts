@@ -5,6 +5,7 @@ import { findByAccountId } from '../../spending/repository/dynamodb/findByAccoun
 import { canAccessAccount } from '../../accountUser/canAccessAccount';
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId';
 import { currencies } from '../../currency/currencies';
+import { decodeStartKey, encodeStartKey } from '../startKey';
 
 const db = new DynamoDBClient({});
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE!;
@@ -31,6 +32,7 @@ export const handler = async (
         });
         const { items, nextStartKey } = await findSpendingsByAccountId(
             event.accountId,
+            decodeStartKey(event.startKey),
         );
         return {
             items: items.map(item => ({
@@ -38,7 +40,7 @@ export const handler = async (
                 bookedAt: item.bookedAt.toISOString(),
                 currency: currencies.find(({ id }) => item.currencyId === id),
             })),
-            nextStartKey,
+            nextStartKey: encodeStartKey(nextStartKey),
         };
     } catch (error) {
         return GQLError(context, error);

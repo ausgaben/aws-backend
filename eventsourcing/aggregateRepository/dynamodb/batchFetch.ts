@@ -21,20 +21,30 @@ export const batchFetch = async <A extends Aggregate>(
     aggregateName: string,
     fields: string[],
     itemToAggregate: (item: DynamoDBItem, _meta: AggregateMeta) => A,
-    items?: DynamoDBItem[],
+    keys: DynamoDBItem[] = [],
     nextStartKey?: any,
-): Promise<PaginatedResult<A>> => ({
-    items:
-        items && items.length
-            ? (await dynamoBatchGetItems(
-                  dynamodb,
-                  TableName,
-                  [...new Set([...fields, ...aggregateFields])],
-                  items,
-              )).map(item => itemToAggregate(item, toMeta(aggregateName, item)))
-            : [],
-    nextStartKey,
-});
+): Promise<PaginatedResult<A>> => {
+    const items = keys.length
+        ? (await dynamoBatchGetItems(
+              dynamodb,
+              TableName,
+              [...new Set([...fields, ...aggregateFields])],
+              keys,
+          )).map(item => itemToAggregate(item, toMeta(aggregateName, item)))
+        : [];
+
+    // Sort items by given keys, so the returned list is stable.
+    // DynamoDB BatchGetItems does not guarantee the order of returned values
+    const sortedItems = keys.map(
+        ({ aggregateId: { S: id } }) =>
+            items.find(item => item._meta.id === id)!,
+    );
+
+    return {
+        items: sortedItems,
+        nextStartKey,
+    };
+};
 
 const dynamoBatchGetItems = (
     dynamodb: DynamoDBClient,
