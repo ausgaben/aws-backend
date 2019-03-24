@@ -28,10 +28,10 @@ export const createAccount = (
             throw new ValidationFailedError('createAccount()', errors);
         });
     const e: AccountCreatedEvent = {
-        eventUUID: v4(),
+        eventId: v4(),
         eventName: AccountCreatedEventName,
         aggregateName: AccountAggregateName,
-        aggregateUUID: v4(),
+        aggregateId: v4(),
         eventCreatedAt: new Date(),
         eventPayload: {
             name,

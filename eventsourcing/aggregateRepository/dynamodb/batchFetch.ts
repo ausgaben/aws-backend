@@ -8,7 +8,7 @@ import { Aggregate, AggregateMeta } from '../Aggregate';
 import { toMeta } from './toMeta';
 
 const aggregateFields = [
-    'aggregateUUID',
+    'aggregateId',
     'version',
     'createdAt',
     'updatedAt',
@@ -59,8 +59,8 @@ const dynamoBatchGetItems = (
                                 [key: string]: string;
                             },
                         ),
-                        Keys: Keys.map(({ aggregateUUID }) => ({
-                            aggregateUUID,
+                        Keys: Keys.map(({ aggregateId }) => ({
+                            aggregateId,
                         })),
                     },
                 },

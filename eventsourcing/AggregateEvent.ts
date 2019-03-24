@@ -1,7 +1,7 @@
 import { Event } from './Event';
 
 export type AggregateEvent = Event & {
-    aggregateUUID: string;
+    aggregateId: string;
     aggregateName: string;
 };
 

@@ -2,7 +2,7 @@ import { Context } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node';
 import { GQLError } from '../GQLError';
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId';
-import { getByUUID } from '../../eventsourcing/aggregateRepository/dynamodb/getByUUID';
+import { getById } from '../../eventsourcing/aggregateRepository/dynamodb/getById';
 import { AccountAggregateName } from '../../account/Account';
 import { itemToAggregate } from '../../account/repository/dynamodb/itemToAggregate';
 
@@ -11,7 +11,7 @@ const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE!;
 const accountsTableName = process.env.ACCOUNTS_TABLE!;
 
 const findAccountUserByUserId = findByUserId(db, accountUsersTableName);
-const getAccountByUUID = getByUUID(
+const getAccountById = getById(
     db,
     accountsTableName,
     AccountAggregateName,
@@ -22,7 +22,7 @@ export const handler = async (
     event: {
         cognitoIdentityId: string;
         filter?: {
-            uuid: string;
+            accountId: string;
         };
         startKey?: string;
     },
@@ -39,9 +39,9 @@ export const handler = async (
                         if (!event.filter) {
                             return true;
                         }
-                        return event.filter.uuid === accountId;
+                        return event.filter.accountId === accountId;
                     })
-                    .map(({ accountId }) => getAccountByUUID(accountId)),
+                    .map(({ accountId }) => getAccountById(accountId)),
             ),
             nextStartKey,
         };

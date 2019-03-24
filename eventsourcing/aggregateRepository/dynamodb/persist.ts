@@ -14,7 +14,7 @@ type DynamoDBItem = {
 };
 
 const reservedItemKeys = [
-    'aggregateUUID',
+    'aggregateId',
     'version',
     'createdAt',
     'updatedAt',
@@ -84,7 +84,7 @@ export const persist = <A extends Aggregate>(
         }
         let ConditionExpression;
         if (aggregate._meta.version === 1) {
-            ConditionExpression = 'attribute_not_exists(aggregateUUID)';
+            ConditionExpression = 'attribute_not_exists(aggregateId)';
         } else {
             ConditionExpression = 'version < :nextversion';
             values[':nextversion'] = {
@@ -97,8 +97,8 @@ export const persist = <A extends Aggregate>(
                 new UpdateItemCommand({
                     TableName,
                     Key: {
-                        aggregateUUID: {
-                            S: aggregate._meta.uuid,
+                        aggregateId: {
+                            S: aggregate._meta.id,
                         },
                     },
                     UpdateExpression: `SET ${fields
@@ -120,7 +120,7 @@ export const persist = <A extends Aggregate>(
         } catch (error) {
             if (error.name === 'ConditionalCheckFailedException') {
                 throw new ConflictError(
-                    `Failed to persist "${aggregate._meta.uuid}"!`,
+                    `Failed to persist "${aggregate._meta.id}"!`,
                 );
             }
             throw error;

@@ -5,7 +5,7 @@ type Account {
 }
 
 input accountsFilterInput {
-    uuid: ID!
+    accountId: ID!
 }
 
 type AccountsQueryResult {
@@ -14,11 +14,16 @@ type AccountsQueryResult {
 }
 
 type CreateEntityResult {
-    uuid: ID!
+    id: ID!
+}
+
+type Currency {
+    id: ID!
+    toEUR: Float!
 }
 
 type EntityMeta {
-    uuid: ID!
+    id: ID!
     createdAt: String!
     updatedAt: String
     version: Int!
@@ -27,14 +32,36 @@ type EntityMeta {
 
 type Mutation {
     createAccount(name: String!, isSavingsAccount: Boolean): CreateEntityResult!
-    deleteAccount(uuid: ID!): Boolean
+    deleteAccount(accountId: ID!): Boolean
+    createSpending(accountId: ID!, bookedAt: String!, category: String!, description: String!, amount: Int!,
+        currencyId: ID!, isIncome: Boolean, isPending: Boolean, paidWith: String): CreateEntityResult!
+    deleteSpending(spendingId: ID!): Boolean
 }
 
 type Query {
     accounts(filter: accountsFilterInput, startKey: ID): AccountsQueryResult!
+    spendings(accountId: ID!, startKey: ID): SpendingsQueryResult!
 }
 
 type Schema {
     mutation: Mutation
     query: Query
+}
+
+type Spending {
+    account: Account!
+    bookedAt: String!
+    category: String!
+    description: String!
+    amount: Int!
+    currency: Currency!
+    isIncome: Boolean!
+    isPending: Boolean!
+    paidWith: String
+    _meta: EntityMeta!
+}
+
+type SpendingsQueryResult {
+    nextStartKey: ID
+    items: [Spending]!
 }

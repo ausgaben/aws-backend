@@ -1,6 +1,6 @@
 export type AggregateMeta = {
     name: string;
-    uuid: string;
+    id: string;
     version: number;
     createdAt: Date;
     updatedAt?: Date;
@@ -9,5 +9,4 @@ export type AggregateMeta = {
 
 export type Aggregate = {
     _meta: AggregateMeta;
-    [key: string]: any;
 };

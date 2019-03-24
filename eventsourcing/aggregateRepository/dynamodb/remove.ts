@@ -22,8 +22,8 @@ export const remove = <A extends Aggregate>(
             new DeleteItemCommand({
                 TableName,
                 Key: {
-                    aggregateUUID: {
-                        S: aggregate._meta.uuid,
+                    aggregateId: {
+                        S: aggregate._meta.id,
                     },
                 },
             }),

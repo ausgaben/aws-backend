@@ -7,13 +7,13 @@ import { NonEmptyString } from '../../../validation/NonEmptyString';
 import { ValidationFailedError } from '../../../errors/ValidationFailedError';
 import { UUIDv4 } from '../../../validation/UUIDv4';
 import { PersistedEvent } from '../PersistedEvent';
-import * as AggregateEventRepository from '../getByAggregateUUID';
+import * as AggregateEventRepository from '../getByAggregateId';
 import { DynamoDBItem } from '../../aggregateRepository/dynamodb/DynamoDBItem';
 
 const fetchEvents = async (
     dynamodb: DynamoDBClient,
     TableName: string,
-    aggregateUUID: string,
+    aggregateId: string,
     events: DynamoDBItem[] = [],
     ExclusiveStartKey?: DynamoDBItem,
 ): Promise<DynamoDBItem[]> => {
@@ -22,9 +22,9 @@ const fetchEvents = async (
             TableName,
             ExclusiveStartKey,
             KeyConditionExpression:
-                'aggregateUUID = :aggregateUUID AND insertedAtNanotime > :insertedAtNanotime',
+                'aggregateId = :aggregateId AND insertedAtNanotime > :insertedAtNanotime',
             ExpressionAttributeValues: {
-                ':aggregateUUID': { S: aggregateUUID },
+                ':aggregateId': { S: aggregateId },
                 ':insertedAtNanotime': { N: '0' },
             },
         }),
@@ -36,7 +36,7 @@ const fetchEvents = async (
         return fetchEvents(
             dynamodb,
             TableName,
-            aggregateUUID,
+            aggregateId,
             events,
             LastEvaluatedKey,
         );
@@ -44,33 +44,33 @@ const fetchEvents = async (
     return events;
 };
 
-export const getByAggregateUUID = (
+export const getByAggregateId = (
     dynamodb: DynamoDBClient,
     TableName: string,
-): AggregateEventRepository.getByAggregateUUID => {
+): AggregateEventRepository.getByAggregateId => {
     TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
         throw new ValidationFailedError(
-            'aggregateEventRepository/dynamodb/getByAggregateUUID()',
+            'aggregateEventRepository/dynamodb/getByAggregateId()',
             errors,
         );
     });
-    return async (aggregateUUID: string): Promise<PersistedEvent[]> => {
-        aggregateUUID = UUIDv4.decode(aggregateUUID).getOrElseL(errors => {
+    return async (aggregateId: string): Promise<PersistedEvent[]> => {
+        aggregateId = UUIDv4.decode(aggregateId).getOrElseL(errors => {
             throw new ValidationFailedError(
-                'aggregateEventRepository/dynamodb/getByAggregateUUID()',
+                'aggregateEventRepository/dynamodb/getByAggregateId()',
                 errors,
             );
         });
 
-        const events = await fetchEvents(dynamodb, TableName, aggregateUUID);
+        const events = await fetchEvents(dynamodb, TableName, aggregateId);
 
         return events.map(event => ({
-            eventUUID: event.eventUUID.S!,
+            eventId: event.eventId.S!,
             eventName: event.eventName.S!,
             eventCreatedAt: new Date(event.eventCreatedAt.S!),
             insertedAtNanotime: event.insertedAtNanotime.N!,
             aggregateName: event.aggregateName.S!,
-            aggregateUUID: event.aggregateUUID.S!,
+            aggregateId: event.aggregateId.S!,
             eventPayload: event.eventPayload
                 ? JSON.parse(event.eventPayload.S!)
                 : undefined,

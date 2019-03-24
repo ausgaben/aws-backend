@@ -8,11 +8,13 @@ import { Bucket } from '@aws-cdk/aws-s3';
 import { AusgabenLayeredLambdas } from '../resources/lambdas';
 import { ApiFeature } from '../features/api';
 import { AccountUsersTable } from '../resources/account-users-table';
+import { SpendingsTable } from '../resources/spendings-table';
 
 export class CoreStack extends Stack {
     public readonly aggregateEventsTable: AggregateEventsTable;
     public readonly accountsTable: AccountsTable;
     public readonly accountUsersTable: AccountUsersTable;
+    public readonly spendingsTable: SpendingsTable;
     public readonly cognito: Cognito;
 
     constructor(
@@ -48,6 +50,13 @@ export class CoreStack extends Stack {
         new Output(this, 'accountUsersTableName', {
             value: this.accountUsersTable.table.tableName,
             export: `${this.name}:accountUsersTableName`,
+        });
+
+        this.spendingsTable = new SpendingsTable(this, 'spendingsTable');
+
+        new Output(this, 'spendingsTableName', {
+            value: this.spendingsTable.table.tableName,
+            export: `${this.name}:spendingsTableName`,
         });
 
         this.cognito = new Cognito(this, 'cognito');
@@ -87,6 +96,7 @@ export class CoreStack extends Stack {
             this.aggregateEventsTable,
             this.accountsTable,
             this.accountUsersTable,
+            this.spendingsTable,
         );
 
         const api = new ApiFeature(
@@ -105,11 +115,24 @@ export class CoreStack extends Stack {
                     sourceCodeBucket,
                     layeredLambdas.lambdaZipFileNames.accountsQuery,
                 ),
+                createSpendingMutation: Code.bucket(
+                    sourceCodeBucket,
+                    layeredLambdas.lambdaZipFileNames.createSpendingMutation,
+                ),
+                deleteSpendingMutation: Code.bucket(
+                    sourceCodeBucket,
+                    layeredLambdas.lambdaZipFileNames.deleteSpendingMutation,
+                ),
+                spendingsQuery: Code.bucket(
+                    sourceCodeBucket,
+                    layeredLambdas.lambdaZipFileNames.spendingsQuery,
+                ),
             },
             baseLayer,
             this.aggregateEventsTable,
             this.accountsTable,
             this.accountUsersTable,
+            this.spendingsTable,
             this.cognito.userRole,
         );
 

@@ -4,69 +4,77 @@ import { AggregateEvent } from '../AggregateEvent';
 import { Account, AccountAggregateName } from '../../account/Account';
 import { parseRecord } from './parseRecord';
 import { groupEvents } from './groupEvents';
-import { applyAccountEvents } from '../presenter/applyAccountEvents';
-import { getByUUID as getByUUIDDynamoDB } from '../aggregateRepository/dynamodb/getByUUID';
+import { applyEvents as applyAccountEvents } from '../../account/applyEvents';
+import { getById as getByIdDynamoDB } from '../aggregateRepository/dynamodb/getById';
 import { persist as persistDynamoDB } from '../aggregateRepository/dynamodb/persist';
 import { remove as removeDynamoDB } from '../aggregateRepository/dynamodb/remove';
-import { findByUUID } from '../aggregateRepository/findByUUID';
+import { findById } from '../aggregateRepository/findById';
 import { processGroupedEvents } from './processGroupedEvents';
 import { itemToAggregate as accountItemToAggregate } from '../../account/repository/dynamodb/itemToAggregate';
+import { aggregateToItem as accountToItem } from '../../account/repository/dynamodb/aggregateToItem';
 import { itemToAggregate as accountUserItemToAggregate } from '../../accountUser/repository/dynamodb/itemToAggregate';
+import { aggregateToItem as accountUserToItem } from '../../accountUser/repository/dynamodb/aggregateToItem';
 import {
     AccountUser,
     AccountUserAggregateName,
 } from '../../accountUser/AccountUser';
-import { applyAccountUserEvents } from '../presenter/applyAccountUserEvents';
+import { applyEvents as applyAccountUserEvents } from '../../accountUser/applyEvents';
+import { Spending, SpendingAggregateName } from '../../spending/Spending';
+import { itemToAggregate as spendingItemToAggregate } from '../../spending/repository/dynamodb/itemToAggregate';
+import { aggregateToItem as spendingToItem } from '../../spending/repository/dynamodb/aggregateToItem';
+import { applyEvents as applySpendingEvents } from '../../spending/applyEvents';
 
 const db = new DynamoDBClient({});
 const accountsTableName = process.env.ACCOUNTS_TABLE!;
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE!;
+const spendingsTableName = process.env.SPENDINGS_TABLE!;
 
-const getAccountByUUID = getByUUIDDynamoDB<Account>(
+const getAccountById = getByIdDynamoDB<Account>(
     db,
     accountsTableName,
     AccountAggregateName,
     accountItemToAggregate,
 );
-const findAccountAggregate = findByUUID<Account>(getAccountByUUID);
+const findAccountAggregate = findById<Account>(getAccountById);
 const persistAccount = persistDynamoDB<Account>(
     db,
     accountsTableName,
-    aggregate => ({
-        name: {
-            S: aggregate.name,
-        },
-        isSavingsAccount: {
-            BOOL: aggregate.isSavingsAccount,
-        },
-    }),
+    accountToItem,
 );
 const removeAccount = removeDynamoDB<Account>(db, accountsTableName);
 
-const getAccountUserByUUID = getByUUIDDynamoDB<AccountUser>(
+const getAccountUserById = getByIdDynamoDB<AccountUser>(
     db,
     accountUsersTableName,
     AccountUserAggregateName,
     accountUserItemToAggregate,
 );
-const findAccountUserAggregate = findByUUID<AccountUser>(getAccountUserByUUID);
+const findAccountUserAggregate = findById<AccountUser>(getAccountUserById);
 const persistAccountUser = persistDynamoDB<AccountUser>(
     db,
     accountUsersTableName,
-    aggregate => ({
-        accountId: {
-            S: aggregate.accountId,
-        },
-        userId: {
-            S: aggregate.userId,
-        },
-    }),
+    accountUserToItem,
 );
 
 const removeAccountUser = removeDynamoDB<AccountUser>(
     db,
     accountUsersTableName,
 );
+
+const getSpendingById = getByIdDynamoDB<Spending>(
+    db,
+    spendingsTableName,
+    SpendingAggregateName,
+    spendingItemToAggregate,
+);
+const findSpendingAggregate = findById<Spending>(getSpendingById);
+const persistSpending = persistDynamoDB<Spending>(
+    db,
+    spendingsTableName,
+    spendingToItem,
+);
+
+const removeSpending = removeDynamoDB<Spending>(db, spendingsTableName);
 
 export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
     const events = event.Records.filter(
@@ -78,6 +86,7 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
 
     const accountEvents = groupEvents(events, AccountAggregateName);
     const accountUserEvents = groupEvents(events, AccountUserAggregateName);
+    const spendingEvents = groupEvents(events, SpendingAggregateName);
 
     await Promise.all([
         processGroupedEvents(
@@ -93,6 +102,13 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
             findAccountUserAggregate,
             persistAccountUser,
             removeAccountUser,
+        ),
+        processGroupedEvents(
+            spendingEvents,
+            applySpendingEvents,
+            findSpendingAggregate,
+            persistSpending,
+            removeSpending,
         ),
     ]);
 };

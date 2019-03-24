@@ -26,10 +26,10 @@ export const createAccountUser = (
             throw new ValidationFailedError('createAccountUser()', errors);
         });
     const e: AccountUserCreatedEvent = {
-        eventUUID: v4(),
+        eventId: v4(),
         eventName: AccountUserCreatedEventName,
         aggregateName: AccountUserAggregateName,
-        aggregateUUID: v4(),
+        aggregateId: v4(),
         eventCreatedAt: new Date(),
         eventPayload,
     };

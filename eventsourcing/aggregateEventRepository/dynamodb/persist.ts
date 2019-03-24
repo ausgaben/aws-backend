@@ -36,16 +36,16 @@ export const persist = (
         event: AggregateEvent | AggregateEventWithPayload,
     ): Promise<void> => {
         const {
-            eventUUID,
+            eventId,
             aggregateName,
-            aggregateUUID,
+            aggregateId,
             eventName,
             eventCreatedAt,
         } = event;
 
         const Item: any = {
-            eventUUID: {
-                S: eventUUID,
+            eventId: {
+                S: eventId,
             },
             eventName: {
                 S: eventName,
@@ -53,8 +53,8 @@ export const persist = (
             eventCreatedAt: {
                 S: `${eventCreatedAt.toISOString()}`,
             },
-            aggregateUUID: {
-                S: aggregateUUID,
+            aggregateId: {
+                S: aggregateId,
             },
             aggregateName: {
                 S: aggregateName,

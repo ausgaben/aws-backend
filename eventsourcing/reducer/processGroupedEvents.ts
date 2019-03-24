@@ -1,5 +1,5 @@
 import { AggregateEvent, AggregateEventWithPayload } from '../AggregateEvent';
-import { findByUUID } from '../aggregateRepository/findByUUID';
+import { findById } from '../aggregateRepository/findById';
 import {
     AggregatePresentation,
     AggregatePresentationStates,
@@ -25,19 +25,19 @@ export const processGroupedEvents = async <A extends Aggregate>(
         snapshot: AggregateSnapshot<A>,
         events: (AggregateEvent | AggregateEventWithPayload)[],
     ) => AggregatePresentation,
-    findAggregate: findByUUID<A>,
+    findAggregate: findById<A>,
     persist: persist<A>,
     remove: remove<A>,
 ): Promise<void> => {
     await Promise.all(
-        Object.keys(events).map(async aggregateUUID => {
+        Object.keys(events).map(async aggregateId => {
             try {
                 // Load the snapshot of the aggregate
-                const aggregate = await findAggregate(aggregateUUID);
+                const aggregate = await findAggregate(aggregateId);
                 // Apply the events to the snapshot
                 const presentation = applyEvents(
-                    Snapshot<A>(aggregateUUID, aggregate),
-                    events[aggregateUUID],
+                    Snapshot<A>(aggregateId, aggregate),
+                    events[aggregateId],
                 );
                 // Persist the changes
                 switch (presentation.type) {
@@ -54,6 +54,7 @@ export const processGroupedEvents = async <A extends Aggregate>(
                         );
                 }
             } catch (error) {
+                console.error(error);
                 console.error('Processing grouped events failed!');
                 console.error(
                     JSON.stringify({

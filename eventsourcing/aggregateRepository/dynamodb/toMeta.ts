@@ -6,7 +6,7 @@ export const toMeta = (
     Item: DynamoDBItem,
 ): AggregateMeta => ({
     name: aggregateName,
-    uuid: Item.aggregateUUID.S!,
+    id: Item.aggregateId.S!,
     createdAt: new Date(Item.createdAt.S!),
     updatedAt: Item.updatedAt ? new Date(Item.updatedAt.S!) : undefined,
     deletedAt: Item.deletedAt ? new Date(Item.deletedAt.S!) : undefined,

@@ -16,7 +16,7 @@ export class AggregateEventsTable extends Construct {
             billingMode: BillingMode.PayPerRequest,
             streamSpecification: StreamViewType.NewImage,
             partitionKey: {
-                name: 'aggregateUUID',
+                name: 'aggregateId',
                 type: AttributeType.String,
             },
             sortKey: {

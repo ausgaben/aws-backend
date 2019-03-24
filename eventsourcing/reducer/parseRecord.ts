@@ -13,17 +13,17 @@ export const parseRecord = (
     }
     const newImage = record.dynamodb.NewImage;
     const {
-        eventUUID: { S: eventUUID },
+        eventId: { S: eventId },
         aggregateName: { S: aggregateName },
-        aggregateUUID: { S: aggregateUUID },
+        aggregateId: { S: aggregateId },
         eventName: { S: eventName },
         eventCreatedAt: { S: eventCreatedAt },
     } = newImage;
 
     if (
-        !eventUUID ||
+        !eventId ||
         !aggregateName ||
-        !aggregateUUID ||
+        !aggregateId ||
         !eventName ||
         !eventCreatedAt
     ) {
@@ -32,9 +32,9 @@ export const parseRecord = (
     }
 
     return {
-        eventUUID,
+        eventId,
         aggregateName,
-        aggregateUUID,
+        aggregateId,
         eventName,
         eventCreatedAt: new Date(eventCreatedAt),
         eventPayload: newImage.eventPayload

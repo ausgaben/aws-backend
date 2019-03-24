@@ -1,21 +1,18 @@
-import { AggregateEvent } from '../AggregateEvent';
-import {
-    AccountUser,
-    AccountUserAggregateName,
-} from '../../accountUser/AccountUser';
+import { AggregateEvent } from '../eventsourcing/AggregateEvent';
+import { AccountUser, AccountUserAggregateName } from './AccountUser';
 import {
     AggregatePresentation,
     AggregateSnapshot,
     Create,
     Delete,
-} from './presentation';
+} from '../eventsourcing/presenter/presentation';
 import {
     AccountUserCreatedEvent,
     AccountUserCreatedEventName,
-} from '../../events/AccountUserCreated';
-import { AccountUserDeletedEventName } from '../../events/AccountUserDeleted';
+} from '../events/AccountUserCreated';
+import { AccountUserDeletedEventName } from '../events/AccountUserDeleted';
 
-export const applyAccountUserEvents = (
+export const applyEvents = (
     snapshot: AggregateSnapshot<AccountUser>,
     events: AggregateEvent[],
 ): AggregatePresentation =>
@@ -31,7 +28,7 @@ export const applyAccountUserEvents = (
                         userId,
                         _meta: {
                             name: AccountUserAggregateName,
-                            uuid: snapshot.aggregateUUID,
+                            id: snapshot.aggregateId,
                             version: 1,
                             createdAt: event.eventCreatedAt,
                         },

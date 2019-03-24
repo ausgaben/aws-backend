@@ -8,14 +8,14 @@ import {
     AccountUserAggregateName,
 } from '../accountUser/AccountUser';
 import { AggregateEvent } from '../eventsourcing/AggregateEvent';
-import * as AggregateRepository from '../eventsourcing/aggregateRepository/getByUUID';
+import * as AggregateRepository from '../eventsourcing/aggregateRepository/getById';
 import { UUIDv4 } from '../validation/UUIDv4';
 import { ValidationFailedError } from '../errors/ValidationFailedError';
 import { v4 } from 'uuid';
 
 export const deleteAccountUser = (
     persist: (ev: AggregateEvent) => Promise<void>,
-    getAccountUserByUUID: AggregateRepository.getByUUID<AccountUser>,
+    getAccountUserById: AggregateRepository.getById<AccountUser>,
     onDelete?: (args: { accountUser: AccountUser }) => Promise<void>,
 ) => async (args: {
     accountUserId: string;
@@ -29,13 +29,13 @@ export const deleteAccountUser = (
             throw new ValidationFailedError('deleteAccountUser()', errors);
         });
 
-    const accountUser = await getAccountUserByUUID(accountUserId);
+    const accountUser = await getAccountUserById(accountUserId);
 
     const deleteAccountUserEvent: AccountUserDeletedEvent = {
-        eventUUID: v4(),
+        eventId: v4(),
         eventName: AccountUserDeletedEventName,
         aggregateName: AccountUserAggregateName,
-        aggregateUUID: accountUser._meta.uuid,
+        aggregateId: accountUser._meta.id,
         eventCreatedAt: new Date(),
     };
     await persist(deleteAccountUserEvent);

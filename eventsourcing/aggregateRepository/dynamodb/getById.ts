@@ -3,7 +3,7 @@ import {
     DynamoDBClient,
     GetItemCommand,
 } from '@aws-sdk/client-dynamodb-v2-node';
-import * as AggregateRepository from '../getByUUID';
+import * as AggregateRepository from '../getById';
 import { Aggregate, AggregateMeta } from '../Aggregate';
 import { NonEmptyString } from '../../../validation/NonEmptyString';
 import { ValidationFailedError } from '../../../errors/ValidationFailedError';
@@ -12,22 +12,22 @@ import { EntityNotFoundError } from '../../../errors/EntityNotFoundError';
 import { DynamoDBItem } from './DynamoDBItem';
 import { toMeta } from './toMeta';
 
-export const getByUUID = <A extends Aggregate>(
+export const getById = <A extends Aggregate>(
     dynamodb: DynamoDBClient,
     TableName: string,
     aggregateName: string,
     itemToAggregate: (item: DynamoDBItem, _meta: AggregateMeta) => A,
-): AggregateRepository.getByUUID<A> => {
+): AggregateRepository.getById<A> => {
     TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
         throw new ValidationFailedError(
-            'aggregateRepository/dynamodb/getByUUID()',
+            'aggregateRepository/dynamodb/getById()',
             errors,
         );
     });
-    return async (aggregateUUID: string): Promise<A> => {
-        aggregateUUID = UUIDv4.decode(aggregateUUID).getOrElseL(errors => {
+    return async (aggregateId: string): Promise<A> => {
+        aggregateId = UUIDv4.decode(aggregateId).getOrElseL(errors => {
             throw new ValidationFailedError(
-                'aggregateRepository/dynamodb/getByUUID()',
+                'aggregateRepository/dynamodb/getById()',
                 errors,
             );
         });
@@ -36,14 +36,14 @@ export const getByUUID = <A extends Aggregate>(
             new GetItemCommand({
                 TableName,
                 Key: {
-                    aggregateUUID: {
-                        S: aggregateUUID,
+                    aggregateId: {
+                        S: aggregateId,
                     },
                 },
             }),
         );
         if (!Item) {
-            throw new EntityNotFoundError(`"${aggregateUUID}" not found!`);
+            throw new EntityNotFoundError(`"${aggregateId}" not found!`);
         }
         return itemToAggregate(Item, toMeta(aggregateName, Item));
     };

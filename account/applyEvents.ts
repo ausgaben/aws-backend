@@ -1,18 +1,18 @@
-import { AggregateEvent } from '../AggregateEvent';
-import { Account, AccountAggregateName } from '../../account/Account';
+import { AggregateEvent } from '../eventsourcing/AggregateEvent';
+import { Account, AccountAggregateName } from './Account';
 import {
     AggregatePresentation,
     AggregateSnapshot,
     Create,
     Delete,
-} from './presentation';
+} from '../eventsourcing/presenter/presentation';
 import {
     AccountCreatedEvent,
     AccountCreatedEventName,
-} from '../../events/AccountCreated';
-import { AccountDeletedEventName } from '../../events/AccountDeleted';
+} from '../events/AccountCreated';
+import { AccountDeletedEventName } from '../events/AccountDeleted';
 
-export const applyAccountEvents = (
+export const applyEvents = (
     snapshot: AggregateSnapshot<Account>,
     events: AggregateEvent[],
 ): AggregatePresentation =>
@@ -28,7 +28,7 @@ export const applyAccountEvents = (
                         isSavingsAccount,
                         _meta: {
                             name: AccountAggregateName,
-                            uuid: snapshot.aggregateUUID,
+                            id: snapshot.aggregateId,
                             version: 1,
                             createdAt: event.eventCreatedAt,
                         },

@@ -1,7 +1,7 @@
 import { Aggregate } from '../aggregateRepository/Aggregate';
 
 export type AggregatePresentation = {
-    aggregateUUID: string;
+    aggregateId: string;
     type: AggregatePresentationStates;
 };
 
@@ -22,10 +22,10 @@ export type AggregateSnapshot<A extends Aggregate> = AggregatePresentation & {
 };
 
 export const Snapshot = <A extends Aggregate>(
-    aggregateUUID: string,
+    aggregateId: string,
     aggregate?: A,
 ): AggregateSnapshot<A> => ({
-    aggregateUUID,
+    aggregateId,
     aggregate,
     type: AggregatePresentationStates.Snapshot,
 });
@@ -43,7 +43,7 @@ export type CreateAggregatePresentation<
 export const Create = <A extends Aggregate>(
     aggregate: A,
 ): CreateAggregatePresentation<A> => ({
-    aggregateUUID: aggregate.aggregateUUID,
+    aggregateId: aggregate._meta.id,
     aggregate,
     type: AggregatePresentationStates.Create,
 });
@@ -71,7 +71,7 @@ export type DeleteAggregatePresentation<
 export const Delete = <A extends Aggregate>(
     aggregate: A,
 ): DeleteAggregatePresentation<A> => ({
-    aggregateUUID: aggregate.aggregateUUID,
+    aggregateId: aggregate._meta.id,
     aggregate,
     type: AggregatePresentationStates.Delete,
 });

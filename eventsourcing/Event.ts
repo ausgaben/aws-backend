@@ -1,5 +1,5 @@
 export type Event = {
-    eventUUID: string;
+    eventId: string;
     eventName: string;
     eventCreatedAt: Date;
 };

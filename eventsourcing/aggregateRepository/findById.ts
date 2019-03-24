@@ -1,19 +1,19 @@
 import { Aggregate } from './Aggregate';
 import { EntityNotFoundError } from '../../errors/EntityNotFoundError';
-import { getByUUID } from './getByUUID';
+import { getById } from './getById';
 
-export type findByUUID<A extends Aggregate> = (
-    aggregateUUID: string,
+export type findById<A extends Aggregate> = (
+    aggregateId: string,
 ) => Promise<A | undefined>;
 
 /**
  * @throws EntityNotFoundError if the Aggregate cannot be found.
  */
-export const findByUUID = <A extends Aggregate>(
-    getByUUID: getByUUID<A>,
-) => async (aggregateUUID: string): Promise<A | undefined> => {
+export const findById = <A extends Aggregate>(getById: getById<A>) => async (
+    aggregateId: string,
+): Promise<A | undefined> => {
     try {
-        return await getByUUID(aggregateUUID);
+        return await getById(aggregateId);
     } catch (error) {
         if (error instanceof EntityNotFoundError) {
             return undefined;

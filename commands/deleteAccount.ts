@@ -5,7 +5,7 @@ import {
 } from '../events/AccountDeleted';
 import { Account, AccountAggregateName } from '../account/Account';
 import { AggregateEvent } from '../eventsourcing/AggregateEvent';
-import * as AggregateRepository from '../eventsourcing/aggregateRepository/getByUUID';
+import * as AggregateRepository from '../eventsourcing/aggregateRepository/getById';
 import * as AccountUserRepository from '../accountUser/repository/findByUserId';
 import { AccessDeniedError } from '../errors/AccessDeniedError';
 import { UUIDv4 } from '../validation/UUIDv4';
@@ -16,7 +16,7 @@ import { AccountUser } from '../accountUser/AccountUser';
 
 export const deleteAccount = (
     persist: (ev: AggregateEvent) => Promise<void>,
-    getAccountByUUID: AggregateRepository.getByUUID<Account>,
+    getAccountById: AggregateRepository.getById<Account>,
     findAccountUserByUserId: AccountUserRepository.findByUserId,
     onDelete?: (args: {
         account: Account;
@@ -37,7 +37,7 @@ export const deleteAccount = (
         });
 
     const [account, userAccounts] = await Promise.all([
-        getAccountByUUID(accountId),
+        getAccountById(accountId),
         findAccountUserByUserId(userId),
     ]);
     const accountUser = userAccounts.items.find(
@@ -45,15 +45,15 @@ export const deleteAccount = (
     );
     if (!accountUser) {
         throw new AccessDeniedError(
-            `User "${userId}" is not allowed to access account "${account}`,
+            `User "${userId}" is not allowed to access account "${accountId}"!`,
         );
     }
 
     const deleteAccountEvent: AccountDeletedEvent = {
-        eventUUID: v4(),
+        eventId: v4(),
         eventName: AccountDeletedEventName,
         aggregateName: AccountAggregateName,
-        aggregateUUID: account._meta.uuid,
+        aggregateId: account._meta.id,
         eventCreatedAt: new Date(),
     };
     await persist(deleteAccountEvent);
