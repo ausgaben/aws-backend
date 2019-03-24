@@ -30,7 +30,7 @@ export class SpendingsTable extends Construct {
                 type: AttributeType.String,
             },
             sortKey: {
-                name: 'createdAt',
+                name: 'bookedAt',
                 type: AttributeType.String,
             },
         });
