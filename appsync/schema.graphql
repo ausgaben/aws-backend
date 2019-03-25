@@ -33,8 +33,8 @@ type EntityMeta {
 type Mutation {
     createAccount(name: String!, isSavingsAccount: Boolean): CreateEntityResult!
     deleteAccount(accountId: ID!): Boolean
-    createSpending(accountId: ID!, bookedAt: String!, category: String!, description: String!, amount: Int!,
-        currencyId: ID!, isIncome: Boolean, isPending: Boolean, paidWith: String): CreateEntityResult!
+    createSpending(accountId: ID!, bookedAt: String!, booked: Boolean, category: String!, description: String!, amount: Int!,
+        currencyId: ID!, paidWith: String): CreateEntityResult!
     deleteSpending(spendingId: ID!): Boolean
 }
 
@@ -51,12 +51,11 @@ type Schema {
 type Spending {
     account: Account!
     bookedAt: String!
+    booked: Boolean!
     category: String!
     description: String!
     amount: Int!
     currency: Currency!
-    isIncome: Boolean!
-    isPending: Boolean!
     paidWith: String
     _meta: EntityMeta!
 }

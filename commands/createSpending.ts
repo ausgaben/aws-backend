@@ -10,7 +10,7 @@ import { v4 } from 'uuid';
 import { SpendingAggregateName } from '../spending/Spending';
 import { UUIDv4 } from '../validation/UUIDv4';
 import { DateFromString } from '../validation/DateFromString';
-import { PositiveInteger } from '../validation/PositiveInteger';
+import { NonZeroInteger } from '../validation/NonZeroInteger';
 import { currencies } from '../currency/currencies';
 import * as AccountUserRepository from '../accountUser/repository/findByUserId';
 import { AccessDeniedError } from '../errors/AccessDeniedError';
@@ -27,8 +27,7 @@ export const createSpending = (
     description: string;
     amount: number;
     currencyId: string;
-    isIncome?: boolean;
-    isPending?: boolean;
+    booked?: boolean;
     paidWith?: string;
 }): Promise<SpendingCreatedEvent> => {
     const {
@@ -39,8 +38,7 @@ export const createSpending = (
         description,
         amount,
         currencyId,
-        isIncome,
-        isPending,
+        booked,
         paidWith,
     } = t
         .type({
@@ -49,7 +47,7 @@ export const createSpending = (
             bookedAt: DateFromString,
             category: NonEmptyString,
             description: NonEmptyString,
-            amount: PositiveInteger,
+            amount: NonZeroInteger,
             currencyId: t.keyof(
                 currencies.reduce(
                     (obj, { id }) => {
@@ -59,13 +57,11 @@ export const createSpending = (
                     {} as { [key: string]: null },
                 ),
             ),
-            isIncome: t.boolean,
-            isPending: t.boolean,
+            booked: t.boolean,
             paidWith: t.union([t.undefined, NonEmptyString]),
         })
         .decode({
-            isIncome: false,
-            isPending: false,
+            booked: true,
             ...args,
         })
         .getOrElseL(errors => {
@@ -95,8 +91,7 @@ export const createSpending = (
             description,
             amount,
             currencyId: currencyId as string,
-            isIncome,
-            isPending,
+            booked,
             paidWith,
         },
     };

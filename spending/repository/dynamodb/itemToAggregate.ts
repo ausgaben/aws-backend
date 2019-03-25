@@ -8,12 +8,11 @@ export const itemToAggregate = (
 ): Spending => ({
     accountId: item.accountId.S!,
     bookedAt: new Date(item.bookedAt.S!),
+    booked: item.booked.BOOL!,
     category: item.category.S!,
     description: item.description.S!,
     amount: +item.amount.N!,
     currencyId: item.currencyId.S!,
-    isIncome: item.isIncome.BOOL!,
-    isPending: item.isPending.BOOL!,
     paidWith: item.paidWith ? item.paidWith.S! : undefined,
     _meta,
 });

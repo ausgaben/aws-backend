@@ -8,6 +8,9 @@ export const aggregateToItem = (aggregate: Spending): DynamoDBItem => ({
     bookedAt: {
         S: aggregate.bookedAt.toISOString(),
     },
+    booked: {
+        BOOL: aggregate.booked,
+    },
     category: {
         S: aggregate.category,
     },
@@ -19,12 +22,6 @@ export const aggregateToItem = (aggregate: Spending): DynamoDBItem => ({
     },
     currencyId: {
         S: aggregate.currencyId,
-    },
-    isIncome: {
-        BOOL: aggregate.isIncome,
-    },
-    isPending: {
-        BOOL: aggregate.isPending,
     },
     paidWith: aggregate.paidWith ? { S: aggregate.paidWith } : { NULL: true },
 });

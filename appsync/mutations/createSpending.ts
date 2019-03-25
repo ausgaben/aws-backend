@@ -22,8 +22,7 @@ export const handler = async (
         description: string;
         amount: number;
         currencyId: string;
-        isIncome: boolean;
-        isPending: boolean;
+        booked: boolean;
         paidWith?: string;
     },
     context: Context,

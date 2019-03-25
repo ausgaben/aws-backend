@@ -32,6 +32,7 @@ export const findByAccountId = (
         const { Items, LastEvaluatedKey } = await dynamodb.send(
             new QueryCommand({
                 TableName,
+                Limit: 100,
                 IndexName: 'accountIdIndex',
                 KeyConditionExpression: `accountId = :accountId`,
                 ExpressionAttributeValues: {
@@ -50,12 +51,11 @@ export const findByAccountId = (
             [
                 'accountId',
                 'bookedAt',
+                'booked',
                 'category',
                 'description',
                 'amount',
                 'currencyId',
-                'isIncome',
-                'isPending',
                 'paidWith',
             ],
             itemToAggregate,
