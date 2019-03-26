@@ -40,7 +40,7 @@ type Mutation {
 
 type Query {
     accounts(filter: accountsFilterInput, startKey: ID): AccountsQueryResult!
-    spendings(accountId: ID!, startKey: ID): SpendingsQueryResult!
+    spendings(accountId: ID!, startDate: String!, endDate: String!, startKey: ID): SpendingsQueryResult!
 }
 
 type Schema {

@@ -17,7 +17,7 @@ const addSpending = createSpending(persist, findAccountUserByUserId);
 const addAccount = createAccount(persist);
 const addAcountUser = createAccountUser(persist);
 
-const userId = 'eu-central-1:32593844-46d1-47a6-b324-4f83a880d50b';
+const userId = 'eu-central-1:104f552c-c388-4bbc-901e-eb70da91b473';
 
 (async () => {
     const importId = `${Math.random()

@@ -21,6 +21,8 @@ export const handler = async (
         cognitoIdentityId: string;
         accountId: string;
         filter?: {};
+        startDate: string;
+        endDate: string;
         startKey?: string;
     },
     context: Context,
@@ -30,10 +32,12 @@ export const handler = async (
             userId: event.cognitoIdentityId,
             accountId: event.accountId,
         });
-        const { items, nextStartKey } = await findSpendingsByAccountId(
-            event.accountId,
-            decodeStartKey(event.startKey),
-        );
+        const { items, nextStartKey } = await findSpendingsByAccountId({
+            startDate: new Date(event.startDate),
+            endDate: new Date(event.endDate),
+            accountId: event.accountId,
+            startKey: decodeStartKey(event.startKey),
+        });
         return {
             items: items.map(item => ({
                 ...item,

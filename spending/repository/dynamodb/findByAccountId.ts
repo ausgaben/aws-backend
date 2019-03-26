@@ -18,11 +18,13 @@ export const findByAccountId = (
             errors,
         );
     });
-    return async (
-        accountId: string,
-        startKey?: any,
-    ): Promise<PaginatedResult<Spending>> => {
-        accountId = UUIDv4.decode(accountId).getOrElseL(errors => {
+    return async (args: {
+        startDate: Date;
+        endDate: Date;
+        accountId: string;
+        startKey?: any;
+    }): Promise<PaginatedResult<Spending>> => {
+        const accountId = UUIDv4.decode(args.accountId).getOrElseL(errors => {
             throw new ValidationFailedError(
                 'spending/repository/dynamodb/findByAccountId()',
                 errors,
@@ -34,13 +36,19 @@ export const findByAccountId = (
                 TableName,
                 Limit: 100,
                 IndexName: 'accountIdIndex',
-                KeyConditionExpression: `accountId = :accountId`,
+                KeyConditionExpression: `accountId = :accountId AND bookedAt BETWEEN :startDate AND :endDate`,
                 ExpressionAttributeValues: {
                     [`:accountId`]: {
                         S: accountId,
                     },
+                    [`:startDate`]: {
+                        S: args.startDate.toISOString(),
+                    },
+                    [`:endDate`]: {
+                        S: args.endDate.toISOString(),
+                    },
                 },
-                ExclusiveStartKey: startKey,
+                ExclusiveStartKey: args.startKey,
                 ScanIndexForward: false,
             }),
         );
