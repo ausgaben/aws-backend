@@ -41,6 +41,7 @@ export const findByUserId = (
                     },
                 },
                 ExclusiveStartKey: startKey,
+                ProjectionExpression: 'aggregateId',
             }),
         );
         return batchFetch(

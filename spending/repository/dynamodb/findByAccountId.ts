@@ -50,6 +50,7 @@ export const findByAccountId = (
                 },
                 ExclusiveStartKey: args.startKey,
                 ScanIndexForward: false,
+                ProjectionExpression: 'aggregateId',
             }),
         );
         return batchFetch(

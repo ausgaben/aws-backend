@@ -69,9 +69,7 @@ const dynamoBatchGetItems = (
                                 [key: string]: string;
                             },
                         ),
-                        Keys: Keys.map(({ aggregateId }) => ({
-                            aggregateId,
-                        })),
+                        Keys,
                     },
                 },
             }),
