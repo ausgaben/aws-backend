@@ -58,7 +58,7 @@ export const createSpending = (
                 ),
             ),
             booked: t.boolean,
-            paidWith: t.union([t.undefined, NonEmptyString]),
+            paidWith: t.union([t.null, NonEmptyString]),
         })
         .decode({
             booked: true,
@@ -92,7 +92,7 @@ export const createSpending = (
             amount,
             currencyId: currencyId as string,
             booked,
-            paidWith,
+            ...(paidWith && { paidWith }),
         },
     };
     await persist(e);
