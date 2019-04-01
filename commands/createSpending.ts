@@ -28,7 +28,7 @@ export const createSpending = (
     amount: number;
     currencyId: string;
     booked?: boolean;
-    paidWith?: string;
+    paidWith?: string | null;
 }): Promise<SpendingCreatedEvent> => {
     const {
         userId,

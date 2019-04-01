@@ -99,6 +99,7 @@ const userId = 'eu-central-1:104f552c-c388-4bbc-901e-eb70da91b473';
                                     bookedAt: new Date(bookedAt).toISOString(),
                                     currencyId:
                                         name.indexOf('NOK') > 0 ? 'NOK' : 'EUR',
+                                    paidWith: null,
                                 });
                             }),
                         Promise.resolve(),
