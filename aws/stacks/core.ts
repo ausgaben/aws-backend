@@ -127,6 +127,10 @@ export class CoreStack extends Stack {
                     sourceCodeBucket,
                     layeredLambdas.lambdaZipFileNames.spendingsQuery,
                 ),
+                inviteUserMutation: Code.bucket(
+                    sourceCodeBucket,
+                    layeredLambdas.lambdaZipFileNames.inviteUserMutation,
+                ),
             },
             baseLayer,
             this.aggregateEventsTable,

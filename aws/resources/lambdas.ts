@@ -10,6 +10,7 @@ export type AusgabenLayeredLambdas = LayeredLambdas<{
     createSpendingMutation: string;
     deleteSpendingMutation: string;
     spendingsQuery: string;
+    inviteUserMutation: string;
 }>;
 
 export const lambdas = async (
@@ -59,5 +60,11 @@ export const lambdas = async (
             'appsync',
             'queries',
             'spendings.ts',
+        ),
+        inviteUserMutation: path.resolve(
+            rootDir,
+            'appsync',
+            'mutations',
+            'inviteUser.ts',
         ),
     });

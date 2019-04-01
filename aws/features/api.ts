@@ -30,6 +30,7 @@ export class ApiFeature extends Construct {
             createSpendingMutation: Code;
             deleteSpendingMutation: Code;
             spendingsQuery: Code;
+            inviteUserMutation: Code;
         },
         baseLayer: ILayerVersion,
         aggregateEventsTable: AggregateEventsTable,
@@ -234,6 +235,31 @@ export class ApiFeature extends Construct {
             ],
             {
                 SPENDINGS_TABLE: spendingsTable.table.tableName,
+                ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+            },
+        );
+
+        gqlLambda(
+            this,
+            stack,
+            baseLayer,
+            this.api,
+            'inviteUser',
+            'Mutation',
+            lambdas.inviteUserMutation,
+            [
+                new PolicyStatement(PolicyStatementEffect.Allow)
+                    .addResource(aggregateEventsTable.table.tableArn)
+                    .addAction('dynamodb:PutItem'),
+                new PolicyStatement(PolicyStatementEffect.Allow)
+                    .addResource(accountUsersTable.table.tableArn)
+                    .addResource(`${accountUsersTable.table.tableArn}/*`)
+                    .addAction('dynamodb:Query')
+                    .addAction('dynamodb:GetItem')
+                    .addAction('dynamodb:BatchGetItem'),
+            ],
+            {
+                AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
                 ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
             },
         );
