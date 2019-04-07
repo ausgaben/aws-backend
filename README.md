@@ -1,5 +1,7 @@
 # Ausgaben AWS Backend
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ausgaben/aws-backend.svg)](https://greenkeeper.io/)
+
 5th iteration of the Ausgaben backend, built using AWS serverless components.
 
 ## Deploy
