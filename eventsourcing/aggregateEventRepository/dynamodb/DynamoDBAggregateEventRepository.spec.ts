@@ -3,21 +3,26 @@ import { AggregateEventWithPayload } from '../../AggregateEvent';
 import { v4 } from 'uuid';
 import { persist as persistDynamoDB } from './persist';
 import { getByAggregateId as getByAggregateIdDynamoDB } from './getByAggregateId';
+import { persist as p } from '../persist';
+import { getByAggregateId as g } from '../getByAggregateId';
 
 jest.setTimeout(60000);
 
 const db = new DynamoDBClient({});
 const TableName = process.env.AGGREGATES_EVENTS_TABLE!;
-const persist = persistDynamoDB(db, process.env.AGGREGATES_EVENTS_TABLE!);
-const getByAggregateId = getByAggregateIdDynamoDB(db, TableName);
 
 describe('DynamoDBAggregateEventRepository', () => {
+    let persist: p, getByAggregateId: g;
+
     if (!process.env.AGGREGATES_EVENTS_TABLE) {
         test.only('skipped', () => {
             console.warn(
                 'skipping tests (AGGREGATES_EVENTS_TABLE is not defined)',
             );
         });
+    } else {
+        persist = persistDynamoDB(db, TableName);
+        getByAggregateId = getByAggregateIdDynamoDB(db, TableName);
     }
     test('persist()', async () => {
         const uuid = v4();
