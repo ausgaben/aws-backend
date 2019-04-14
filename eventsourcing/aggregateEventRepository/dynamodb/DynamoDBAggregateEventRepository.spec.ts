@@ -9,15 +9,15 @@ import { getByAggregateId as g } from '../getByAggregateId';
 jest.setTimeout(60000);
 
 const db = new DynamoDBClient({});
-const TableName = process.env.AGGREGATES_EVENTS_TABLE!;
+const TableName = process.env.AGGREGATE_EVENTS_TABLE!;
 
 describe('DynamoDBAggregateEventRepository', () => {
     let persist: p, getByAggregateId: g;
 
-    if (!process.env.AGGREGATES_EVENTS_TABLE) {
+    if (!process.env.AGGREGATE_EVENTS_TABLE) {
         test.only('skipped', () => {
             console.warn(
-                'skipping tests (AGGREGATES_EVENTS_TABLE is not defined)',
+                'skipping tests (AGGREGATE_EVENTS_TABLE is not defined)',
             );
         });
     } else {
