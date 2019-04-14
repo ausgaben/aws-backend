@@ -13,6 +13,7 @@ import { AccountsTable } from '../resources/accounts-table';
 import { AccountUsersTable } from '../resources/account-users-table';
 import { AggregateEventsTable } from '../resources/aggregate-events-table';
 import { SpendingsTable } from '../resources/spendings-table';
+import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table';
 
 export class EventSourcingFeature extends Construct {
     constructor(
@@ -24,6 +25,7 @@ export class EventSourcingFeature extends Construct {
         accountsTable: AccountsTable,
         accountUsersTable: AccountUsersTable,
         spendingsTable: SpendingsTable,
+        accountAutoCompleteTable: AccountAutoCompleteTable,
     ) {
         super(stack, id);
 
@@ -50,6 +52,7 @@ export class EventSourcingFeature extends Construct {
                     .addResource(accountsTable.table.tableArn)
                     .addResource(accountUsersTable.table.tableArn)
                     .addResource(spendingsTable.table.tableArn)
+                    .addResource(accountAutoCompleteTable.table.tableArn)
                     .addActions('dynamodb:PutItem')
                     .addAction('dynamodb:GetItem')
                     .addAction('dynamodb:DeleteItem')
@@ -68,6 +71,8 @@ export class EventSourcingFeature extends Construct {
                 ACCOUNTS_TABLE: accountsTable.table.tableName,
                 ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
                 SPENDINGS_TABLE: spendingsTable.table.tableName,
+                ACCOUNT_AUTOCOMPLETE_TABLE:
+                    accountAutoCompleteTable.table.tableName,
             },
             layers: [baseLayer],
         });

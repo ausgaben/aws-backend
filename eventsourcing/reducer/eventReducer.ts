@@ -23,11 +23,20 @@ import { Spending, SpendingAggregateName } from '../../spending/Spending';
 import { itemToAggregate as spendingItemToAggregate } from '../../spending/repository/dynamodb/itemToAggregate';
 import { aggregateToItem as spendingToItem } from '../../spending/repository/dynamodb/aggregateToItem';
 import { applyEvents as applySpendingEvents } from '../../spending/applyEvents';
+import { processEvents as processEventsForAutoComplete } from '../../autoComplete/processEvents';
+import {
+    SpendingCreatedEvent,
+    SpendingCreatedEventName,
+} from '../../events/SpendingCreated';
+import { SpendingDeletedEvent } from '../../events/SpendingDeleted';
+import { findByAccountId } from '../../autoComplete/repository/dynamodb/findByAccountId';
+import { persist } from '../../autoComplete/repository/dynamodb/persist';
 
 const db = new DynamoDBClient({});
 const accountsTableName = process.env.ACCOUNTS_TABLE!;
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE!;
 const spendingsTableName = process.env.SPENDINGS_TABLE!;
+const accountAutoCompleteTable = process.env.ACCOUNT_AUTOCOMPLETE_TABLE!;
 
 const getAccountById = getByIdDynamoDB<Account>(
     db,
@@ -76,6 +85,12 @@ const persistSpending = persistDynamoDB<Spending>(
 
 const removeSpending = removeDynamoDB<Spending>(db, spendingsTableName);
 
+const findAutoCompleteByAccountId = findByAccountId(
+    db,
+    accountAutoCompleteTable,
+);
+const persistAutoComplete = persist(db, accountAutoCompleteTable);
+
 export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
     const events = event.Records.filter(
         ({ eventName, eventSource }) =>
@@ -87,6 +102,13 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
     const accountEvents = groupEvents(events, AccountAggregateName);
     const accountUserEvents = groupEvents(events, AccountUserAggregateName);
     const spendingEvents = groupEvents(events, SpendingAggregateName);
+    const spendingEventsByAccount = groupEvents<
+        SpendingCreatedEvent | SpendingDeletedEvent
+    >(events as SpendingCreatedEvent[], SpendingAggregateName, e =>
+        e.eventName === SpendingCreatedEventName
+            ? (<SpendingCreatedEvent>e).eventPayload.accountId
+            : false,
+    );
 
     await Promise.all([
         processGroupedEvents(
@@ -109,6 +131,11 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
             findSpendingAggregate,
             persistSpending,
             removeSpending,
+        ),
+        processEventsForAutoComplete(
+            spendingEventsByAccount,
+            findAutoCompleteByAccountId,
+            persistAutoComplete,
         ),
     ]);
 };

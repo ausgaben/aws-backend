@@ -9,12 +9,14 @@ import { AusgabenLayeredLambdas } from '../resources/lambdas';
 import { ApiFeature } from '../features/api';
 import { AccountUsersTable } from '../resources/account-users-table';
 import { SpendingsTable } from '../resources/spendings-table';
+import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table';
 
 export class CoreStack extends Stack {
     public readonly aggregateEventsTable: AggregateEventsTable;
     public readonly accountsTable: AccountsTable;
     public readonly accountUsersTable: AccountUsersTable;
     public readonly spendingsTable: SpendingsTable;
+    public readonly accountAutoCompleteTable: AccountAutoCompleteTable;
     public readonly cognito: Cognito;
 
     constructor(
@@ -59,6 +61,16 @@ export class CoreStack extends Stack {
             export: `${this.name}:spendingsTableName`,
         });
 
+        this.accountAutoCompleteTable = new AccountAutoCompleteTable(
+            this,
+            'accountAutoCompleteTable',
+        );
+
+        new CfnOutput(this, 'accountAutoCompleteTableName', {
+            value: this.accountAutoCompleteTable.table.tableName,
+            export: `${this.name}:accountAutoCompleteTableName`,
+        });
+
         this.cognito = new Cognito(this, 'cognito');
 
         new CfnOutput(this, 'userPoolId', {
@@ -97,6 +109,7 @@ export class CoreStack extends Stack {
             this.accountsTable,
             this.accountUsersTable,
             this.spendingsTable,
+            this.accountAutoCompleteTable,
         );
 
         const api = new ApiFeature(

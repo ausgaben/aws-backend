@@ -3,21 +3,28 @@ import { AggregateEvent, AggregateEventWithPayload } from '../AggregateEvent';
 /**
  * Get the events grouped by aggregateId for the given aggregate
  */
-export const groupEvents = (
-    events: AggregateEvent[] | AggregateEventWithPayload[],
+export const groupEvents = <
+    E extends AggregateEvent | AggregateEventWithPayload
+>(
+    events: E[],
     aggregateName: string,
-): { [key: string]: (AggregateEvent | AggregateEventWithPayload)[] } =>
+    getGroupKey: (e: E) => string | false = e => e.aggregateId,
+): { [key: string]: E[] } =>
     events
         .filter(({ aggregateName: a }) => a === aggregateName)
         .reduce(
             (grouped, event) => {
-                if (!grouped[event.aggregateId]) {
-                    grouped[event.aggregateId] = [];
+                const k = getGroupKey(event);
+                if (!k) {
+                    return grouped;
                 }
-                grouped[event.aggregateId].push(event);
+                if (!grouped[k]) {
+                    grouped[k] = [];
+                }
+                grouped[k].push(event);
                 return grouped;
             },
             {} as {
-                [key: string]: (AggregateEvent | AggregateEventWithPayload)[];
+                [key: string]: E[];
             },
         );
