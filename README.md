@@ -1,5 +1,7 @@
 # Ausgaben AWS Backend
 
+[![Build Status](https://travis-ci.org/ausgaben/aws-backend.svg?branch=saga)](https://travis-ci.org/ausgaben/aws-backend)
+
 5th iteration of the Ausgaben backend, built using AWS serverless components.
 
 ## Deploy
