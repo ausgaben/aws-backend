@@ -1,4 +1,4 @@
-import { App, Output, Stack } from '@aws-cdk/cdk';
+import { App, CfnOutput, Stack } from '@aws-cdk/cdk';
 import { AggregateEventsTable } from '../resources/aggregate-events-table';
 import { Cognito } from '../resources/cognito';
 import { AccountsTable } from '../resources/accounts-table';
@@ -30,14 +30,14 @@ export class CoreStack extends Stack {
             this,
             'aggregateEventsTable',
         );
-        new Output(this, 'aggregateEventsTableName', {
+        new CfnOutput(this, 'aggregateEventsTableName', {
             value: this.aggregateEventsTable.table.tableName,
             export: `${this.name}:aggregateEventsTableName`,
         });
 
         this.accountsTable = new AccountsTable(this, 'accountsTable');
 
-        new Output(this, 'accountsTableName', {
+        new CfnOutput(this, 'accountsTableName', {
             value: this.accountsTable.table.tableName,
             export: `${this.name}:accountsTableName`,
         });
@@ -47,31 +47,31 @@ export class CoreStack extends Stack {
             'accountUsersTable',
         );
 
-        new Output(this, 'accountUsersTableName', {
+        new CfnOutput(this, 'accountUsersTableName', {
             value: this.accountUsersTable.table.tableName,
             export: `${this.name}:accountUsersTableName`,
         });
 
         this.spendingsTable = new SpendingsTable(this, 'spendingsTable');
 
-        new Output(this, 'spendingsTableName', {
+        new CfnOutput(this, 'spendingsTableName', {
             value: this.spendingsTable.table.tableName,
             export: `${this.name}:spendingsTableName`,
         });
 
         this.cognito = new Cognito(this, 'cognito');
 
-        new Output(this, 'userPoolId', {
+        new CfnOutput(this, 'userPoolId', {
             value: this.cognito.userPool.userPoolId,
             export: `${this.name}:userPoolId`,
         });
 
-        new Output(this, 'identityPoolId', {
+        new CfnOutput(this, 'identityPoolId', {
             value: this.cognito.identityPool.identityPoolId,
             export: `${this.name}:identityPoolId`,
         });
 
-        new Output(this, 'userPoolClientId', {
+        new CfnOutput(this, 'userPoolClientId', {
             value: this.cognito.userPoolClient.clientId,
             export: `${this.name}:userPoolClientId`,
         });
@@ -140,7 +140,7 @@ export class CoreStack extends Stack {
             this.cognito.userRole,
         );
 
-        new Output(this, 'apiUrl', {
+        new CfnOutput(this, 'apiUrl', {
             value: api.api.graphQlApiGraphQlUrl,
             export: `${this.name}:apiUrl`,
         });

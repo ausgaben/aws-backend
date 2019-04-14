@@ -28,7 +28,7 @@ export const handler = async (
     context: Context,
 ) => {
     try {
-        checkAccess({
+        await checkAccess({
             userId: event.cognitoIdentityId,
             accountId: event.accountId,
         });

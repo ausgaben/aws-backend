@@ -7,6 +7,7 @@ import { AusgabenApp } from './app/ausgaben';
 
 const path = require('path');
 
+// tslint:disable-next-line:no-floating-promises
 (async () => {
     const outDir = path.resolve(__dirname, '..', '..', 'pack');
     try {

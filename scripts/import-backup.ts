@@ -19,6 +19,7 @@ const addAcountUser = createAccountUser(persist);
 
 const userId = 'eu-central-1:104f552c-c388-4bbc-901e-eb70da91b473';
 
+// tslint:disable-next-line:no-floating-promises
 (async () => {
     const importId = `${Math.random()
         .toString(36)
