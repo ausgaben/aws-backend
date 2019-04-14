@@ -13,6 +13,11 @@ type AccountsQueryResult {
     items: [Account]!
 }
 
+type AutoCompleteStrings {
+    field: ID!
+    strings: [String!]!
+}
+
 type CreateEntityResult {
     id: ID!
 }
@@ -42,6 +47,7 @@ type Mutation {
 type Query {
     accounts(filter: accountsFilterInput, startKey: ID): AccountsQueryResult!
     spendings(accountId: ID!, startDate: String!, endDate: String!, startKey: ID): SpendingsQueryResult!
+    autoCompleteStrings(accountId: ID!): [AutoCompleteStrings!]!
 }
 
 type Schema {

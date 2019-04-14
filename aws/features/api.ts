@@ -16,6 +16,7 @@ import { GQLLambdaResolver } from '../resources/GQLLambdaResolver';
 import { AccountsTable } from '../resources/accounts-table';
 import { AccountUsersTable } from '../resources/account-users-table';
 import { SpendingsTable } from '../resources/spendings-table';
+import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table';
 
 export class ApiFeature extends Construct {
     public readonly api: CfnGraphQLApi;
@@ -31,12 +32,14 @@ export class ApiFeature extends Construct {
             deleteSpendingMutation: Code;
             spendingsQuery: Code;
             inviteUserMutation: Code;
+            autoCompleteStringsQuery: Code;
         },
         baseLayer: ILayerVersion,
         aggregateEventsTable: AggregateEventsTable,
         accountsTable: AccountsTable,
         accountUsersTable: AccountUsersTable,
         spendingsTable: SpendingsTable,
+        accountAutoCompleteTable: AccountAutoCompleteTable,
         userRole: IRole,
     ) {
         super(stack, id);
@@ -260,6 +263,31 @@ export class ApiFeature extends Construct {
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
+                ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+            },
+        );
+
+        gqlLambda(
+            this,
+            stack,
+            baseLayer,
+            this.api,
+            'autoCompleteStrings',
+            'Query',
+            lambdas.autoCompleteStringsQuery,
+            [
+                new PolicyStatement(PolicyStatementEffect.Allow)
+                    .addResource(accountAutoCompleteTable.table.tableArn)
+                    .addResource(`${accountAutoCompleteTable.table.tableArn}/*`)
+                    .addResource(accountUsersTable.table.tableArn)
+                    .addResource(`${accountUsersTable.table.tableArn}/*`)
+                    .addAction('dynamodb:Query')
+                    .addAction('dynamodb:GetItem')
+                    .addAction('dynamodb:BatchGetItem'),
+            ],
+            {
+                ACCOUNT_AUTOCOMPLETE_TABLE:
+                    accountAutoCompleteTable.table.tableName,
                 ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
             },
         );

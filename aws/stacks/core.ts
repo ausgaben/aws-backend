@@ -144,12 +144,17 @@ export class CoreStack extends Stack {
                     sourceCodeBucket,
                     layeredLambdas.lambdaZipFileNames.inviteUserMutation,
                 ),
+                autoCompleteStringsQuery: Code.bucket(
+                    sourceCodeBucket,
+                    layeredLambdas.lambdaZipFileNames.autoCompleteStringsQuery,
+                ),
             },
             baseLayer,
             this.aggregateEventsTable,
             this.accountsTable,
             this.accountUsersTable,
             this.spendingsTable,
+            this.accountAutoCompleteTable,
             this.cognito.userRole,
         );
 
