@@ -30,8 +30,10 @@ export const processEvents = async (
                         .eventPayload as any)[field];
                     autoCompleteStrings[field] = [
                         ...new Set([
-                            ...(autoCompleteStrings[field] || []),
-                            ...(v ? [v] : []),
+                            ...(autoCompleteStrings[field]
+                                ? autoCompleteStrings[field].map(s => s.trim())
+                                : []),
+                            ...(v ? [v.trim()] : []),
                         ]),
                     ];
                     autoCompleteStrings[field].sort();
@@ -41,9 +43,13 @@ export const processEvents = async (
                 }`;
                 autoCompleteStrings[categoryDescriptions] = [
                     ...new Set([
-                        ...(autoCompleteStrings[categoryDescriptions] || []),
-                        ((<SpendingCreatedEvent>event).eventPayload as any)
-                            .description,
+                        ...(autoCompleteStrings[categoryDescriptions]
+                            ? autoCompleteStrings[categoryDescriptions].map(s =>
+                                  s.trim(),
+                              )
+                            : []),
+                        ((<SpendingCreatedEvent>event)
+                            .eventPayload as any).description.trim(),
                     ]),
                 ];
                 autoCompleteStrings[categoryDescriptions].sort();
