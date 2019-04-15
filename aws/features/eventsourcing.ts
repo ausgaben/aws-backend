@@ -56,6 +56,7 @@ export class EventSourcingFeature extends Construct {
                     .addActions('dynamodb:PutItem')
                     .addAction('dynamodb:GetItem')
                     .addAction('dynamodb:DeleteItem')
+                    .addAction('dynamodb:Query')
                     .addAction('dynamodb:UpdateItem'),
                 new PolicyStatement(PolicyStatementEffect.Allow)
                     .addResource(aggregateEventsTable.table.tableStreamArn)
