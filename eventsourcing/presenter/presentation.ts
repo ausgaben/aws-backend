@@ -58,6 +58,14 @@ export type UpdateAggregatePresentation<
     type: AggregatePresentationStates.Update;
 };
 
+export const Update = <A extends Aggregate>(
+    aggregate: A,
+): UpdateAggregatePresentation<A> => ({
+    aggregateId: aggregate._meta.id,
+    aggregate,
+    type: AggregatePresentationStates.Update,
+});
+
 /**
  * The Aggregate was deleted. It should be removed from the collection.
  */

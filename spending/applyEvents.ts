@@ -5,12 +5,17 @@ import {
     AggregateSnapshot,
     Create,
     Delete,
+    Update,
 } from '../eventsourcing/presenter/presentation';
 import {
     SpendingCreatedEvent,
     SpendingCreatedEventName,
 } from '../events/SpendingCreated';
 import { SpendingDeletedEventName } from '../events/SpendingDeleted';
+import {
+    SpendingUpdatedEvent,
+    SpendingUpdatedEventName,
+} from '../events/SpendingUpdated';
 
 export const applyEvents = (
     snapshot: AggregateSnapshot<Spending>,
@@ -20,10 +25,11 @@ export const applyEvents = (
         (presentation, event) => {
             switch (event.eventName) {
                 case SpendingCreatedEventName:
-                    const payload = (<SpendingCreatedEvent>event).eventPayload;
+                    const createPayload = (<SpendingCreatedEvent>event)
+                        .eventPayload;
                     return Create<Spending>({
-                        ...payload,
-                        bookedAt: new Date(payload.bookedAt),
+                        ...createPayload,
+                        bookedAt: new Date(createPayload.bookedAt),
                         _meta: {
                             name: SpendingAggregateName,
                             id: snapshot.aggregateId,
@@ -31,15 +37,33 @@ export const applyEvents = (
                             createdAt: event.eventCreatedAt,
                         },
                     });
-                case SpendingDeletedEventName:
-                    const aggregate = (<AggregateSnapshot<Spending>>(
+                case SpendingUpdatedEventName:
+                    const aggregateToUpdate = (<AggregateSnapshot<Spending>>(
                         presentation
                     )).aggregate!;
-                    return Delete({
-                        ...aggregate,
+                    const updatePayload = (<SpendingUpdatedEvent>event)
+                        .eventPayload;
+                    return Update<Spending>({
+                        ...aggregateToUpdate,
+                        ...(updatePayload.booked &&
+                            'set' in updatePayload.booked && {
+                                booked: updatePayload.booked.set,
+                            }),
                         _meta: {
-                            ...aggregate._meta,
-                            version: aggregate._meta.version + 1,
+                            ...aggregateToUpdate._meta,
+                            version: aggregateToUpdate._meta.version + 1,
+                            deletedAt: event.eventCreatedAt,
+                        },
+                    });
+                case SpendingDeletedEventName:
+                    const aggregateToDelete = (<AggregateSnapshot<Spending>>(
+                        presentation
+                    )).aggregate!;
+                    return Delete<Spending>({
+                        ...aggregateToDelete,
+                        _meta: {
+                            ...aggregateToDelete._meta,
+                            version: aggregateToDelete._meta.version + 1,
                             deletedAt: event.eventCreatedAt,
                         },
                     });

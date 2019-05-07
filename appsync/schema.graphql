@@ -42,6 +42,7 @@ type Mutation {
         currencyId: ID!, paidWith: String): CreateEntityResult!
     deleteSpending(spendingId: ID!): Boolean
     inviteUser(accountId: ID!, userId: ID!): CreateEntityResult!
+    updateSpending(spendingId: ID!, booked: Boolean): Boolean
 }
 
 type Query {

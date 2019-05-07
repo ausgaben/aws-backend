@@ -42,6 +42,7 @@ export const processGroupedEvents = async <A extends Aggregate>(
                 // Persist the changes
                 switch (presentation.type) {
                     case AggregatePresentationStates.Create:
+                    case AggregatePresentationStates.Update:
                         await persist(
                             (<CreateAggregatePresentation<A>>presentation)
                                 .aggregate,
