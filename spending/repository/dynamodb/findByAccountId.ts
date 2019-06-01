@@ -34,7 +34,6 @@ export const findByAccountId = (
         const { Items, LastEvaluatedKey } = await dynamodb.send(
             new QueryCommand({
                 TableName,
-                // FIXME: Add pagination Limit: 100,
                 IndexName: 'accountIdIndex',
                 KeyConditionExpression: `accountId = :accountId AND bookedAt BETWEEN :startDate AND :endDate`,
                 ExpressionAttributeValues: {
@@ -51,6 +50,7 @@ export const findByAccountId = (
                 ExclusiveStartKey: args.startKey,
                 ScanIndexForward: false,
                 ProjectionExpression: 'aggregateId',
+                Limit: 100,
             }),
         );
         return batchFetch(
