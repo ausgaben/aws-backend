@@ -32,7 +32,7 @@ export class EventSourcingFeature extends Construct {
         const l = new Function(this, 'eventReducer', {
             code: eventReducerLambda,
             handler: 'index.handler',
-            runtime: Runtime.NodeJS810,
+            runtime: Runtime.NodeJS10x,
             timeout: 300,
             memorySize: 1792,
             description:
