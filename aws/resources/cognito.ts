@@ -30,7 +30,7 @@ export class Cognito extends Construct {
             allowUnauthenticatedIdentities: false,
             cognitoIdentityProviders: [
                 {
-                    clientId: this.userPoolClient.clientId,
+                    clientId: this.userPoolClient.userPoolClientId,
                     providerName: this.userPool.userPoolProviderName,
                 },
             ],

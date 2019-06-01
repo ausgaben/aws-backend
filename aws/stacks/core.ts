@@ -84,13 +84,15 @@ export class CoreStack extends Stack {
         });
 
         new CfnOutput(this, 'userPoolClientId', {
-            value: this.cognito.userPoolClient.clientId,
+            value: this.cognito.userPoolClient.userPoolClientId,
             export: `${this.name}:userPoolClientId`,
         });
 
-        const sourceCodeBucket = Bucket.import(this, 'SourceCodeBucket', {
-            bucketName: sourceCodeBucketName,
-        });
+        const sourceCodeBucket = Bucket.fromBucketName(
+            this,
+            'SourceCodeBucket',
+            sourceCodeBucketName,
+        );
 
         const baseLayer = new LayerVersion(this, `${id}-layer`, {
             code: Code.bucket(sourceCodeBucket, baseLayerZipFileName),
