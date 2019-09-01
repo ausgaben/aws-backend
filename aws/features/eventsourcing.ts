@@ -1,4 +1,4 @@
-import { Construct, Stack } from '@aws-cdk/cdk';
+import { Construct, Stack } from '@aws-cdk/core';
 import { PolicyStatement, PolicyStatementEffect } from '@aws-cdk/aws-iam';
 import {
     Code,

@@ -12,7 +12,7 @@ export const findByUserId = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AccountUserRepository.findByUserId => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'accountUser/repository/dynamodb/findByUserId()',
             errors,
@@ -22,7 +22,7 @@ export const findByUserId = (
         userId: string,
         startKey?: any,
     ): Promise<PaginatedResult<AccountUser>> => {
-        userId = CognitoUserId.decode(userId).getOrElseL(errors => {
+        userId = CognitoUserId.decode(userId).getOrElse(errors => {
             throw new ValidationFailedError(
                 'accountUser/repository/dynamodb/findByUserId()',
                 errors,

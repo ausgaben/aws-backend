@@ -48,14 +48,14 @@ export const getByAggregateId = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AggregateEventRepository.getByAggregateId => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'aggregateEventRepository/dynamodb/getByAggregateId()',
             errors,
         );
     });
     return async (aggregateId: string): Promise<PersistedEvent[]> => {
-        aggregateId = UUIDv4.decode(aggregateId).getOrElseL(errors => {
+        aggregateId = UUIDv4.decode(aggregateId).getOrElse(errors => {
             throw new ValidationFailedError(
                 'aggregateEventRepository/dynamodb/getByAggregateId()',
                 errors,

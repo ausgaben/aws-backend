@@ -1,4 +1,4 @@
-import { App } from '@aws-cdk/cdk';
+import { App } from '@aws-cdk/core';
 import { AusgabenLayeredLambdas } from '../resources/lambdas';
 import { CoreStack } from '../stacks/core';
 

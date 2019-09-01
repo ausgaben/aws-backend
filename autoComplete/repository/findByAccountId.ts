@@ -1,5 +1,10 @@
+import { TaskEither } from 'fp-ts/lib/TaskEither';
+
 export type findByAccountId = (args: {
     accountId: string;
-}) => Promise<{
-    [field: string]: string[];
-}>;
+}) => TaskEither<
+    Error,
+    {
+        [field: string]: string[];
+    }
+>;

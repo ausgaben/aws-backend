@@ -24,7 +24,7 @@ export const createAccount = (
             isSavingsAccount: t.boolean,
         })
         .decode(args)
-        .getOrElseL(errors => {
+        .getOrElse(errors => {
             throw new ValidationFailedError('createAccount()', errors);
         });
     const e: AccountCreatedEvent = {

@@ -64,7 +64,7 @@ export const createSpending = (
             booked: true,
             ...args,
         })
-        .getOrElseL(errors => {
+        .getOrElse(errors => {
             throw new ValidationFailedError('createSpending()', errors);
         });
 

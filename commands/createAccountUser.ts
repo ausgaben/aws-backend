@@ -22,7 +22,7 @@ export const createAccountUser = (
             userId: CognitoUserId,
         })
         .decode(args)
-        .getOrElseL(errors => {
+        .getOrElse(errors => {
             throw new ValidationFailedError('createAccountUser()', errors);
         });
     const e: AccountUserCreatedEvent = {

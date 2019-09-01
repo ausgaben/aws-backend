@@ -33,7 +33,7 @@ export const updateSpending = (
                 booked: t.union([t.undefined, t.boolean]),
             })
             .decode(args)
-            .getOrElseL(errors => {
+            .getOrElse(errors => {
                 throw new ValidationFailedError('updateSpending()', errors);
             });
 

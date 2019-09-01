@@ -1,4 +1,4 @@
-import { Stack, Construct } from '@aws-cdk/cdk';
+import { Stack, Construct } from '@aws-cdk/core';
 import {
     AttributeType,
     BillingMode,

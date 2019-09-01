@@ -1,4 +1,4 @@
-import { Construct, Stack } from '@aws-cdk/cdk';
+import { Construct, Stack } from '@aws-cdk/core';
 import {
     CfnIdentityPool,
     CfnIdentityPoolRoleAttachment,

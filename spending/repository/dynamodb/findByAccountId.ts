@@ -12,7 +12,7 @@ export const findByAccountId = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): SpendingRepository.findByAccountId => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'spending/repository/dynamodb/findByAccountId()',
             errors,
@@ -24,7 +24,7 @@ export const findByAccountId = (
         accountId: string;
         startKey?: any;
     }): Promise<PaginatedResult<Spending>> => {
-        const accountId = UUIDv4.decode(args.accountId).getOrElseL(errors => {
+        const accountId = UUIDv4.decode(args.accountId).getOrElse(errors => {
             throw new ValidationFailedError(
                 'spending/repository/dynamodb/findByAccountId()',
                 errors,

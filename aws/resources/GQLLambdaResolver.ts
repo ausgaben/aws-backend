@@ -1,4 +1,4 @@
-import { Construct } from '@aws-cdk/cdk';
+import { Construct } from '@aws-cdk/core';
 import { ServicePrincipal } from '@aws-cdk/aws-iam';
 import { CfnDataSource, CfnResolver } from '@aws-cdk/aws-appsync';
 import { PolicyStatement, PolicyStatementEffect, Role } from '@aws-cdk/aws-iam';

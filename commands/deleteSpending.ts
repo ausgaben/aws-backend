@@ -31,7 +31,7 @@ export const deleteSpending = (
                 userId: CognitoUserId,
             })
             .decode(args)
-            .getOrElseL(errors => {
+            .getOrElse(errors => {
                 throw new ValidationFailedError('deleteSpending()', errors);
             });
 

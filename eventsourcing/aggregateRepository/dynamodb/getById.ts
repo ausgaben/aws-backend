@@ -18,14 +18,14 @@ export const getById = <A extends Aggregate>(
     aggregateName: string,
     itemToAggregate: (item: DynamoDBItem, _meta: AggregateMeta) => A,
 ): AggregateRepository.getById<A> => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'aggregateRepository/dynamodb/getById()',
             errors,
         );
     });
     return async (aggregateId: string): Promise<A> => {
-        aggregateId = UUIDv4.decode(aggregateId).getOrElseL(errors => {
+        aggregateId = UUIDv4.decode(aggregateId).getOrElse(errors => {
             throw new ValidationFailedError(
                 'aggregateRepository/dynamodb/getById()',
                 errors,

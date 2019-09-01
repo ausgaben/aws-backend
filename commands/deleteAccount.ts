@@ -32,7 +32,7 @@ export const deleteAccount = (
             userId: CognitoUserId,
         })
         .decode(args)
-        .getOrElseL(errors => {
+        .getOrElse(errors => {
             throw new ValidationFailedError('deleteAccount()', errors);
         });
 

@@ -25,7 +25,7 @@ export const persist = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AggregateEventRepository.persist => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'aggregateEventRepository/dynamodb/persist()',
             errors,

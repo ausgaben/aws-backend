@@ -1,4 +1,4 @@
-import { App, CfnOutput, Stack } from '@aws-cdk/cdk';
+import { App, CfnOutput, Stack } from '@aws-cdk/core';
 import { AggregateEventsTable } from '../resources/aggregate-events-table';
 import { Cognito } from '../resources/cognito';
 import { AccountsTable } from '../resources/accounts-table';

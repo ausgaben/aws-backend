@@ -27,7 +27,7 @@ export const persist = <A extends Aggregate>(
     TableName: string,
     aggregateToItem: (aggregate: A) => DynamoDBItem,
 ): AggregateRepository.persist<A> => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'aggregateRepository/dynamodb/persist()',
             errors,

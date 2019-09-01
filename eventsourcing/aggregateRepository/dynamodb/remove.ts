@@ -11,7 +11,7 @@ export const remove = <A extends Aggregate>(
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AggregateRepository.remove<A> => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'aggregateRepository/dynamodb/removeD()',
             errors,

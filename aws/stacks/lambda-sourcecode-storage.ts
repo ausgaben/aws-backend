@@ -1,4 +1,4 @@
-import { App, CfnOutput, RemovalPolicy, Stack } from '@aws-cdk/cdk';
+import { App, CfnOutput, RemovalPolicy, Stack } from '@aws-cdk/core';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { CloudFormation } from 'aws-sdk';
 

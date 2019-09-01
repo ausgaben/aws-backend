@@ -25,7 +25,7 @@ export const deleteAccountUser = (
             accountUserId: UUIDv4,
         })
         .decode(args)
-        .getOrElseL(errors => {
+        .getOrElse(errors => {
             throw new ValidationFailedError('deleteAccountUser()', errors);
         });
 

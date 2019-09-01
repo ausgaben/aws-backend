@@ -12,7 +12,7 @@ export const persist = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AccountAutoCompleteRepository.persist => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = NonEmptyString.decode(TableName).getOrElse(errors => {
         throw new ValidationFailedError(
             'autoComplete/repository/dynamodb/persist()',
             errors,
@@ -31,7 +31,7 @@ export const persist = (
                 ),
             })
             .decode(args)
-            .getOrElseL(errors => {
+            .getOrElse(errors => {
                 throw new ValidationFailedError(
                     'autoComplete/repository/dynamodb/persist()',
                     errors,
