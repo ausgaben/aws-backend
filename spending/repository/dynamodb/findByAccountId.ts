@@ -7,12 +7,13 @@ import { Spending, SpendingAggregateName } from '../../Spending';
 import { batchFetch } from '../../../eventsourcing/aggregateRepository/dynamodb/batchFetch';
 import { itemToAggregate } from './itemToAggregate';
 import { UUIDv4 } from '../../../validation/UUIDv4';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 export const findByAccountId = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): SpendingRepository.findByAccountId => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'spending/repository/dynamodb/findByAccountId()',
             errors,
@@ -24,7 +25,7 @@ export const findByAccountId = (
         accountId: string;
         startKey?: any;
     }): Promise<PaginatedResult<Spending>> => {
-        const accountId = UUIDv4.decode(args.accountId).getOrElseL(errors => {
+        const accountId = getOrElseL(UUIDv4.decode(args.accountId))(errors => {
             throw new ValidationFailedError(
                 'spending/repository/dynamodb/findByAccountId()',
                 errors,

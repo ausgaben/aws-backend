@@ -1,4 +1,4 @@
-import { Stack, Construct } from '@aws-cdk/cdk';
+import { Stack, Construct } from '@aws-cdk/core';
 import {
     AttributeType,
     BillingMode,
@@ -14,37 +14,37 @@ export class AccountUsersTable extends Construct {
         super(stack, id);
 
         this.table = new Table(this, 'table', {
-            billingMode: BillingMode.PayPerRequest,
-            streamSpecification: StreamViewType.NewImage,
+            billingMode: BillingMode.PAY_PER_REQUEST,
+            stream: StreamViewType.NEW_IMAGE,
             partitionKey: {
                 name: 'aggregateId',
-                type: AttributeType.String,
+                type: AttributeType.STRING,
             },
         });
 
         this.table.addGlobalSecondaryIndex({
             indexName: 'userIdIndex',
-            projectionType: ProjectionType.KeysOnly,
+            projectionType: ProjectionType.KEYS_ONLY,
             partitionKey: {
                 name: 'userId',
-                type: AttributeType.String,
+                type: AttributeType.STRING,
             },
             sortKey: {
                 name: 'accountId',
-                type: AttributeType.String,
+                type: AttributeType.STRING,
             },
         });
 
         this.table.addGlobalSecondaryIndex({
             indexName: 'accountIdIndex',
-            projectionType: ProjectionType.KeysOnly,
+            projectionType: ProjectionType.KEYS_ONLY,
             partitionKey: {
                 name: 'accountId',
-                type: AttributeType.String,
+                type: AttributeType.STRING,
             },
             sortKey: {
                 name: 'userId',
-                type: AttributeType.String,
+                type: AttributeType.STRING,
             },
         });
     }

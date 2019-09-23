@@ -12,6 +12,7 @@ import * as AggregateRepository from '../eventsourcing/aggregateRepository/getBy
 import { UUIDv4 } from '../validation/UUIDv4';
 import { ValidationFailedError } from '../errors/ValidationFailedError';
 import { v4 } from 'uuid';
+import { getOrElseL } from '../fp-compat/getOrElseL';
 
 export const deleteAccountUser = (
     persist: (ev: AggregateEvent) => Promise<void>,
@@ -20,14 +21,15 @@ export const deleteAccountUser = (
 ) => async (args: {
     accountUserId: string;
 }): Promise<AccountUserDeletedEvent> => {
-    const { accountUserId } = t
-        .type({
-            accountUserId: UUIDv4,
-        })
-        .decode(args)
-        .getOrElseL(errors => {
-            throw new ValidationFailedError('deleteAccountUser()', errors);
-        });
+    const { accountUserId } = getOrElseL(
+        t
+            .type({
+                accountUserId: UUIDv4,
+            })
+            .decode(args),
+    )(errors => {
+        throw new ValidationFailedError('deleteAccountUser()', errors);
+    });
 
     const accountUser = await getAccountUserById(accountUserId);
 

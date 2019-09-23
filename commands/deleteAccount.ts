@@ -13,6 +13,7 @@ import { CognitoUserId } from '../validation/CognitoUserId';
 import { ValidationFailedError } from '../errors/ValidationFailedError';
 import { v4 } from 'uuid';
 import { AccountUser } from '../accountUser/AccountUser';
+import { getOrElseL } from '../fp-compat/getOrElseL';
 
 export const deleteAccount = (
     persist: (ev: AggregateEvent) => Promise<void>,
@@ -26,15 +27,16 @@ export const deleteAccount = (
     accountId: string;
     userId: string;
 }): Promise<AccountDeletedEvent> => {
-    const { accountId, userId } = t
-        .type({
-            accountId: UUIDv4,
-            userId: CognitoUserId,
-        })
-        .decode(args)
-        .getOrElseL(errors => {
-            throw new ValidationFailedError('deleteAccount()', errors);
-        });
+    const { accountId, userId } = getOrElseL(
+        t
+            .type({
+                accountId: UUIDv4,
+                userId: CognitoUserId,
+            })
+            .decode(args),
+    )(errors => {
+        throw new ValidationFailedError('deleteAccount()', errors);
+    });
 
     const [account, userAccounts] = await Promise.all([
         getAccountById(accountId),

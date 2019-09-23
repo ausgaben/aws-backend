@@ -1,4 +1,4 @@
-import { App, CfnOutput, RemovalPolicy, Stack } from '@aws-cdk/cdk';
+import { App, CfnOutput, RemovalPolicy, Stack } from '@aws-cdk/core';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { CloudFormation } from 'aws-sdk';
 
@@ -13,12 +13,12 @@ export class LambdaSourcecodeStorageStack extends Stack {
     constructor(parent: App, id: string) {
         super(parent, id);
         this.bucket = new Bucket(this, 'cf-sourcecode', {
-            removalPolicy: RemovalPolicy.Orphan,
+            removalPolicy: RemovalPolicy.RETAIN,
         });
 
         new CfnOutput(this, 'bucketName', {
             value: this.bucket.bucketName,
-            export: `${this.name}:bucketName`,
+            exportName: `${this.stackName}:bucketName`,
         });
     }
 

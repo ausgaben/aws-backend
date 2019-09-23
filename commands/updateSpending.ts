@@ -12,6 +12,7 @@ import {
     SpendingUpdatedEvent,
     SpendingUpdatedEventName,
 } from '../events/SpendingUpdated';
+import { getOrElseL } from '../fp-compat/getOrElseL';
 
 export const updateSpending = (
     persist: (ev: AggregateEvent) => Promise<void>,
@@ -26,16 +27,17 @@ export const updateSpending = (
         userId: string;
         booked?: boolean;
     }): Promise<SpendingUpdatedEvent> => {
-        const { spendingId, userId, booked } = t
-            .type({
-                spendingId: UUIDv4,
-                userId: CognitoUserId,
-                booked: t.union([t.undefined, t.boolean]),
-            })
-            .decode(args)
-            .getOrElseL(errors => {
-                throw new ValidationFailedError('updateSpending()', errors);
-            });
+        const { spendingId, userId, booked } = getOrElseL(
+            t
+                .type({
+                    spendingId: UUIDv4,
+                    userId: CognitoUserId,
+                    booked: t.union([t.undefined, t.boolean]),
+                })
+                .decode(args),
+        )(errors => {
+            throw new ValidationFailedError('updateSpending()', errors);
+        });
 
         const spending = await getSpendingById(spendingId);
 

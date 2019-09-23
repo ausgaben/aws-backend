@@ -9,6 +9,7 @@ import { UUIDv4 } from '../../../validation/UUIDv4';
 import { PersistedEvent } from '../PersistedEvent';
 import * as AggregateEventRepository from '../getByAggregateId';
 import { DynamoDBItem } from '../../aggregateRepository/dynamodb/DynamoDBItem';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 const fetchEvents = async (
     dynamodb: DynamoDBClient,
@@ -48,14 +49,14 @@ export const getByAggregateId = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AggregateEventRepository.getByAggregateId => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'aggregateEventRepository/dynamodb/getByAggregateId()',
             errors,
         );
     });
     return async (aggregateId: string): Promise<PersistedEvent[]> => {
-        aggregateId = UUIDv4.decode(aggregateId).getOrElseL(errors => {
+        aggregateId = getOrElseL(UUIDv4.decode(aggregateId))(errors => {
             throw new ValidationFailedError(
                 'aggregateEventRepository/dynamodb/getByAggregateId()',
                 errors,

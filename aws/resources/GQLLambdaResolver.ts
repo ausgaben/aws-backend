@@ -1,9 +1,11 @@
-import { Construct } from '@aws-cdk/cdk';
-import { ServicePrincipal } from '@aws-cdk/aws-iam';
-import { CfnDataSource, CfnResolver } from '@aws-cdk/aws-appsync';
-import { PolicyStatement, PolicyStatementEffect, Role } from '@aws-cdk/aws-iam';
+import { Construct } from '@aws-cdk/core';
+import { PolicyStatement, Role, ServicePrincipal } from '@aws-cdk/aws-iam';
+import {
+    CfnDataSource,
+    CfnGraphQLApi,
+    CfnResolver,
+} from '@aws-cdk/aws-appsync';
 import { Function } from '@aws-cdk/aws-lambda';
-import { CfnGraphQLApi } from '@aws-cdk/aws-appsync';
 
 export class GQLLambdaResolver extends Construct {
     constructor(
@@ -19,20 +21,24 @@ export class GQLLambdaResolver extends Construct {
             assumedBy: new ServicePrincipal('appsync.amazonaws.com'),
         });
         apiRole.addToPolicy(
-            new PolicyStatement(PolicyStatementEffect.Allow)
-                .addResource(`arn:aws:logs:*:*:/aws/lambda/*`)
-                .addAction('logs:CreateLogGroup')
-                .addAction('logs:CreateLogStream')
-                .addAction('logs:PutLogEvents'),
+            new PolicyStatement({
+                actions: [
+                    'logs:CreateLogGroup',
+                    'logs:CreateLogStream',
+                    'logs:PutLogEvents',
+                ],
+                resources: [`arn:aws:logs:*:*:/aws/lambda/*`],
+            }),
         );
         apiRole.addToPolicy(
-            new PolicyStatement(PolicyStatementEffect.Allow)
-                .addResource(lambda.functionArn)
-                .addAction('lambda:InvokeFunction'),
+            new PolicyStatement({
+                actions: ['lambda:InvokeFunction'],
+                resources: [lambda.functionArn],
+            }),
         );
 
         const dataSource = new CfnDataSource(this, 'DataSource', {
-            apiId: graphqlApi.graphQlApiApiId,
+            apiId: graphqlApi.attrApiId,
             name: `${field}${type}`,
             type: 'AWS_LAMBDA',
             serviceRoleArn: apiRole.roleArn,
@@ -42,10 +48,10 @@ export class GQLLambdaResolver extends Construct {
         });
 
         new CfnResolver(this, 'Resolver', {
-            apiId: graphqlApi.graphQlApiApiId,
+            apiId: graphqlApi.attrApiId,
             typeName: type,
             fieldName: field,
-            dataSourceName: dataSource.dataSourceName,
+            dataSourceName: dataSource.name,
             requestMappingTemplate:
                 '#set($payload = {})\n' +
                 '#foreach ($key in $context.arguments.keySet())\n' +

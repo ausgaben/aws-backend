@@ -7,12 +7,13 @@ import { AccountUser, AccountUserAggregateName } from '../../AccountUser';
 import { CognitoUserId } from '../../../validation/CognitoUserId';
 import { batchFetch } from '../../../eventsourcing/aggregateRepository/dynamodb/batchFetch';
 import { itemToAggregate } from './itemToAggregate';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 export const findByUserId = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AccountUserRepository.findByUserId => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'accountUser/repository/dynamodb/findByUserId()',
             errors,
@@ -22,7 +23,7 @@ export const findByUserId = (
         userId: string,
         startKey?: any,
     ): Promise<PaginatedResult<AccountUser>> => {
-        userId = CognitoUserId.decode(userId).getOrElseL(errors => {
+        userId = getOrElseL(CognitoUserId.decode(userId))(errors => {
             throw new ValidationFailedError(
                 'accountUser/repository/dynamodb/findByUserId()',
                 errors,

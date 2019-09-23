@@ -9,6 +9,7 @@ import { ValidationFailedError } from '../errors/ValidationFailedError';
 import { v4 } from 'uuid';
 import { UUIDv4 } from '../validation/UUIDv4';
 import { AccountUserAggregateName } from '../accountUser/AccountUser';
+import { getOrElseL } from '../fp-compat/getOrElseL';
 
 export const createAccountUser = (
     persist: (ev: AggregateEventWithPayload) => Promise<void>,
@@ -16,15 +17,16 @@ export const createAccountUser = (
     userId: string;
     accountId: string;
 }): Promise<AccountUserCreatedEvent> => {
-    const eventPayload = t
-        .type({
-            accountId: UUIDv4,
-            userId: CognitoUserId,
-        })
-        .decode(args)
-        .getOrElseL(errors => {
-            throw new ValidationFailedError('createAccountUser()', errors);
-        });
+    const eventPayload = getOrElseL(
+        t
+            .type({
+                accountId: UUIDv4,
+                userId: CognitoUserId,
+            })
+            .decode(args),
+    )(errors => {
+        throw new ValidationFailedError('createAccountUser()', errors);
+    });
     const e: AccountUserCreatedEvent = {
         eventId: v4(),
         eventName: AccountUserCreatedEventName,

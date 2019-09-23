@@ -32,9 +32,7 @@ export const handler = async (
         );
         if (!accountUser) {
             throw new AccessDeniedError(
-                `User "${
-                    event.cognitoIdentityId
-                }" is not allowed to access account "${event.accountId}"!`,
+                `User "${event.cognitoIdentityId}" is not allowed to access account "${event.accountId}"!`,
             );
         }
         const e = await addUserToAccount({

@@ -15,6 +15,7 @@ import { currencies } from '../currency/currencies';
 import * as AccountUserRepository from '../accountUser/repository/findByUserId';
 import { AccessDeniedError } from '../errors/AccessDeniedError';
 import { CognitoUserId } from '../validation/CognitoUserId';
+import { getOrElseL } from '../fp-compat/getOrElseL';
 
 export const createSpending = (
     persist: (ev: AggregateEventWithPayload) => Promise<void>,
@@ -40,33 +41,34 @@ export const createSpending = (
         currencyId,
         booked,
         paidWith,
-    } = t
-        .type({
-            userId: CognitoUserId,
-            accountId: UUIDv4,
-            bookedAt: DateFromString,
-            category: NonEmptyString,
-            description: NonEmptyString,
-            amount: NonZeroInteger,
-            currencyId: t.keyof(
-                currencies.reduce(
-                    (obj, { id }) => {
-                        obj[id] = null;
-                        return obj;
-                    },
-                    {} as { [key: string]: null },
+    } = getOrElseL(
+        t
+            .type({
+                userId: CognitoUserId,
+                accountId: UUIDv4,
+                bookedAt: DateFromString,
+                category: NonEmptyString,
+                description: NonEmptyString,
+                amount: NonZeroInteger,
+                currencyId: t.keyof(
+                    currencies.reduce(
+                        (obj, { id }) => {
+                            obj[id] = null;
+                            return obj;
+                        },
+                        {} as { [key: string]: null },
+                    ),
                 ),
-            ),
-            booked: t.boolean,
-            paidWith: t.union([t.null, NonEmptyString]),
-        })
-        .decode({
-            booked: true,
-            ...args,
-        })
-        .getOrElseL(errors => {
-            throw new ValidationFailedError('createSpending()', errors);
-        });
+                booked: t.boolean,
+                paidWith: t.union([t.null, NonEmptyString]),
+            })
+            .decode({
+                booked: true,
+                ...args,
+            }),
+    )(errors => {
+        throw new ValidationFailedError('createSpending()', errors);
+    });
 
     const userAccounts = await findAccountUserByUserId(userId);
     const accountUser = userAccounts.items.find(

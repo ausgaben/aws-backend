@@ -26,25 +26,24 @@
   },
   "homepage": "https://github.com/ausgaben/aws-backend#readme",
   "devDependencies": {
-    "@aws-cdk/aws-appsync": "^0.33.0",
-    "@aws-cdk/aws-cognito": "^0.33.0",
-    "@aws-cdk/aws-dynamodb": "^0.33.0",
-    "@aws-cdk/aws-iam": "^0.33.0",
-    "@aws-cdk/cdk": "^0.33.0",
-    "@nrfcloud/aws-cf-stack-output": "^1.1.1",
-    "@nrfcloud/package-layered-lambdas": "^1.1.0",
-    "@nrfcloud/tslint-config": "^3.8.0",
-    "@types/aws-lambda": "^8.10.26",
-    "@types/jest": "^24.0.13",
-    "@types/uuid": "^3.4.4",
-    "aws-cdk": "^0.33.0",
-    "husky": "^2.3.0",
-    "jest": "^24.8.0",
-    "prettier": "^1.17.1",
-    "ts-jest": "^24.0.2",
-    "ts-loader": "^6.0.2",
-    "tslint": "^5.17.0",
-    "typescript": "^3.5.1"
+    "@aws-cdk/aws-appsync": "^1.9.0",
+    "@aws-cdk/aws-cognito": "^1.9.0",
+    "@aws-cdk/aws-dynamodb": "^1.9.0",
+    "@aws-cdk/aws-iam": "^1.9.0",
+    "@aws-cdk/core": "^1.9.0",
+    "@bifravst/package-layered-lambdas": "^2.0.0",
+    "@nrfcloud/tslint-config": "^3.10.0",
+    "@types/aws-lambda": "^8.10.32",
+    "@types/jest": "^24.0.18",
+    "@types/uuid": "^3.4.5",
+    "aws-cdk": "^1.9.0",
+    "husky": "^3.0.5",
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.1.0",
+    "ts-loader": "^6.1.2",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
   },
   "husky": {
     "hooks": {
@@ -53,8 +52,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb-v2-node": "0.1.0-preview.2",
-    "io-ts": "^1.8.6",
-    "uuid": "^3.3.2"
+    "fp-ts": "^2.0.5",
+    "io-ts": "^2.0.1",
+    "uuid": "^3.3.3"
   },
   "jest": {
     "testURL": "http://localhost",

@@ -1,4 +1,4 @@
-import { Stack, Construct } from '@aws-cdk/cdk';
+import { Stack, Construct } from '@aws-cdk/core';
 import {
     AttributeType,
     BillingMode,
@@ -13,15 +13,15 @@ export class AccountAutoCompleteTable extends Construct {
         super(stack, id);
 
         this.table = new Table(this, 'table', {
-            billingMode: BillingMode.PayPerRequest,
-            streamSpecification: StreamViewType.NewImage,
+            billingMode: BillingMode.PAY_PER_REQUEST,
+            stream: StreamViewType.NEW_IMAGE,
             partitionKey: {
                 name: 'accountId',
-                type: AttributeType.String,
+                type: AttributeType.STRING,
             },
             sortKey: {
                 name: 'autoCompleteField',
-                type: AttributeType.String,
+                type: AttributeType.STRING,
             },
         });
     }

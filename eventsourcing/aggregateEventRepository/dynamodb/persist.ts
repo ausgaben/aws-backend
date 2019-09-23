@@ -10,6 +10,7 @@ import {
 } from '../../AggregateEvent';
 
 import * as AggregateEventRepository from '../persist';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 const startHrtime = process.hrtime();
 const startTime = Date.now();
@@ -25,7 +26,7 @@ export const persist = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AggregateEventRepository.persist => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'aggregateEventRepository/dynamodb/persist()',
             errors,

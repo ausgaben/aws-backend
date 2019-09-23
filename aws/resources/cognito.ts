@@ -1,4 +1,4 @@
-import { Construct, Stack } from '@aws-cdk/cdk';
+import { Construct, Stack } from '@aws-cdk/core';
 import {
     CfnIdentityPool,
     CfnIdentityPoolRoleAttachment,
@@ -20,8 +20,8 @@ export class Cognito extends Construct {
     constructor(stack: Stack, id: string) {
         super(stack, id);
         this.userPool = new UserPool(this, 'userPool', {
-            signInType: SignInType.Email,
-            autoVerifiedAttributes: [UserPoolAttribute.Email],
+            signInType: SignInType.EMAIL,
+            autoVerifiedAttributes: [UserPoolAttribute.EMAIL],
         });
         this.userPoolClient = new UserPoolClient(this, 'userPoolClient', {
             userPool: this.userPool,
@@ -43,7 +43,7 @@ export class Cognito extends Construct {
                 {
                     StringEquals: {
                         'cognito-identity.amazonaws.com:aud': this.identityPool
-                            .identityPoolId,
+                            .ref,
                     },
                     'ForAnyValue:StringLike': {
                         'cognito-identity.amazonaws.com:amr': 'authenticated',
@@ -62,7 +62,7 @@ export class Cognito extends Construct {
                     {
                         StringEquals: {
                             'cognito-identity.amazonaws.com:aud': this
-                                .identityPool.identityPoolId,
+                                .identityPool.ref,
                         },
                         'ForAnyValue:StringLike': {
                             'cognito-identity.amazonaws.com:amr':
@@ -75,7 +75,7 @@ export class Cognito extends Construct {
         );
 
         new CfnIdentityPoolRoleAttachment(this, 'identityPoolRoles', {
-            identityPoolId: this.identityPool.identityPoolId,
+            identityPoolId: this.identityPool.ref,
             roles: {
                 authenticated: this.userRole.roleArn,
                 unauthenticated: unauthenticatedUserRole.roleArn,

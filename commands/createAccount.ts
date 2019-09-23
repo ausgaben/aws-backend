@@ -9,6 +9,7 @@ import { ValidationFailedError } from '../errors/ValidationFailedError';
 import { NonEmptyString } from '../validation/NonEmptyString';
 import { v4 } from 'uuid';
 import { AccountAggregateName } from '../account/Account';
+import { getOrElseL } from '../fp-compat/getOrElseL';
 
 export const createAccount = (
     persist: (ev: AggregateEventWithPayload) => Promise<void>,
@@ -17,16 +18,17 @@ export const createAccount = (
     isSavingsAccount: boolean;
     userId: string;
 }): Promise<AccountCreatedEvent> => {
-    const { name, isSavingsAccount } = t
-        .type({
-            name: NonEmptyString,
-            userId: CognitoUserId,
-            isSavingsAccount: t.boolean,
-        })
-        .decode(args)
-        .getOrElseL(errors => {
-            throw new ValidationFailedError('createAccount()', errors);
-        });
+    const { name, isSavingsAccount } = getOrElseL(
+        t
+            .type({
+                name: NonEmptyString,
+                userId: CognitoUserId,
+                isSavingsAccount: t.boolean,
+            })
+            .decode(args),
+    )(errors => {
+        throw new ValidationFailedError('createAccount()', errors);
+    });
     const e: AccountCreatedEvent = {
         eventId: v4(),
         eventName: AccountCreatedEventName,

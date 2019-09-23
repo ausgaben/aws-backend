@@ -1,4 +1,4 @@
-import { App, CfnOutput, Stack } from '@aws-cdk/cdk';
+import { App, CfnOutput, Stack } from '@aws-cdk/core';
 import { AggregateEventsTable } from '../resources/aggregate-events-table';
 import { Cognito } from '../resources/cognito';
 import { AccountsTable } from '../resources/accounts-table';
@@ -34,14 +34,14 @@ export class CoreStack extends Stack {
         );
         new CfnOutput(this, 'aggregateEventsTableName', {
             value: this.aggregateEventsTable.table.tableName,
-            export: `${this.name}:aggregateEventsTableName`,
+            exportName: `${this.stackName}:aggregateEventsTableName`,
         });
 
         this.accountsTable = new AccountsTable(this, 'accountsTable');
 
         new CfnOutput(this, 'accountsTableName', {
             value: this.accountsTable.table.tableName,
-            export: `${this.name}:accountsTableName`,
+            exportName: `${this.stackName}:accountsTableName`,
         });
 
         this.accountUsersTable = new AccountUsersTable(
@@ -51,14 +51,14 @@ export class CoreStack extends Stack {
 
         new CfnOutput(this, 'accountUsersTableName', {
             value: this.accountUsersTable.table.tableName,
-            export: `${this.name}:accountUsersTableName`,
+            exportName: `${this.stackName}:accountUsersTableName`,
         });
 
         this.spendingsTable = new SpendingsTable(this, 'spendingsTable');
 
         new CfnOutput(this, 'spendingsTableName', {
             value: this.spendingsTable.table.tableName,
-            export: `${this.name}:spendingsTableName`,
+            exportName: `${this.stackName}:spendingsTableName`,
         });
 
         this.accountAutoCompleteTable = new AccountAutoCompleteTable(
@@ -68,24 +68,24 @@ export class CoreStack extends Stack {
 
         new CfnOutput(this, 'accountAutoCompleteTableName', {
             value: this.accountAutoCompleteTable.table.tableName,
-            export: `${this.name}:accountAutoCompleteTableName`,
+            exportName: `${this.stackName}:accountAutoCompleteTableName`,
         });
 
         this.cognito = new Cognito(this, 'cognito');
 
         new CfnOutput(this, 'userPoolId', {
             value: this.cognito.userPool.userPoolId,
-            export: `${this.name}:userPoolId`,
+            exportName: `${this.stackName}:userPoolId`,
         });
 
         new CfnOutput(this, 'identityPoolId', {
-            value: this.cognito.identityPool.identityPoolId,
-            export: `${this.name}:identityPoolId`,
+            value: this.cognito.identityPool.ref,
+            exportName: `${this.stackName}:identityPoolId`,
         });
 
         new CfnOutput(this, 'userPoolClientId', {
             value: this.cognito.userPoolClient.userPoolClientId,
-            export: `${this.name}:userPoolClientId`,
+            exportName: `${this.stackName}:userPoolClientId`,
         });
 
         const sourceCodeBucket = Bucket.fromBucketName(
@@ -96,7 +96,7 @@ export class CoreStack extends Stack {
 
         const baseLayer = new LayerVersion(this, `${id}-layer`, {
             code: Code.bucket(sourceCodeBucket, baseLayerZipFileName),
-            compatibleRuntimes: [Runtime.NodeJS10x],
+            compatibleRuntimes: [Runtime.NODEJS_10_X],
         });
 
         new EventSourcingFeature(
@@ -165,8 +165,8 @@ export class CoreStack extends Stack {
         );
 
         new CfnOutput(this, 'apiUrl', {
-            value: api.api.graphQlApiGraphQlUrl,
-            export: `${this.name}:apiUrl`,
+            value: api.api.attrApiId,
+            exportName: `${this.stackName}:apiUrl`,
         });
     }
 }

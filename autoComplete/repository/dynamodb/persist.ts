@@ -7,12 +7,13 @@ import { NonEmptyString } from '../../../validation/NonEmptyString';
 import { ValidationFailedError } from '../../../errors/ValidationFailedError';
 import { UUIDv4 } from '../../../validation/UUIDv4';
 import * as t from 'io-ts';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 export const persist = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AccountAutoCompleteRepository.persist => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'autoComplete/repository/dynamodb/persist()',
             errors,
@@ -22,21 +23,22 @@ export const persist = (
         accountId: string;
         autoCompleteStrings: { [key: string]: string[] };
     }): Promise<void> => {
-        const { accountId, autoCompleteStrings } = t
-            .type({
-                accountId: UUIDv4,
-                autoCompleteStrings: t.record(
-                    t.string,
-                    t.array(NonEmptyString),
-                ),
-            })
-            .decode(args)
-            .getOrElseL(errors => {
-                throw new ValidationFailedError(
-                    'autoComplete/repository/dynamodb/persist()',
-                    errors,
-                );
-            });
+        const { accountId, autoCompleteStrings } = getOrElseL(
+            t
+                .type({
+                    accountId: UUIDv4,
+                    autoCompleteStrings: t.record(
+                        t.string,
+                        t.array(NonEmptyString),
+                    ),
+                })
+                .decode(args),
+        )(errors => {
+            throw new ValidationFailedError(
+                'autoComplete/repository/dynamodb/persist()',
+                errors,
+            );
+        });
 
         await Promise.all(
             Object.keys(autoCompleteStrings).map(field =>

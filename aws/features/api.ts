@@ -1,13 +1,12 @@
-import { Construct, Stack } from '@aws-cdk/cdk';
+import { Construct, RemovalPolicy, Stack, Duration } from '@aws-cdk/core';
 import {
     IRole,
     PolicyStatement,
-    PolicyStatementEffect,
     Role,
     ServicePrincipal,
 } from '@aws-cdk/aws-iam';
 import { Code, Function, ILayerVersion, Runtime } from '@aws-cdk/aws-lambda';
-import { LogGroup } from '@aws-cdk/aws-logs';
+import { LogGroup, RetentionDays } from '@aws-cdk/aws-logs';
 import { AggregateEventsTable } from '../resources/aggregate-events-table';
 import { CfnGraphQLApi, CfnGraphQLSchema } from '@aws-cdk/aws-appsync';
 import { readFileSync } from 'fs';
@@ -49,15 +48,16 @@ export class ApiFeature extends Construct {
             assumedBy: new ServicePrincipal('appsync.amazonaws.com'),
         });
         apiRole.addToPolicy(
-            new PolicyStatement(PolicyStatementEffect.Allow)
-                .addResource(
-                    `arn:aws:logs:${stack.region}:${
-                        stack.accountId
-                    }:/aws/lambda/*`,
-                )
-                .addAction('logs:CreateLogGroup')
-                .addAction('logs:CreateLogStream')
-                .addAction('logs:PutLogEvents'),
+            new PolicyStatement({
+                actions: [
+                    'logs:CreateLogGroup',
+                    'logs:CreateLogStream',
+                    'logs:PutLogEvents',
+                ],
+                resources: [
+                    `arn:aws:logs:${stack.region}:${stack.account}:/aws/lambda/*`,
+                ],
+            }),
         );
 
         this.api = new CfnGraphQLApi(this, 'Api', {
@@ -70,19 +70,20 @@ export class ApiFeature extends Construct {
         });
 
         userRole.addToPolicy(
-            new PolicyStatement(PolicyStatementEffect.Allow)
-                .addAction('appsync:GraphQL')
-                .addResource(`${this.api.getAtt('Arn')}/*`),
+            new PolicyStatement({
+                actions: ['appsync:GraphQL'],
+                resources: [`${this.api.attrArn}/*`],
+            }),
         );
 
         new LogGroup(this, 'LogGroup', {
-            retainLogGroup: false,
-            logGroupName: `/aws/appsync/apis/${this.api.graphQlApiApiId}`,
-            retentionDays: 7,
+            removalPolicy: RemovalPolicy.DESTROY,
+            logGroupName: `/aws/appsync/apis/${this.api.attrApiId}`,
+            retention: RetentionDays.ONE_WEEK,
         });
 
         new CfnGraphQLSchema(this, 'Schema', {
-            apiId: this.api.graphQlApiApiId,
+            apiId: this.api.attrApiId,
             definition: readFileSync(
                 path.resolve(
                     __dirname,
@@ -105,9 +106,10 @@ export class ApiFeature extends Construct {
             'Mutation',
             lambdas.createAccountMutation,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(aggregateEventsTable.table.tableArn)
-                    .addAction('dynamodb:PutItem'),
+                new PolicyStatement({
+                    actions: ['dynamodb:PutItem'],
+                    resources: [aggregateEventsTable.table.tableArn],
+                }),
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
@@ -123,17 +125,23 @@ export class ApiFeature extends Construct {
             'Mutation',
             lambdas.deleteAccountMutation,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(aggregateEventsTable.table.tableArn)
-                    .addAction('dynamodb:PutItem'),
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(accountsTable.table.tableArn)
-                    .addResource(`${accountsTable.table.tableArn}/*`)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: ['dynamodb:PutItem'],
+                    resources: [aggregateEventsTable.table.tableArn],
+                }),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        accountsTable.table.tableArn,
+                        `${accountsTable.table.tableArn}/*`,
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
@@ -151,14 +159,19 @@ export class ApiFeature extends Construct {
             'Query',
             lambdas.accountsQuery,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(accountsTable.table.tableArn)
-                    .addResource(`${accountsTable.table.tableArn}/*`)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        accountsTable.table.tableArn,
+                        `${accountsTable.table.tableArn}/*`,
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 ACCOUNTS_TABLE: accountsTable.table.tableName,
@@ -175,15 +188,22 @@ export class ApiFeature extends Construct {
             'Mutation',
             lambdas.createSpendingMutation,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(aggregateEventsTable.table.tableArn)
-                    .addAction('dynamodb:PutItem'),
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: ['dynamodb:PutItem'],
+                    resources: [aggregateEventsTable.table.tableArn],
+                }),
+
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
@@ -200,17 +220,24 @@ export class ApiFeature extends Construct {
             'Mutation',
             lambdas.updateSpendingMutation,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(aggregateEventsTable.table.tableArn)
-                    .addAction('dynamodb:PutItem'),
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(spendingsTable.table.tableArn)
-                    .addResource(`${spendingsTable.table.tableArn}/*`)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: ['dynamodb:PutItem'],
+                    resources: [aggregateEventsTable.table.tableArn],
+                }),
+
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        spendingsTable.table.tableArn,
+                        `${spendingsTable.table.tableArn}/*`,
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
@@ -228,17 +255,23 @@ export class ApiFeature extends Construct {
             'Mutation',
             lambdas.deleteSpendingMutation,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(aggregateEventsTable.table.tableArn)
-                    .addAction('dynamodb:PutItem'),
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(spendingsTable.table.tableArn)
-                    .addResource(`${spendingsTable.table.tableArn}/*`)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: ['dynamodb:PutItem'],
+                    resources: [aggregateEventsTable.table.tableArn],
+                }),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        spendingsTable.table.tableArn,
+                        `${spendingsTable.table.tableArn}/*`,
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
@@ -256,14 +289,19 @@ export class ApiFeature extends Construct {
             'Query',
             lambdas.spendingsQuery,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(spendingsTable.table.tableArn)
-                    .addResource(`${spendingsTable.table.tableArn}/*`)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        spendingsTable.table.tableArn,
+                        `${spendingsTable.table.tableArn}/*`,
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 SPENDINGS_TABLE: spendingsTable.table.tableName,
@@ -280,15 +318,21 @@ export class ApiFeature extends Construct {
             'Mutation',
             lambdas.inviteUserMutation,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(aggregateEventsTable.table.tableArn)
-                    .addAction('dynamodb:PutItem'),
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: ['dynamodb:PutItem'],
+                    resources: [aggregateEventsTable.table.tableArn],
+                }),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
@@ -305,14 +349,19 @@ export class ApiFeature extends Construct {
             'Query',
             lambdas.autoCompleteStringsQuery,
             [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(accountAutoCompleteTable.table.tableArn)
-                    .addResource(`${accountAutoCompleteTable.table.tableArn}/*`)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(`${accountUsersTable.table.tableArn}/*`)
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:BatchGetItem'),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:Query',
+                        'dynamodb:GetItem',
+                        'dynamodb:BatchGetItem',
+                    ],
+                    resources: [
+                        accountAutoCompleteTable.table.tableArn,
+                        `${accountAutoCompleteTable.table.tableArn}/*`,
+                        accountUsersTable.table.tableArn,
+                        `${accountUsersTable.table.tableArn}/*`,
+                    ],
+                }),
             ],
             {
                 ACCOUNT_AUTOCOMPLETE_TABLE:
@@ -338,19 +387,20 @@ const gqlLambda = (
 ) => {
     const f = new Function(parent, `${field}${type}`, {
         handler: 'index.handler',
-        runtime: Runtime.NodeJS10x,
-        timeout: 30,
+        runtime: Runtime.NODEJS_10_X,
+        timeout: Duration.seconds(30),
         memorySize: 1792,
         initialPolicy: [
-            new PolicyStatement(PolicyStatementEffect.Allow)
-                .addResource(
-                    `arn:aws:logs:${stack.region}:${
-                        stack.accountId
-                    }:/aws/lambda/*`,
-                )
-                .addAction('logs:CreateLogGroup')
-                .addAction('logs:CreateLogStream')
-                .addAction('logs:PutLogEvents'),
+            new PolicyStatement({
+                actions: [
+                    'logs:CreateLogGroup',
+                    'logs:CreateLogStream',
+                    'logs:PutLogEvents',
+                ],
+                resources: [
+                    `arn:aws:logs:${stack.region}:${stack.account}:/aws/lambda/*`,
+                ],
+            }),
             ...policies,
         ],
         environment,
@@ -359,9 +409,9 @@ const gqlLambda = (
     });
 
     new LogGroup(parent, `${field}${type}LogGroup`, {
-        retainLogGroup: false,
+        removalPolicy: RemovalPolicy.DESTROY,
         logGroupName: `/aws/lambda/${f.functionName}`,
-        retentionDays: 7,
+        retention: RetentionDays.ONE_WEEK,
     });
 
     new GQLLambdaResolver(parent, api, field, type, f);

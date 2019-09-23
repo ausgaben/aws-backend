@@ -1,7 +1,7 @@
 import { LambdaSourcecodeStorageStack } from './stacks/lambda-sourcecode-storage';
 import { SourceCodeStackName } from './app/sourcecode';
 import * as fs from 'fs';
-import { packBaseLayer } from '@nrfcloud/package-layered-lambdas';
+import { packBaseLayer } from '@bifravst/package-layered-lambdas';
 import { lambdas } from './resources/lambdas';
 import { AusgabenApp } from './app/ausgaben';
 
@@ -32,5 +32,5 @@ const path = require('path');
             Bucket,
         }),
         layeredLambdas,
-    ).run();
+    ).synth();
 })();

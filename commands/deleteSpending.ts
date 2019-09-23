@@ -12,6 +12,7 @@ import {
     SpendingDeletedEvent,
     SpendingDeletedEventName,
 } from '../events/SpendingDeleted';
+import { getOrElseL } from '../fp-compat/getOrElseL';
 
 export const deleteSpending = (
     persist: (ev: AggregateEvent) => Promise<void>,
@@ -25,15 +26,16 @@ export const deleteSpending = (
         spendingId: string;
         userId: string;
     }): Promise<SpendingDeletedEvent> => {
-        const { spendingId, userId } = t
-            .type({
-                spendingId: UUIDv4,
-                userId: CognitoUserId,
-            })
-            .decode(args)
-            .getOrElseL(errors => {
-                throw new ValidationFailedError('deleteSpending()', errors);
-            });
+        const { spendingId, userId } = getOrElseL(
+            t
+                .type({
+                    spendingId: UUIDv4,
+                    userId: CognitoUserId,
+                })
+                .decode(args),
+        )(errors => {
+            throw new ValidationFailedError('deleteSpending()', errors);
+        });
 
         const spending = await getSpendingById(spendingId);
 

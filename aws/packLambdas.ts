@@ -2,7 +2,7 @@ import * as path from 'path';
 import {
     packLayeredLambdas,
     WebpackMode,
-} from '@nrfcloud/package-layered-lambdas';
+} from '@bifravst/package-layered-lambdas';
 
 const rootFolder = path.resolve(__dirname, '..', '..');
 

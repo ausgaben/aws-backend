@@ -6,12 +6,13 @@ import * as AggregateRepository from '../remove';
 import { Aggregate } from '../Aggregate';
 import { NonEmptyString } from '../../../validation/NonEmptyString';
 import { ValidationFailedError } from '../../../errors/ValidationFailedError';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 export const remove = <A extends Aggregate>(
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AggregateRepository.remove<A> => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'aggregateRepository/dynamodb/removeD()',
             errors,

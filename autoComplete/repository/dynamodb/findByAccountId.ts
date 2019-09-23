@@ -3,12 +3,13 @@ import * as AccountAutoCompleteRepository from '../findByAccountId';
 import { NonEmptyString } from '../../../validation/NonEmptyString';
 import { ValidationFailedError } from '../../../errors/ValidationFailedError';
 import { UUIDv4 } from '../../../validation/UUIDv4';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 export const findByAccountId = (
     dynamodb: DynamoDBClient,
     TableName: string,
 ): AccountAutoCompleteRepository.findByAccountId => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'autoComplete/repository/dynamodb/findByAccountId()',
             errors,
@@ -19,7 +20,7 @@ export const findByAccountId = (
     }): Promise<{
         [field: string]: string[];
     }> => {
-        const accountId = UUIDv4.decode(args.accountId).getOrElseL(errors => {
+        const accountId = getOrElseL(UUIDv4.decode(args.accountId))(errors => {
             throw new ValidationFailedError(
                 'autoComplete/repository/dynamodb/findByAccountId()',
                 errors,

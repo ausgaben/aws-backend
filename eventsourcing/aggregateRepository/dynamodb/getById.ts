@@ -11,6 +11,7 @@ import { UUIDv4 } from '../../../validation/UUIDv4';
 import { EntityNotFoundError } from '../../../errors/EntityNotFoundError';
 import { DynamoDBItem } from './DynamoDBItem';
 import { toMeta } from './toMeta';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 export const getById = <A extends Aggregate>(
     dynamodb: DynamoDBClient,
@@ -18,14 +19,14 @@ export const getById = <A extends Aggregate>(
     aggregateName: string,
     itemToAggregate: (item: DynamoDBItem, _meta: AggregateMeta) => A,
 ): AggregateRepository.getById<A> => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'aggregateRepository/dynamodb/getById()',
             errors,
         );
     });
     return async (aggregateId: string): Promise<A> => {
-        aggregateId = UUIDv4.decode(aggregateId).getOrElseL(errors => {
+        aggregateId = getOrElseL(UUIDv4.decode(aggregateId))(errors => {
             throw new ValidationFailedError(
                 'aggregateRepository/dynamodb/getById()',
                 errors,

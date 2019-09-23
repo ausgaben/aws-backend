@@ -49,7 +49,7 @@ const userId = 'eu-central-1:104f552c-c388-4bbc-901e-eb70da91b473';
             booked: boolean;
             bookedAt: number;
             saving: boolean;
-        }[]
+        }[],
     ];
 
     await accounts.reduce(

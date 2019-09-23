@@ -8,6 +8,7 @@ import { Aggregate } from '../Aggregate';
 import { NonEmptyString } from '../../../validation/NonEmptyString';
 import { ValidationFailedError } from '../../../errors/ValidationFailedError';
 import { ConflictError } from '../../../errors/ConflictError';
+import { getOrElseL } from '../../../fp-compat/getOrElseL';
 
 type DynamoDBItem = {
     [key: string]: _AttributeValue;
@@ -27,7 +28,7 @@ export const persist = <A extends Aggregate>(
     TableName: string,
     aggregateToItem: (aggregate: A) => DynamoDBItem,
 ): AggregateRepository.persist<A> => {
-    TableName = NonEmptyString.decode(TableName).getOrElseL(errors => {
+    TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
         throw new ValidationFailedError(
             'aggregateRepository/dynamodb/persist()',
             errors,

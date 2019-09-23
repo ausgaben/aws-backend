@@ -1,5 +1,5 @@
-import { Construct, Stack } from '@aws-cdk/cdk';
-import { PolicyStatement, PolicyStatementEffect } from '@aws-cdk/aws-iam';
+import { Construct, Duration, RemovalPolicy, Stack } from '@aws-cdk/core';
+import { PolicyStatement } from '@aws-cdk/aws-iam';
 import {
     Code,
     EventSourceMapping,
@@ -8,7 +8,7 @@ import {
     Runtime,
     StartingPosition,
 } from '@aws-cdk/aws-lambda';
-import { LogGroup } from '@aws-cdk/aws-logs';
+import { LogGroup, RetentionDays } from '@aws-cdk/aws-logs';
 import { AccountsTable } from '../resources/accounts-table';
 import { AccountUsersTable } from '../resources/account-users-table';
 import { AggregateEventsTable } from '../resources/aggregate-events-table';
@@ -32,41 +32,50 @@ export class EventSourcingFeature extends Construct {
         const l = new Function(this, 'eventReducer', {
             code: eventReducerLambda,
             handler: 'index.handler',
-            runtime: Runtime.NodeJS10x,
-            timeout: 300,
+            runtime: Runtime.NODEJS_10_X,
+            timeout: Duration.seconds(300),
             memorySize: 1792,
             description:
                 'Listens to a DynamoDB stream from the events table, reduces them and stores / updates the aggregates in the respective collection.',
             reservedConcurrentExecutions: 1,
             initialPolicy: [
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(
-                        `arn:aws:logs:${stack.region}:${
-                            stack.accountId
-                        }:/aws/lambda/*`,
-                    )
-                    .addAction('logs:CreateLogGroup')
-                    .addAction('logs:CreateLogStream')
-                    .addAction('logs:PutLogEvents'),
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(accountsTable.table.tableArn)
-                    .addResource(accountUsersTable.table.tableArn)
-                    .addResource(spendingsTable.table.tableArn)
-                    .addResource(accountAutoCompleteTable.table.tableArn)
-                    .addActions('dynamodb:PutItem')
-                    .addAction('dynamodb:GetItem')
-                    .addAction('dynamodb:DeleteItem')
-                    .addAction('dynamodb:Query')
-                    .addAction('dynamodb:UpdateItem'),
-                new PolicyStatement(PolicyStatementEffect.Allow)
-                    .addResource(aggregateEventsTable.table.tableStreamArn)
-                    .addResource(
+                new PolicyStatement({
+                    actions: [
+                        'logs:CreateLogGroup',
+                        'logs:CreateLogStream',
+                        'logs:PutLogEvents',
+                    ],
+                    resources: [
+                        `arn:aws:logs:${stack.region}:${stack.account}:/aws/lambda/*`,
+                    ],
+                }),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:PutItem',
+                        'dynamodb:GetItem',
+                        'dynamodb:DeleteItem',
+                        'dynamodb:Query',
+                        'dynamodb:UpdateItem',
+                    ],
+                    resources: [
+                        accountsTable.table.tableArn,
+                        accountUsersTable.table.tableArn,
+                        spendingsTable.table.tableArn,
+                        accountAutoCompleteTable.table.tableArn,
+                    ],
+                }),
+                new PolicyStatement({
+                    actions: [
+                        'dynamodb:GetRecords',
+                        'dynamodb:GetShardIterator',
+                        'dynamodb:DescribeStream',
+                        'dynamodb:ListStreams',
+                    ],
+                    resources: [
+                        aggregateEventsTable.table.tableStreamArn as string,
                         `${aggregateEventsTable.table.tableStreamArn}/*`,
-                    )
-                    .addAction('dynamodb:GetRecords')
-                    .addAction('dynamodb:GetShardIterator')
-                    .addAction('dynamodb:DescribeStream')
-                    .addAction('dynamodb:ListStreams'),
+                    ],
+                }),
             ],
             environment: {
                 ACCOUNTS_TABLE: accountsTable.table.tableName,
@@ -79,15 +88,15 @@ export class EventSourcingFeature extends Construct {
         });
 
         new EventSourceMapping(this, 'EventSourceMapping', {
-            eventSourceArn: aggregateEventsTable.table.tableStreamArn,
+            eventSourceArn: aggregateEventsTable.table.tableStreamArn as string,
             target: l,
-            startingPosition: StartingPosition.Latest,
+            startingPosition: StartingPosition.LATEST,
         });
 
         new LogGroup(this, 'LogGroup', {
-            retainLogGroup: false,
             logGroupName: `/aws/lambda/${l.functionName}`,
-            retentionDays: 7,
+            retention: RetentionDays.ONE_WEEK,
+            removalPolicy: RemovalPolicy.DESTROY,
         });
     }
 }
