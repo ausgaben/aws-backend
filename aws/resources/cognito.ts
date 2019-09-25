@@ -20,14 +20,6 @@ export class Cognito extends Construct {
     constructor(stack: Stack, id: string) {
         super(stack, id);
 
-        stack.renameLogicalId(
-            'cognitouserPool61F380C8',
-            `${stack.stackName.replace(
-                /[^a-z0-9]/i,
-                '',
-            )}cognitouserPool9352DFC5`,
-        );
-
         this.userPool = new UserPool(this, 'userPool', {
             signInType: SignInType.EMAIL,
             autoVerifiedAttributes: [UserPoolAttribute.EMAIL],
