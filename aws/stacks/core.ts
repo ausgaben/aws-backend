@@ -165,7 +165,7 @@ export class CoreStack extends Stack {
         );
 
         new CfnOutput(this, 'apiUrl', {
-            value: api.api.attrApiId,
+            value: api.api.attrGraphQlUrl,
             exportName: `${this.stackName}:apiUrl`,
         });
     }
