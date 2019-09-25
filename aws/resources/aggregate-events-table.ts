@@ -15,6 +15,7 @@ export class AggregateEventsTable extends Construct {
         this.table = new Table(this, 'table', {
             billingMode: BillingMode.PAY_PER_REQUEST,
             stream: StreamViewType.NEW_IMAGE,
+            pointInTimeRecovery: true,
             partitionKey: {
                 name: 'aggregateId',
                 type: AttributeType.STRING,
