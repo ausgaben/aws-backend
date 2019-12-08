@@ -53,13 +53,10 @@ export const persist = <A extends Aggregate>(
         ];
 
         const values: DynamoDBItem = {
-            ...Object.keys(Item).reduce(
-                (o, k) => {
-                    o[`:${k}`] = Item[k];
-                    return o;
-                },
-                {} as DynamoDBItem,
-            ),
+            ...Object.keys(Item).reduce((o, k) => {
+                o[`:${k}`] = Item[k];
+                return o;
+            }, {} as DynamoDBItem),
             ':version': {
                 N: `${aggregate._meta.version}`,
             },

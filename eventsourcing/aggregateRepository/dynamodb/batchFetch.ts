@@ -25,12 +25,14 @@ export const batchFetch = async <A extends Aggregate>(
     nextStartKey?: any,
 ): Promise<PaginatedResult<A>> => {
     const items = keys.length
-        ? (await dynamoBatchGetItems(
-              dynamodb,
-              TableName,
-              [...new Set([...fields, ...aggregateFields])],
-              keys,
-          )).map(item => itemToAggregate(item, toMeta(aggregateName, item)))
+        ? (
+              await dynamoBatchGetItems(
+                  dynamodb,
+                  TableName,
+                  [...new Set([...fields, ...aggregateFields])],
+                  keys,
+              )
+          ).map(item => itemToAggregate(item, toMeta(aggregateName, item)))
         : [];
 
     // Sort items by given keys, so the returned list is stable.

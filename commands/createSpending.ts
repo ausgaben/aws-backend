@@ -51,13 +51,10 @@ export const createSpending = (
                 description: NonEmptyString,
                 amount: NonZeroInteger,
                 currencyId: t.keyof(
-                    currencies.reduce(
-                        (obj, { id }) => {
-                            obj[id] = null;
-                            return obj;
-                        },
-                        {} as { [key: string]: null },
-                    ),
+                    currencies.reduce((obj, { id }) => {
+                        obj[id] = null;
+                        return obj;
+                    }, {} as { [key: string]: null }),
                 ),
                 booked: t.boolean,
                 paidWith: t.union([t.null, NonEmptyString]),
