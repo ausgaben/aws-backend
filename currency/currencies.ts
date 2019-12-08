@@ -16,3 +16,6 @@ export type Currency = {
 	symbol: string
 	toEUR: number
 }
+
+export const findCurrencyById = (id: string) =>
+	currencies.find(({ id: currencyId }) => id === currencyId)

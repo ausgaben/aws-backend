@@ -11,6 +11,7 @@ import {
 	AccountCreatedEventName,
 } from '../events/AccountCreated'
 import { AccountDeletedEventName } from '../events/AccountDeleted'
+import { EUR, findCurrencyById } from '../currency/currencies'
 
 export const applyEvents = (
 	snapshot: AggregateSnapshot<Account>,
@@ -19,10 +20,13 @@ export const applyEvents = (
 	events.reduce((presentation, event) => {
 		switch (event.eventName) {
 			case AccountCreatedEventName:
-				return (({ name, isSavingsAccount }) =>
+				return (({ name, isSavingsAccount, defaultCurrencyId }) =>
 					Create<Account>({
 						name,
 						isSavingsAccount,
+						defaultCurrency: defaultCurrencyId
+							? findCurrencyById(defaultCurrencyId) || EUR
+							: EUR,
 						_meta: {
 							name: AccountAggregateName,
 							id: snapshot.aggregateId,

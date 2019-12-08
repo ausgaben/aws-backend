@@ -8,4 +8,7 @@ export const aggregateToItem = (aggregate: Account): DynamoDBItem => ({
 	isSavingsAccount: {
 		BOOL: aggregate.isSavingsAccount,
 	},
+	defaultCurrencyId: {
+		S: aggregate.defaultCurrency.id,
+	},
 })

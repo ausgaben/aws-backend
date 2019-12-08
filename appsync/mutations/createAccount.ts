@@ -4,6 +4,7 @@ import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRe
 import { createAccount } from '../../commands/createAccount'
 import { GQLError } from '../GQLError'
 import { createAccountUser } from '../../commands/createAccountUser'
+import { EUR } from '../../currency/currencies'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -17,6 +18,7 @@ export const handler = async (
 		cognitoIdentityId: string
 		name: string
 		isSavingsAccount?: boolean
+		defaultCurrencyId?: string
 	},
 	context: Context,
 ) => {
@@ -25,6 +27,7 @@ export const handler = async (
 			name: event.name,
 			isSavingsAccount: !!event.isSavingsAccount,
 			userId: event.cognitoIdentityId,
+			defaultCurrencyId: event.defaultCurrencyId || EUR.id,
 		})
 		await addUserToAccount({
 			userId: event.cognitoIdentityId,

@@ -5,6 +5,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
 import { persist as persistDynamoDB } from '../eventsourcing/aggregateEventRepository/dynamodb/persist'
 import { createAccount } from '../commands/createAccount'
 import { createSpending } from '../commands/createSpending'
+import { EUR } from '../currency/currencies'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -40,7 +41,6 @@ type importData = [
 		saving: boolean
 	}[],
 ]
-
 ;(async () => {
 	const importId = `${Math.random()
 		.toString(36)
@@ -64,6 +64,7 @@ type importData = [
 					name: accountName,
 					isSavingsAccount: false,
 					userId,
+					defaultCurrencyId: EUR.id,
 				})
 				await addAcountUser({
 					accountId: aggregateId,

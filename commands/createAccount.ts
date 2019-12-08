@@ -10,6 +10,8 @@ import { NonEmptyString } from '../validation/NonEmptyString'
 import { v4 } from 'uuid'
 import { AccountAggregateName } from '../account/Account'
 import { getOrElseL } from '../fp-compat/getOrElseL'
+import { findCurrencyById } from '../currency/currencies'
+import { EntityNotFoundError } from '../errors/EntityNotFoundError'
 
 export const createAccount = (
 	persist: (ev: AggregateEventWithPayload) => Promise<void>,
@@ -17,18 +19,26 @@ export const createAccount = (
 	name: string
 	isSavingsAccount: boolean
 	userId: string
+	defaultCurrencyId: string
 }): Promise<AccountCreatedEvent> => {
-	const { name, isSavingsAccount } = getOrElseL(
+	const { name, isSavingsAccount, defaultCurrencyId } = getOrElseL(
 		t
 			.type({
 				name: NonEmptyString,
 				userId: CognitoUserId,
 				isSavingsAccount: t.boolean,
+				defaultCurrencyId: NonEmptyString,
 			})
 			.decode(args),
 	)(errors => {
 		throw new ValidationFailedError('createAccount()', errors)
 	})
+	const defaultCurrency = findCurrencyById(defaultCurrencyId)
+	if (!defaultCurrency) {
+		throw new EntityNotFoundError(
+			`createAccount(): Unknown currency ${defaultCurrencyId}!`,
+		)
+	}
 	const e: AccountCreatedEvent = {
 		eventId: v4(),
 		eventName: AccountCreatedEventName,
@@ -38,6 +48,7 @@ export const createAccount = (
 		eventPayload: {
 			name,
 			isSavingsAccount,
+			defaultCurrencyId: defaultCurrency.id,
 		},
 	}
 	await persist(e)

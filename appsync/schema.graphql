@@ -1,6 +1,7 @@
 type Account {
     name: String!
     isSavingsAccount: Boolean!
+    defaultCurrency: Currency
     _meta: EntityMeta!
 }
 
@@ -36,7 +37,7 @@ type EntityMeta {
 }
 
 type Mutation {
-    createAccount(name: String!, isSavingsAccount: Boolean): CreateEntityResult!
+    createAccount(name: String!, isSavingsAccount: Boolean, defaultCurrencyId: ID): CreateEntityResult!
     deleteAccount(accountId: ID!): Boolean
     createSpending(accountId: ID!, bookedAt: String!, booked: Boolean, category: String!, description: String!, amount: Int!,
         currencyId: ID!, paidWith: String): CreateEntityResult!
