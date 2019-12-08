@@ -25,7 +25,7 @@ type CreateEntityResult {
 
 type Currency {
     id: ID!
-    toEUR: Float!
+    symbol: String!
 }
 
 type EntityMeta {
