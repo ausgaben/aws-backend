@@ -38,6 +38,7 @@ export const handler = async (
 			userId: event.cognitoIdentityId,
 			booked: event.booked,
 		})
+		return true
 	} catch (error) {
 		return GQLError(context, error)
 	}

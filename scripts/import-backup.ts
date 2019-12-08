@@ -49,7 +49,9 @@ type importData = [
 		fs
 			.readFile(process.argv[process.argv.length - 2], 'utf-8')
 			.then(JSON.parse),
-		fs.readFile(process.argv[process.argv.length - 1]).then(JSON.parse),
+		fs
+			.readFile(process.argv[process.argv.length - 1])
+			.then(s => JSON.parse(s.toString())),
 	])) as importData
 
 	await accounts.reduce(
