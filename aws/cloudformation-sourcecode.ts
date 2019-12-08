@@ -1,6 +1,8 @@
-import { AusgabenSourceCodeApp } from './app/sourcecode';
+import { AusgabenSourceCodeApp } from './app/sourcecode'
 
-// tslint:disable-next-line:no-floating-promises
-(async () => {
-    new AusgabenSourceCodeApp().synth();
-})();
+;(async () => {
+	new AusgabenSourceCodeApp().synth()
+})().catch(err => {
+	console.error(err.message)
+	process.exit(1)
+})

@@ -1,8 +1,8 @@
-import { Aggregate } from '../eventsourcing/aggregateRepository/Aggregate';
+import { Aggregate } from '../eventsourcing/aggregateRepository/Aggregate'
 
-export const AccountAggregateName = 'Account';
+export const AccountAggregateName = 'Account'
 
 export type Account = Aggregate & {
-    name: string;
-    isSavingsAccount: boolean;
-};
+	name: string
+	isSavingsAccount: boolean
+}

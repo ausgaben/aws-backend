@@ -1,5 +1,5 @@
-import { AggregateEvent } from '../eventsourcing/AggregateEvent';
+import { AggregateEvent } from '../eventsourcing/AggregateEvent'
 
-export const SpendingDeletedEventName = 'SpendingDeleted';
+export const SpendingDeletedEventName = 'SpendingDeleted'
 
-export type SpendingDeletedEvent = AggregateEvent;
+export type SpendingDeletedEvent = AggregateEvent

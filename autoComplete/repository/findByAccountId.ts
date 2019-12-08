@@ -1,5 +1,5 @@
 export type findByAccountId = (args: {
-    accountId: string;
+	accountId: string
 }) => Promise<{
-    [field: string]: string[];
-}>;
+	[field: string]: string[]
+}>

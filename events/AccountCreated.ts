@@ -1,8 +1,8 @@
-import { AggregateEventWithPayload } from '../eventsourcing/AggregateEvent';
+import { AggregateEventWithPayload } from '../eventsourcing/AggregateEvent'
 
-export const AccountCreatedEventName = 'AccountCreated';
+export const AccountCreatedEventName = 'AccountCreated'
 
 export type AccountCreatedEvent = AggregateEventWithPayload<{
-    name: string;
-    isSavingsAccount: boolean;
-}>;
+	name: string
+	isSavingsAccount: boolean
+}>

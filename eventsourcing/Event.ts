@@ -1,5 +1,5 @@
 export type Event = {
-    eventId: string;
-    eventName: string;
-    eventCreatedAt: Date;
-};
+	eventId: string
+	eventName: string
+	eventCreatedAt: Date
+}

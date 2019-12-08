@@ -1,15 +1,15 @@
-import { AggregateEventWithPayload } from '../eventsourcing/AggregateEvent';
+import { AggregateEventWithPayload } from '../eventsourcing/AggregateEvent'
 
-export const SpendingUpdatedEventName = 'SpendingUpdated';
+export const SpendingUpdatedEventName = 'SpendingUpdated'
 
 export type Change<T> = {
-    set: T;
-};
+	set: T
+}
 
 export type Delete = {
-    delete: true;
-};
+	delete: true
+}
 
 export type SpendingUpdatedEvent = AggregateEventWithPayload<{
-    booked?: Change<boolean>;
-}>;
+	booked?: Change<boolean>
+}>

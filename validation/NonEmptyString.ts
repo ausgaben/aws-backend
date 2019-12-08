@@ -1,11 +1,11 @@
-import * as t from 'io-ts';
+import * as t from 'io-ts'
 
-interface NonEmptyStringBrand {
-    readonly NonEmptyString: unique symbol;
+type NonEmptyStringBrand = {
+	readonly NonEmptyString: unique symbol
 }
 
 export const NonEmptyString = t.brand(
-    t.string,
-    (s): s is t.Branded<string, NonEmptyStringBrand> => s.trim().length > 0,
-    'NonEmptyString',
-);
+	t.string,
+	(s): s is t.Branded<string, NonEmptyStringBrand> => s.trim().length > 0,
+	'NonEmptyString',
+)

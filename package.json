@@ -3,11 +3,7 @@
   "version": "1.0.0",
   "description": "5th iteration of the Ausgaben backend, with an ES/CQRS architecture, built using AWS serverless components",
   "scripts": {
-    "test": "jest",
-    "prettier": "prettier --write \"./**/*.ts\"",
-    "prettier:lint": "prettier --list-different \"./**/*.ts\"",
-    "lint": "npm run tslint && npm run prettier:lint",
-    "tslint": "tslint --project ./tsconfig.json"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -31,8 +27,8 @@
     "@aws-cdk/aws-dynamodb": "^1.18.0",
     "@aws-cdk/aws-iam": "^1.18.0",
     "@aws-cdk/core": "^1.18.0",
+    "@bifravst/code-style": "^6.0.1",
     "@bifravst/package-layered-lambdas": "^2.0.0",
-    "@nrfcloud/tslint-config": "^3.10.0",
     "@types/aws-lambda": "^8.10.37",
     "@types/jest": "^24.0.23",
     "@types/uuid": "^3.4.6",
@@ -42,13 +38,23 @@
     "prettier": "^1.19.1",
     "ts-jest": "^24.2.0",
     "ts-loader": "^6.2.1",
-    "tslint": "^5.20.1",
     "typescript": "^3.7.3"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint"
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --ext .js,.ts",
+      "git add"
+    ],
+    "*.{md,json,yaml,yml,js}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb-v2-node": "0.1.0-preview.2",

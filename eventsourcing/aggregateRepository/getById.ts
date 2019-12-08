@@ -1,3 +1,3 @@
-import { Aggregate } from './Aggregate';
+import { Aggregate } from './Aggregate'
 
-export type getById<A extends Aggregate> = (aggregateId: string) => Promise<A>;
+export type getById<A extends Aggregate> = (aggregateId: string) => Promise<A>

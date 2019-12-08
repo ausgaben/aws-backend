@@ -1,5 +1,5 @@
-import { _UnmarshalledAttributeValue } from '@aws-sdk/client-dynamodb-v2-node';
+import { _UnmarshalledAttributeValue } from '@aws-sdk/client-dynamodb-v2-node'
 
 export type DynamoDBItem = {
-    [key: string]: _UnmarshalledAttributeValue;
-};
+	[key: string]: _UnmarshalledAttributeValue
+}

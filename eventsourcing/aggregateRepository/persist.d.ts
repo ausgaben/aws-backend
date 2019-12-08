@@ -1,3 +1,3 @@
-import { Aggregate } from './Aggregate';
+import { Aggregate } from './Aggregate'
 
-export type persist<A extends Aggregate> = (aggregate: A) => Promise<void>;
+export type persist<A extends Aggregate> = (aggregate: A) => Promise<void>
