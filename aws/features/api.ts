@@ -32,7 +32,7 @@ const gqlLambda = (
 ) => {
 	const f = new Function(parent, `${field}${type}`, {
 		handler: 'index.handler',
-		runtime: Runtime.NODEJS_10_X,
+		runtime: Runtime.NODEJS_12_X,
 		timeout: Duration.seconds(30),
 		memorySize: 1792,
 		initialPolicy: [
