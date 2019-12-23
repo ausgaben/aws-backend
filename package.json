@@ -22,23 +22,23 @@
   },
   "homepage": "https://github.com/ausgaben/aws-backend#readme",
   "devDependencies": {
-    "@aws-cdk/aws-appsync": "^1.18.0",
-    "@aws-cdk/aws-cognito": "^1.18.0",
-    "@aws-cdk/aws-dynamodb": "^1.18.0",
-    "@aws-cdk/aws-iam": "^1.18.0",
-    "@aws-cdk/core": "^1.18.0",
+    "@aws-cdk/aws-appsync": "^1.19.0",
+    "@aws-cdk/aws-cognito": "^1.19.0",
+    "@aws-cdk/aws-dynamodb": "^1.19.0",
+    "@aws-cdk/aws-iam": "^1.19.0",
+    "@aws-cdk/core": "^1.19.0",
     "@bifravst/code-style": "^6.0.1",
-    "@bifravst/package-layered-lambdas": "^2.0.0",
-    "@types/aws-lambda": "^8.10.37",
-    "@types/jest": "^24.0.23",
+    "@bifravst/package-layered-lambdas": "^3.0.1",
+    "@types/aws-lambda": "^8.10.39",
+    "@types/jest": "^24.0.24",
     "@types/uuid": "^3.4.6",
-    "aws-cdk": "^1.18.0",
+    "aws-cdk": "^1.19.0",
     "husky": "^3.1.0",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
     "ts-jest": "^24.2.0",
     "ts-loader": "^6.2.1",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.4"
   },
   "husky": {
     "hooks": {
@@ -58,8 +58,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb-v2-node": "0.1.0-preview.2",
-    "fp-ts": "^2.2.0",
-    "io-ts": "^2.0.1",
+    "fp-ts": "^2.3.1",
+    "io-ts": "^2.0.2",
     "uuid": "^3.3.3"
   },
   "jest": {

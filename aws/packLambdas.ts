@@ -6,10 +6,6 @@ import {
 
 const rootFolder = path.resolve(__dirname, '..', '..')
 
-const awsFolder = path.resolve(rootFolder, 'aws')
-
-export const webpackConfig = path.resolve(awsFolder, 'tsconfig-webpack.json')
-
 export const tsConfig = path.resolve(__dirname, '..', '..', 'tsconfig.json')
 
 export const mode =
@@ -25,7 +21,6 @@ export const packLayeredLambdasForCloudFormation = async <
 ) =>
 	packLayeredLambdas<A>({
 		id,
-		webpackConfig,
 		mode,
 		srcDir: rootFolder,
 		outDir,
