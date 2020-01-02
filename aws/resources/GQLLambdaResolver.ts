@@ -4,6 +4,8 @@ import { CfnDataSource, CfnGraphQLApi, CfnResolver } from '@aws-cdk/aws-appsync'
 import { Function } from '@aws-cdk/aws-lambda'
 
 export class GQLLambdaResolver extends Construct {
+	public readonly dataSource: CfnDataSource
+
 	constructor(
 		parent: Construct,
 		graphqlApi: CfnGraphQLApi,
@@ -33,7 +35,7 @@ export class GQLLambdaResolver extends Construct {
 			}),
 		)
 
-		const dataSource = new CfnDataSource(this, 'DataSource', {
+		this.dataSource = new CfnDataSource(this, 'DataSource', {
 			apiId: graphqlApi.attrApiId,
 			name: `${field}${type}`,
 			type: 'AWS_LAMBDA',
@@ -43,11 +45,11 @@ export class GQLLambdaResolver extends Construct {
 			},
 		})
 
-		new CfnResolver(this, 'Resolver', {
+		const resolver = new CfnResolver(this, 'Resolver', {
 			apiId: graphqlApi.attrApiId,
 			typeName: type,
 			fieldName: field,
-			dataSourceName: dataSource.name,
+			dataSourceName: this.dataSource.name,
 			requestMappingTemplate:
 				'#set($payload = {})\n' +
 				'#foreach ($key in $context.arguments.keySet())\n' +
@@ -62,5 +64,7 @@ export class GQLLambdaResolver extends Construct {
 				'  $utils.toJson($context.result)\n' +
 				'#end',
 		})
+
+		resolver.node.addDependency(this.dataSource)
 	}
 }

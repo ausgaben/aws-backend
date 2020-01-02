@@ -16,6 +16,7 @@ import { AccountsTable } from '../resources/accounts-table'
 import { AccountUsersTable } from '../resources/account-users-table'
 import { SpendingsTable } from '../resources/spendings-table'
 import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table'
+import { ExchangeRatesTable } from '../resources/exchange-rates-table'
 
 const gqlLambda = (
 	parent: Construct,
@@ -53,6 +54,8 @@ const gqlLambda = (
 		code: lambda,
 	})
 
+	f.node.addDependency(api)
+
 	new LogGroup(parent, `${field}${type}LogGroup`, {
 		removalPolicy: RemovalPolicy.DESTROY,
 		logGroupName: `/aws/lambda/${f.functionName}`,
@@ -78,6 +81,7 @@ export class ApiFeature extends Construct {
 			spendingsQuery: Code
 			inviteUserMutation: Code
 			autoCompleteStringsQuery: Code
+			exchangeRateQuery: Code
 		},
 		baseLayer: ILayerVersion,
 		aggregateEventsTable: AggregateEventsTable,
@@ -85,6 +89,7 @@ export class ApiFeature extends Construct {
 		accountUsersTable: AccountUsersTable,
 		spendingsTable: SpendingsTable,
 		accountAutoCompleteTable: AccountAutoCompleteTable,
+		exchangeRatesTable: ExchangeRatesTable,
 		userRole: IRole,
 	) {
 		super(stack, id)
@@ -412,6 +417,25 @@ export class ApiFeature extends Construct {
 				ACCOUNT_AUTOCOMPLETE_TABLE:
 					accountAutoCompleteTable.table.tableName,
 				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+			},
+		)
+
+		gqlLambda(
+			this,
+			stack,
+			baseLayer,
+			this.api,
+			'exchangeRate',
+			'Query',
+			lambdas.exchangeRateQuery,
+			[
+				new PolicyStatement({
+					actions: ['dynamodb:Query'],
+					resources: [exchangeRatesTable.table.tableArn],
+				}),
+			],
+			{
+				EXCHANGE_RATES_TABLE: exchangeRatesTable.table.tableName,
 			},
 		)
 	}

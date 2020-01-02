@@ -4,7 +4,7 @@ import { CoreStack } from '../stacks/core'
 
 export class AusgabenApp extends App {
 	constructor(
-		stackName = 'ausgaben-dev',
+		stackName: string,
 		sourceCodeBucketName: string,
 		baseLayerZipFileName: string,
 		layeredLambdas: AusgabenLayeredLambdas,

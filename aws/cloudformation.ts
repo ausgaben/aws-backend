@@ -5,7 +5,7 @@ import { packBaseLayer } from '@bifravst/package-layered-lambdas'
 import { lambdas } from './resources/lambdas'
 import { AusgabenApp } from './app/ausgaben'
 import * as path from 'path'
-
+import { stackName } from './stackName'
 ;(async () => {
 	const outDir = path.resolve(__dirname, '..', '..', 'pack')
 	try {
@@ -22,7 +22,7 @@ import * as path from 'path'
 	const layeredLambdas = await lambdas(rootDir, outDir, Bucket)
 
 	new AusgabenApp(
-		process.env.STACK_NAME,
+		stackName(),
 		Bucket,
 		await packBaseLayer({
 			srcDir: rootDir,

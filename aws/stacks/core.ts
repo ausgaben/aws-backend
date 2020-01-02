@@ -8,6 +8,7 @@ import { Bucket } from '@aws-cdk/aws-s3'
 import { AusgabenLayeredLambdas } from '../resources/lambdas'
 import { ApiFeature } from '../features/api'
 import { AccountUsersTable } from '../resources/account-users-table'
+import { ExchangeRatesTable } from '../resources/exchange-rates-table'
 import { SpendingsTable } from '../resources/spendings-table'
 import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table'
 
@@ -17,6 +18,7 @@ export class CoreStack extends Stack {
 	public readonly accountUsersTable: AccountUsersTable
 	public readonly spendingsTable: SpendingsTable
 	public readonly accountAutoCompleteTable: AccountAutoCompleteTable
+	public readonly exchangeRatesTable: ExchangeRatesTable
 	public readonly cognito: Cognito
 
 	constructor(
@@ -69,6 +71,18 @@ export class CoreStack extends Stack {
 		new CfnOutput(this, 'accountAutoCompleteTableName', {
 			value: this.accountAutoCompleteTable.table.tableName,
 			exportName: `${this.stackName}:accountAutoCompleteTableName`,
+		})
+
+		// Conversion rates
+
+		this.exchangeRatesTable = new ExchangeRatesTable(
+			this,
+			'exchangeRatesTable',
+		)
+
+		new CfnOutput(this, 'exchangeRatesTableName', {
+			value: this.exchangeRatesTable.table.tableName,
+			exportName: `${this.stackName}:exchangeRatesTableName`,
 		})
 
 		this.cognito = new Cognito(this, 'cognito')
@@ -154,6 +168,10 @@ export class CoreStack extends Stack {
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.autoCompleteStringsQuery,
 				),
+				exchangeRateQuery: Code.bucket(
+					sourceCodeBucket,
+					layeredLambdas.lambdaZipFileNames.exchangeRateQuery,
+				),
 			},
 			baseLayer,
 			this.aggregateEventsTable,
@@ -161,6 +179,7 @@ export class CoreStack extends Stack {
 			this.accountUsersTable,
 			this.spendingsTable,
 			this.accountAutoCompleteTable,
+			this.exchangeRatesTable,
 			this.cognito.userRole,
 		)
 
@@ -169,4 +188,17 @@ export class CoreStack extends Stack {
 			exportName: `${this.stackName}:apiUrl`,
 		})
 	}
+}
+
+export type Outputs = {
+	accountAutoCompleteTableName: string
+	accountUsersTableName: string
+	exchangeRatesTableName: string
+	apiUrl: string
+	userPoolClientId: string
+	aggregateEventsTableName: string
+	spendingsTableName: string
+	accountsTableName: string
+	userPoolId: string
+	identityPoolId: string
 }

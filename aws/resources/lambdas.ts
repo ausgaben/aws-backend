@@ -13,6 +13,7 @@ export type AusgabenLayeredLambdas = LayeredLambdas<{
 	spendingsQuery: string
 	inviteUserMutation: string
 	autoCompleteStringsQuery: string
+	exchangeRateQuery: string
 }>
 
 export const lambdas = async (
@@ -80,5 +81,11 @@ export const lambdas = async (
 			'appsync',
 			'queries',
 			'autoComplete.ts',
+		),
+		exchangeRateQuery: path.resolve(
+			rootDir,
+			'appsync',
+			'queries',
+			'exchangeRate.ts',
 		),
 	})
