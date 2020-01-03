@@ -4,39 +4,42 @@ import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRe
 import { GQLError } from '../GQLError'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
 import { getById } from '../../eventsourcing/aggregateRepository/dynamodb/getById'
-import { itemToAggregate as spendingItemToAggregate } from '../../spending/repository/dynamodb/itemToAggregate'
-import { SpendingAggregateName } from '../../spending/Spending'
-import { updateSpending } from '../../commands/updateSpending'
+import { itemToAggregate as accountItemToAggregate } from '../../account/repository/dynamodb/itemToAggregate'
+import { AccountAggregateName } from '../../account/Account'
+import { updateAccount } from '../../commands/updateAccount'
 import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE as string
-const spendingsTableName = process.env.SPENDINGS_TABLE as string
+const accountsTableName = process.env.ACCOUNTS_TABLE as string
 
 const findAccountUserByUserId = findByUserId(db, accountUsersTableName)
-const getSpendingById = getById(
+const getAccountById = getById(
 	db,
-	spendingsTableName,
-	SpendingAggregateName,
-	spendingItemToAggregate,
+	accountsTableName,
+	AccountAggregateName,
+	accountItemToAggregate,
 )
 const persist = persistDynamoDB(db, aggregateEventsTableName)
 
-const update = updateSpending(persist, getSpendingById, findAccountUserByUserId)
+const update = updateAccount(persist, getAccountById, findAccountUserByUserId)
 
 export const handler = async (
 	event: {
 		cognitoIdentityId: string
-		spendingId: string
-		booked?: boolean
+		accountId: string
+		defaultCurrencyId?: string
+		expectedVersion: number
 	},
 	context: Context,
 ) => {
+	console.log({ event })
 	const updated = await update({
-		spendingId: event.spendingId,
+		accountId: event.accountId,
 		userId: event.cognitoIdentityId,
-		booked: event.booked,
+		defaultCurrencyId: event.defaultCurrencyId,
+		expectedVersion: event.expectedVersion,
 	})
 	if (isLeft(updated)) return GQLError(context, updated.left)
 	return true

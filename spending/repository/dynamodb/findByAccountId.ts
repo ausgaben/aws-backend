@@ -14,6 +14,7 @@ export const findByAccountId = (
 	TableName: string,
 ): SpendingRepository.findByAccountId => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'spending/repository/dynamodb/findByAccountId()',
 			errors,
@@ -26,6 +27,7 @@ export const findByAccountId = (
 		startKey?: any
 	}): Promise<PaginatedResult<Spending>> => {
 		const accountId = getOrElseL(UUIDv4.decode(args.accountId))(errors => {
+			// FIXME: Replace with Either
 			throw new ValidationFailedError(
 				'spending/repository/dynamodb/findByAccountId()',
 				errors,

@@ -22,6 +22,7 @@ export const persist = (
 	TableName: string,
 ): AggregateEventRepository.persist => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'aggregateEventRepository/dynamodb/persist()',
 			errors,

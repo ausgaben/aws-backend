@@ -5,6 +5,7 @@ import {
 	AggregateSnapshot,
 	Create,
 	Delete,
+	Update,
 } from '../eventsourcing/presenter/presentation'
 import {
 	AccountCreatedEvent,
@@ -12,6 +13,10 @@ import {
 } from '../events/AccountCreated'
 import { AccountDeletedEventName } from '../events/AccountDeleted'
 import { EUR, findCurrencyById } from '../currency/currencies'
+import {
+	AccountUpdatedEvent,
+	AccountUpdatedEventName,
+} from '../events/AccountUpdated'
 
 export const applyEvents = (
 	snapshot: AggregateSnapshot<Account>,
@@ -34,6 +39,27 @@ export const applyEvents = (
 							createdAt: event.eventCreatedAt,
 						},
 					}))((event as AccountCreatedEvent).eventPayload)
+			case AccountUpdatedEventName:
+				return ((aggregateToUpdate, updatePayload) =>
+					Update<Account>({
+						...aggregateToUpdate,
+						...(updatePayload.defaultCurrencyId &&
+							'set' in updatePayload.defaultCurrencyId && {
+								defaultCurrency:
+									findCurrencyById(
+										updatePayload.defaultCurrencyId.set,
+									) || EUR,
+							}),
+						_meta: {
+							...aggregateToUpdate._meta,
+							version: aggregateToUpdate._meta.version + 1,
+							deletedAt: event.eventCreatedAt,
+						},
+					}))(
+					(presentation as AggregateSnapshot<Account>)
+						.aggregate as Account,
+					(event as AccountUpdatedEvent).eventPayload,
+				)
 			case AccountDeletedEventName:
 				return (aggregate =>
 					Delete({

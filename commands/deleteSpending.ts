@@ -12,7 +12,7 @@ import {
 	SpendingDeletedEvent,
 	SpendingDeletedEventName,
 } from '../events/SpendingDeleted'
-import { getOrElseL } from '../fp-compat/getOrElseL'
+import { isLeft, right, Either, left } from 'fp-ts/lib/Either'
 
 export const deleteSpending = (
 	persist: (ev: AggregateEvent) => Promise<void>,
@@ -25,24 +25,27 @@ export const deleteSpending = (
 	return async (args: {
 		spendingId: string
 		userId: string
-	}): Promise<SpendingDeletedEvent> => {
-		const { spendingId, userId } = getOrElseL(
-			t
-				.type({
-					spendingId: UUIDv4,
-					userId: CognitoUserId,
-				})
-				.decode(args),
-		)(errors => {
-			throw new ValidationFailedError('deleteSpending()', errors)
-		})
+	}): Promise<Either<Error, SpendingDeletedEvent>> => {
+		const validInput = t
+			.type({
+				spendingId: UUIDv4,
+				userId: CognitoUserId,
+			})
+			.decode(args)
+		if (isLeft(validInput))
+			return left(
+				new ValidationFailedError('deleteSpending()', validInput.left),
+			)
 
+		const { spendingId, userId } = validInput.right
 		const spending = await getSpendingById(spendingId)
 
-		await checkAccess({
+		const canAccess = await checkAccess({
 			userId,
 			accountId: spending.accountId,
 		})
+
+		if (isLeft(canAccess)) return canAccess
 
 		const deleteSpendingEvent: SpendingDeletedEvent = {
 			eventId: v4(),
@@ -57,6 +60,6 @@ export const deleteSpending = (
 				spending,
 			})
 		}
-		return deleteSpendingEvent
+		return right(deleteSpendingEvent)
 	}
 }

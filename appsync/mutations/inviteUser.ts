@@ -5,6 +5,7 @@ import { GQLError } from '../GQLError'
 import { createAccountUser } from '../../commands/createAccountUser'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
 import { AccessDeniedError } from '../../errors/AccessDeniedError'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -23,26 +24,24 @@ export const handler = async (
 	},
 	context: Context,
 ) => {
-	try {
-		const userAccounts = await findAccountUserByUserId(
-			event.cognitoIdentityId,
-		)
-		const accountUser = userAccounts.items.find(
-			({ accountId: a }) => a === event.accountId,
-		)
-		if (!accountUser) {
-			throw new AccessDeniedError(
+	const userAccounts = await findAccountUserByUserId(event.cognitoIdentityId)
+	const accountUser = userAccounts.items.find(
+		({ accountId: a }) => a === event.accountId,
+	)
+	if (!accountUser) {
+		return GQLError(
+			context,
+			new AccessDeniedError(
 				`User "${event.cognitoIdentityId}" is not allowed to access account "${event.accountId}"!`,
-			)
-		}
-		const e = await addUserToAccount({
-			userId: event.userId,
-			accountId: event.accountId,
-		})
-		return {
-			id: e.aggregateId,
-		}
-	} catch (error) {
-		return GQLError(context, error)
+			),
+		)
+	}
+	const e = await addUserToAccount({
+		userId: event.userId,
+		accountId: event.accountId,
+	})
+	if (isLeft(e)) return GQLError(context, e.left)
+	return {
+		id: e.right.aggregateId,
 	}
 }

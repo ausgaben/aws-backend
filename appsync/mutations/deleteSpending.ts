@@ -7,6 +7,7 @@ import { getById } from '../../eventsourcing/aggregateRepository/dynamodb/getByI
 import { itemToAggregate as spendingItemToAggregate } from '../../spending/repository/dynamodb/itemToAggregate'
 import { SpendingAggregateName } from '../../spending/Spending'
 import { deleteSpending } from '../../commands/deleteSpending'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -31,13 +32,10 @@ export const handler = async (
 	},
 	context: Context,
 ) => {
-	try {
-		await remove({
-			spendingId: event.spendingId,
-			userId: event.cognitoIdentityId,
-		})
-		return true
-	} catch (error) {
-		return GQLError(context, error)
-	}
+	const removed = await remove({
+		spendingId: event.spendingId,
+		userId: event.cognitoIdentityId,
+	})
+	if (isLeft(removed)) return GQLError(context, removed.left)
+	return true
 }

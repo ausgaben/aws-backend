@@ -4,6 +4,7 @@ import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRe
 import { createSpending } from '../../commands/createSpending'
 import { GQLError } from '../GQLError'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -27,15 +28,12 @@ export const handler = async (
 	},
 	context: Context,
 ) => {
-	try {
-		const e = await create({
-			userId: event.cognitoIdentityId,
-			...event,
-		})
-		return {
-			id: e.aggregateId,
-		}
-	} catch (error) {
-		return GQLError(context, error)
+	const createdSpending = await create({
+		userId: event.cognitoIdentityId,
+		...event,
+	})
+	if (isLeft(createdSpending)) return GQLError(context, createdSpending.left)
+	return {
+		id: createdSpending.right.aggregateId,
 	}
 }

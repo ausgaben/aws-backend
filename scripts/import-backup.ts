@@ -6,6 +6,7 @@ import { persist as persistDynamoDB } from '../eventsourcing/aggregateEventRepos
 import { createAccount } from '../commands/createAccount'
 import { createSpending } from '../commands/createSpending'
 import { EUR } from '../currency/currencies'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -62,12 +63,17 @@ type importData = [
 				)
 				const accountName = `${name} [${importId}]`
 				console.log(accountName)
-				const { aggregateId } = await addAccount({
+				const addedAccount = await addAccount({
 					name: accountName,
 					isSavingsAccount: false,
 					userId,
 					defaultCurrencyId: EUR.id,
 				})
+				if (isLeft(addedAccount)) {
+					console.error(addedAccount.left.message)
+					return
+				}
+				const { aggregateId } = addedAccount.right
 				await addAcountUser({
 					accountId: aggregateId,
 					userId,

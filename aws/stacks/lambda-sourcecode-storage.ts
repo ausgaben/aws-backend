@@ -30,6 +30,7 @@ export class LambdaSourcecodeStorageStack extends Stack {
 			.promise()
 			.then(({ Stacks }) => {
 				if (Stacks === undefined || !Stacks.length) {
+					// FIXME: Replace with Either
 					throw new Error(`${id} stack is not available.`)
 				} else {
 					const stack = Stacks[0]
@@ -42,6 +43,7 @@ export class LambdaSourcecodeStorageStack extends Stack {
 						BucketOutput === undefined ||
 						BucketOutput.OutputValue === undefined
 					) {
+						// FIXME: Replace with Either
 						throw new Error(`${id} bucket not found.`)
 					}
 					return BucketOutput.OutputValue

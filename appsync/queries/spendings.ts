@@ -6,6 +6,7 @@ import { canAccessAccount } from '../../accountUser/canAccessAccount'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
 import { currencies } from '../../currency/currencies'
 import { decodeStartKey, encodeStartKey } from '../startKey'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE as string
@@ -28,10 +29,11 @@ export const handler = async (
 	context: Context,
 ) => {
 	try {
-		await checkAccess({
+		const canAccess = await checkAccess({
 			userId: event.cognitoIdentityId,
 			accountId: event.accountId,
 		})
+		if (isLeft(canAccess)) return GQLError(context, canAccess.left)
 		const { items, nextStartKey } = await findSpendingsByAccountId({
 			startDate: new Date(event.startDate),
 			endDate: new Date(event.endDate),

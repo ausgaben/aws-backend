@@ -14,6 +14,7 @@ export const persist = (
 	TableName: string,
 ): AccountAutoCompleteRepository.persist => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'autoComplete/repository/dynamodb/persist()',
 			errors,
@@ -34,6 +35,7 @@ export const persist = (
 				})
 				.decode(args),
 		)(errors => {
+			// FIXME: Replace with Either
 			throw new ValidationFailedError(
 				'autoComplete/repository/dynamodb/persist()',
 				errors,

@@ -10,6 +10,7 @@ export const findByAccountId = (
 	TableName: string,
 ): AccountAutoCompleteRepository.findByAccountId => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'autoComplete/repository/dynamodb/findByAccountId()',
 			errors,
@@ -21,6 +22,7 @@ export const findByAccountId = (
 		[field: string]: string[]
 	}> => {
 		const accountId = getOrElseL(UUIDv4.decode(args.accountId))(errors => {
+			// FIXME: Replace with Either
 			throw new ValidationFailedError(
 				'autoComplete/repository/dynamodb/findByAccountId()',
 				errors,

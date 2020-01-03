@@ -152,6 +152,10 @@ export class CoreStack extends Stack {
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.updateSpendingMutation,
 				),
+				updateAccountMutation: Code.bucket(
+					sourceCodeBucket,
+					layeredLambdas.lambdaZipFileNames.updateAccountMutation,
+				),
 				deleteSpendingMutation: Code.bucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.deleteSpendingMutation,

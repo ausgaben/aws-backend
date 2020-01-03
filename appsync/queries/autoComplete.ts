@@ -4,6 +4,7 @@ import { GQLError } from '../GQLError'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
 import { findByAccountId } from '../../autoComplete/repository/dynamodb/findByAccountId'
 import { canAccessAccount } from '../../accountUser/canAccessAccount'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE as string
@@ -28,10 +29,11 @@ export const handler = async (
 	context: Context,
 ) => {
 	try {
-		await checkAccess({
+		const canAccess = await checkAccess({
 			userId: event.cognitoIdentityId,
 			accountId: event.accountId,
 		})
+		if (isLeft(canAccess)) return GQLError(context, canAccess.left)
 		const autoCompleteStrings = await findAutoCompleteByAccountId({
 			accountId: event.accountId,
 		})

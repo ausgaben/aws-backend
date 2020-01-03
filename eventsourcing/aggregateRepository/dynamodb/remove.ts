@@ -13,6 +13,7 @@ export const remove = <A extends Aggregate>(
 	TableName: string,
 ): AggregateRepository.remove<A> => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'aggregateRepository/dynamodb/removeD()',
 			errors,

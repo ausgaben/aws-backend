@@ -46,6 +46,7 @@ export const getByAggregateId = (
 	TableName: string,
 ): AggregateEventRepository.getByAggregateId => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'aggregateEventRepository/dynamodb/getByAggregateId()',
 			errors,
@@ -53,6 +54,7 @@ export const getByAggregateId = (
 	})
 	return async (aggregateId: string): Promise<PersistedEvent[]> => {
 		aggregateId = getOrElseL(UUIDv4.decode(aggregateId))(errors => {
+			// FIXME: Replace with Either
 			throw new ValidationFailedError(
 				'aggregateEventRepository/dynamodb/getByAggregateId()',
 				errors,

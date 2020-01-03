@@ -10,6 +10,7 @@ import { itemToAggregate as accountUserItemToAggregate } from '../../accountUser
 import { deleteAccount } from '../../commands/deleteAccount'
 import { deleteAccountUser } from '../../commands/deleteAccountUser'
 import { AccountUserAggregateName } from '../../accountUser/AccountUser'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -47,13 +48,10 @@ export const handler = async (
 	},
 	context: Context,
 ) => {
-	try {
-		await remove({
-			accountId: event.accountId,
-			userId: event.cognitoIdentityId,
-		})
-		return true
-	} catch (error) {
-		return GQLError(context, error)
-	}
+	const removed = await remove({
+		accountId: event.accountId,
+		userId: event.cognitoIdentityId,
+	})
+	if (isLeft(removed)) return GQLError(context, removed.left)
+	return true
 }

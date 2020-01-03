@@ -15,7 +15,9 @@ import { currencies } from '../currency/currencies'
 import * as AccountUserRepository from '../accountUser/repository/findByUserId'
 import { AccessDeniedError } from '../errors/AccessDeniedError'
 import { CognitoUserId } from '../validation/CognitoUserId'
-import { getOrElseL } from '../fp-compat/getOrElseL'
+import { Either, isLeft, left, right } from 'fp-ts/lib/Either'
+import { tryOrError } from '../fp-compat/tryOrError'
+import { EntityNotFoundError } from '../errors/EntityNotFoundError'
 
 export const createSpending = (
 	persist: (ev: AggregateEventWithPayload) => Promise<void>,
@@ -30,7 +32,32 @@ export const createSpending = (
 	currencyId: string
 	booked?: boolean
 	paidWith?: string | null
-}): Promise<SpendingCreatedEvent> => {
+}): Promise<Either<Error, SpendingCreatedEvent>> => {
+	const validInput = t
+		.type({
+			userId: CognitoUserId,
+			accountId: UUIDv4,
+			bookedAt: DateFromString,
+			category: NonEmptyString,
+			description: NonEmptyString,
+			amount: NonZeroInteger,
+			currencyId: t.keyof(
+				currencies.reduce((obj, { id }) => {
+					obj[id] = null
+					return obj
+				}, {} as { [key: string]: null }),
+			),
+			booked: t.boolean,
+			paidWith: t.union([t.null, NonEmptyString]),
+		})
+		.decode({
+			booked: true,
+			...args,
+		})
+	if (isLeft(validInput))
+		return left(
+			new ValidationFailedError('createSpending()', validInput.left),
+		)
 	const {
 		userId,
 		accountId,
@@ -41,39 +68,25 @@ export const createSpending = (
 		currencyId,
 		booked,
 		paidWith,
-	} = getOrElseL(
-		t
-			.type({
-				userId: CognitoUserId,
-				accountId: UUIDv4,
-				bookedAt: DateFromString,
-				category: NonEmptyString,
-				description: NonEmptyString,
-				amount: NonZeroInteger,
-				currencyId: t.keyof(
-					currencies.reduce((obj, { id }) => {
-						obj[id] = null
-						return obj
-					}, {} as { [key: string]: null }),
-				),
-				booked: t.boolean,
-				paidWith: t.union([t.null, NonEmptyString]),
-			})
-			.decode({
-				booked: true,
-				...args,
-			}),
-	)(errors => {
-		throw new ValidationFailedError('createSpending()', errors)
-	})
+	} = validInput.right
 
-	const userAccounts = await findAccountUserByUserId(userId)
-	const accountUser = userAccounts.items.find(
+	const userAccounts = await tryOrError(async () =>
+		findAccountUserByUserId(userId),
+	)
+	if (isLeft(userAccounts))
+		return left(
+			new EntityNotFoundError(
+				`Failed to find accounts for user "${userId}"!`,
+			),
+		)
+	const accountUser = userAccounts.right.items.find(
 		({ accountId: a }) => a === accountId,
 	)
 	if (!accountUser) {
-		throw new AccessDeniedError(
-			`User "${userId}" is not allowed to access account "${accountId}"!`,
+		return left(
+			new AccessDeniedError(
+				`User "${userId}" is not allowed to access account "${accountId}"!`,
+			),
 		)
 	}
 
@@ -94,6 +107,7 @@ export const createSpending = (
 			...(paidWith && { paidWith }),
 		},
 	}
-	await persist(e)
-	return e
+	const eventPersisted = await tryOrError(async () => persist(e))
+	if (isLeft(eventPersisted)) return eventPersisted
+	return right(e)
 }

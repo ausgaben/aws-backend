@@ -12,7 +12,7 @@ import {
 	SpendingUpdatedEvent,
 	SpendingUpdatedEventName,
 } from '../events/SpendingUpdated'
-import { getOrElseL } from '../fp-compat/getOrElseL'
+import { isLeft, left, Either, right } from 'fp-ts/lib/Either'
 
 export const updateSpending = (
 	persist: (ev: AggregateEvent) => Promise<void>,
@@ -26,18 +26,21 @@ export const updateSpending = (
 		spendingId: string
 		userId: string
 		booked?: boolean
-	}): Promise<SpendingUpdatedEvent> => {
-		const { spendingId, userId, booked } = getOrElseL(
-			t
-				.type({
-					spendingId: UUIDv4,
-					userId: CognitoUserId,
-					booked: t.union([t.undefined, t.boolean]),
-				})
-				.decode(args),
-		)(errors => {
-			throw new ValidationFailedError('updateSpending()', errors)
-		})
+	}): Promise<Either<Error, SpendingUpdatedEvent>> => {
+		const validInput = t
+			.type({
+				spendingId: UUIDv4,
+				userId: CognitoUserId,
+				booked: t.union([t.undefined, t.boolean]),
+			})
+			.decode(args)
+
+		if (isLeft(validInput))
+			return left(
+				new ValidationFailedError('updateSpending()', validInput.left),
+			)
+
+		const { spendingId, userId, booked } = validInput.right
 
 		const spending = await getSpendingById(spendingId)
 
@@ -62,6 +65,6 @@ export const updateSpending = (
 				spending,
 			})
 		}
-		return updateSpendingEvent
+		return right(updateSpendingEvent)
 	}
 }

@@ -77,6 +77,7 @@ export class ApiFeature extends Construct {
 			accountsQuery: Code
 			createSpendingMutation: Code
 			updateSpendingMutation: Code
+			updateAccountMutation: Code
 			deleteSpendingMutation: Code
 			spendingsQuery: Code
 			inviteUserMutation: Code
@@ -293,6 +294,41 @@ export class ApiFeature extends Construct {
 				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
 				SPENDINGS_TABLE: spendingsTable.table.tableName,
 				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+			},
+		)
+
+		gqlLambda(
+			this,
+			stack,
+			baseLayer,
+			this.api,
+			'updateAccount',
+			'Mutation',
+			lambdas.updateAccountMutation,
+			[
+				new PolicyStatement({
+					actions: ['dynamodb:PutItem'],
+					resources: [aggregateEventsTable.table.tableArn],
+				}),
+
+				new PolicyStatement({
+					actions: [
+						'dynamodb:Query',
+						'dynamodb:GetItem',
+						'dynamodb:BatchGetItem',
+					],
+					resources: [
+						accountUsersTable.table.tableArn,
+						`${accountUsersTable.table.tableArn}/*`,
+						accountsTable.table.tableArn,
+						`${accountsTable.table.tableArn}/*`,
+					],
+				}),
+			],
+			{
+				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
+				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				ACCOUNTS_TABLE: accountsTable.table.tableName,
 			},
 		)
 

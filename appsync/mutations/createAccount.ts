@@ -5,6 +5,7 @@ import { createAccount } from '../../commands/createAccount'
 import { GQLError } from '../GQLError'
 import { createAccountUser } from '../../commands/createAccountUser'
 import { EUR } from '../../currency/currencies'
+import { isLeft } from 'fp-ts/lib/Either'
 
 const db = new DynamoDBClient({})
 const aggregateEventsTableName = process.env.AGGREGATE_EVENTS_TABLE as string
@@ -22,21 +23,20 @@ export const handler = async (
 	},
 	context: Context,
 ) => {
-	try {
-		const e = await create({
-			name: event.name,
-			isSavingsAccount: !!event.isSavingsAccount,
-			userId: event.cognitoIdentityId,
-			defaultCurrencyId: event.defaultCurrencyId || EUR.id,
-		})
-		await addUserToAccount({
-			userId: event.cognitoIdentityId,
-			accountId: e.aggregateId,
-		})
-		return {
-			id: e.aggregateId,
-		}
-	} catch (error) {
-		return GQLError(context, error)
+	const createdAccount = await create({
+		name: event.name,
+		isSavingsAccount: !!event.isSavingsAccount,
+		userId: event.cognitoIdentityId,
+		defaultCurrencyId: event.defaultCurrencyId || EUR.id,
+	})
+	if (isLeft(createdAccount)) return GQLError(context, createdAccount.left)
+	const e = createdAccount.right
+	const addedUser = await addUserToAccount({
+		userId: event.cognitoIdentityId,
+		accountId: e.aggregateId,
+	})
+	if (isLeft(addedUser)) return GQLError(context, addedUser.left)
+	return {
+		id: e.aggregateId,
 	}
 }

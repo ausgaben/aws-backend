@@ -12,7 +12,7 @@ import * as AggregateRepository from '../eventsourcing/aggregateRepository/getBy
 import { UUIDv4 } from '../validation/UUIDv4'
 import { ValidationFailedError } from '../errors/ValidationFailedError'
 import { v4 } from 'uuid'
-import { getOrElseL } from '../fp-compat/getOrElseL'
+import { Either, isLeft, left, right } from 'fp-ts/lib/Either'
 
 export const deleteAccountUser = (
 	persist: (ev: AggregateEvent) => Promise<void>,
@@ -20,16 +20,17 @@ export const deleteAccountUser = (
 	onDelete?: (args: { accountUser: AccountUser }) => Promise<void>,
 ) => async (args: {
 	accountUserId: string
-}): Promise<AccountUserDeletedEvent> => {
-	const { accountUserId } = getOrElseL(
-		t
-			.type({
-				accountUserId: UUIDv4,
-			})
-			.decode(args),
-	)(errors => {
-		throw new ValidationFailedError('deleteAccountUser()', errors)
-	})
+}): Promise<Either<Error, AccountUserDeletedEvent>> => {
+	const validInput = t
+		.type({
+			accountUserId: UUIDv4,
+		})
+		.decode(args)
+	if (isLeft(validInput))
+		return left(
+			new ValidationFailedError('deleteAccountUser()', validInput.left),
+		)
+	const { accountUserId } = validInput.right
 
 	const accountUser = await getAccountUserById(accountUserId)
 
@@ -46,5 +47,5 @@ export const deleteAccountUser = (
 			accountUser,
 		})
 	}
-	return deleteAccountUserEvent
+	return right(deleteAccountUserEvent)
 }

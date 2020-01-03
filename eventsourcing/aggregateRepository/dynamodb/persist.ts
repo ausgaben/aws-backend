@@ -29,6 +29,7 @@ export const persist = <A extends Aggregate>(
 	aggregateToItem: (aggregate: A) => DynamoDBItem,
 ): AggregateRepository.persist<A> => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'aggregateRepository/dynamodb/persist()',
 			errors,
@@ -39,6 +40,7 @@ export const persist = <A extends Aggregate>(
 		const itemKeys = Object.keys(Item)
 		itemKeys.forEach(key => {
 			if (reservedItemKeys.includes(key)) {
+				// FIXME: Replace with Either
 				throw new TypeError(
 					`aggregateRepository/dynamodb/persist(): Frozen item must not have key of ${reservedItemKeys.join(
 						',',
@@ -117,10 +119,12 @@ export const persist = <A extends Aggregate>(
 			)
 		} catch (error) {
 			if (error.name === 'ConditionalCheckFailedException') {
+				// FIXME: Replace with Either
 				throw new ConflictError(
 					`Failed to persist "${aggregate._meta.id}"!`,
 				)
 			}
+			// FIXME: Replace with Either
 			throw error
 		}
 	}

@@ -18,6 +18,7 @@ export const findById = <A extends Aggregate>(getById: getByIdFn<A>) => async (
 		if (error instanceof EntityNotFoundError) {
 			return undefined
 		}
+		// FIXME: Replace with Either
 		throw error
 	}
 }

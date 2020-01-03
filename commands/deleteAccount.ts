@@ -13,7 +13,7 @@ import { CognitoUserId } from '../validation/CognitoUserId'
 import { ValidationFailedError } from '../errors/ValidationFailedError'
 import { v4 } from 'uuid'
 import { AccountUser } from '../accountUser/AccountUser'
-import { getOrElseL } from '../fp-compat/getOrElseL'
+import { Either, isLeft, left, right } from 'fp-ts/lib/Either'
 
 export const deleteAccount = (
 	persist: (ev: AggregateEvent) => Promise<void>,
@@ -26,18 +26,18 @@ export const deleteAccount = (
 ) => async (args: {
 	accountId: string
 	userId: string
-}): Promise<AccountDeletedEvent> => {
-	const { accountId, userId } = getOrElseL(
-		t
-			.type({
-				accountId: UUIDv4,
-				userId: CognitoUserId,
-			})
-			.decode(args),
-	)(errors => {
-		throw new ValidationFailedError('deleteAccount()', errors)
-	})
-
+}): Promise<Either<Error, AccountDeletedEvent>> => {
+	const validInput = t
+		.type({
+			accountId: UUIDv4,
+			userId: CognitoUserId,
+		})
+		.decode(args)
+	if (isLeft(validInput))
+		return left(
+			new ValidationFailedError('deleteAccount()', validInput.left),
+		)
+	const { accountId, userId } = validInput.right
 	const [account, userAccounts] = await Promise.all([
 		getAccountById(accountId),
 		findAccountUserByUserId(userId),
@@ -46,11 +46,12 @@ export const deleteAccount = (
 		({ accountId: a }) => a === accountId,
 	)
 	if (!accountUser) {
-		throw new AccessDeniedError(
-			`User "${userId}" is not allowed to access account "${accountId}"!`,
+		return left(
+			new AccessDeniedError(
+				`User "${userId}" is not allowed to access account "${accountId}"!`,
+			),
 		)
 	}
-
 	const deleteAccountEvent: AccountDeletedEvent = {
 		eventId: v4(),
 		eventName: AccountDeletedEventName,
@@ -65,5 +66,5 @@ export const deleteAccount = (
 			accountUser,
 		})
 	}
-	return deleteAccountEvent
+	return right(deleteAccountEvent)
 }
