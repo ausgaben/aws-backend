@@ -31,13 +31,19 @@ export const updateAccount = (
 		accountId: string
 		userId: string
 		expectedVersion: number
+		name: string
 		defaultCurrencyId?: string
 	}): Promise<Either<Error, AccountUpdatedEvent>> => {
 		const validInput = t
 			.type({
 				accountId: UUIDv4,
 				userId: CognitoUserId,
-				defaultCurrencyId: t.union([t.undefined, NonEmptyString]),
+				name: NonEmptyString,
+				defaultCurrencyId: t.union([
+					t.undefined,
+					t.null,
+					NonEmptyString,
+				]),
 				expectedVersion: NonZeroInteger,
 			})
 			.decode(args)
@@ -56,6 +62,7 @@ export const updateAccount = (
 			userId,
 			defaultCurrencyId,
 			expectedVersion,
+			name,
 		} = validInput.right
 
 		if (defaultCurrencyId) {
@@ -96,6 +103,9 @@ export const updateAccount = (
 			eventPayload: {
 				...(defaultCurrencyId && {
 					defaultCurrencyId: { set: defaultCurrencyId },
+				}),
+				...(name !== foundAccount.right.name && {
+					name: { set: name },
 				}),
 			},
 		}

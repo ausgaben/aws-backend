@@ -12,4 +12,5 @@ export type Delete = {
 
 export type AccountUpdatedEvent = AggregateEventWithPayload<{
 	defaultCurrencyId?: Change<string>
+	name?: Change<string>
 }>

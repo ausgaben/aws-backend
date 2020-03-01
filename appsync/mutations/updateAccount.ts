@@ -29,6 +29,7 @@ export const handler = async (
 	event: {
 		cognitoIdentityId: string
 		accountId: string
+		name: string
 		defaultCurrencyId?: string
 		expectedVersion: number
 	},
@@ -38,6 +39,7 @@ export const handler = async (
 	const updated = await update({
 		accountId: event.accountId,
 		userId: event.cognitoIdentityId,
+		name: event.name,
 		defaultCurrencyId: event.defaultCurrencyId,
 		expectedVersion: event.expectedVersion,
 	})

@@ -50,6 +50,10 @@ export const applyEvents = (
 										updatePayload.defaultCurrencyId.set,
 									) || EUR,
 							}),
+						...(updatePayload.name &&
+							'set' in updatePayload.name && {
+								name: updatePayload.name.set,
+							}),
 						_meta: {
 							...aggregateToUpdate._meta,
 							version: aggregateToUpdate._meta.version + 1,
