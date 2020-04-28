@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb-v2-node": "0.1.0-preview.2",
-    "fp-ts": "^2.5.3",
+    "fp-ts": "^2.5.4",
     "io-ts": "^2.1.2",
     "uuid": "^7.0.1"
   },
