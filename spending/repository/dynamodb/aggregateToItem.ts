@@ -23,5 +23,4 @@ export const aggregateToItem = (aggregate: Spending): DynamoDBItem => ({
 	currencyId: {
 		S: aggregate.currencyId,
 	},
-	paidWith: aggregate.paidWith ? { S: aggregate.paidWith } : { NULL: true },
 })

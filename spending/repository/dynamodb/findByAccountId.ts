@@ -13,7 +13,7 @@ export const findByAccountId = (
 	dynamodb: DynamoDBClient,
 	TableName: string,
 ): SpendingRepository.findByAccountId => {
-	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'spending/repository/dynamodb/findByAccountId()',
@@ -26,13 +26,15 @@ export const findByAccountId = (
 		accountId: string
 		startKey?: any
 	}): Promise<PaginatedResult<Spending>> => {
-		const accountId = getOrElseL(UUIDv4.decode(args.accountId))(errors => {
-			// FIXME: Replace with Either
-			throw new ValidationFailedError(
-				'spending/repository/dynamodb/findByAccountId()',
-				errors,
-			)
-		})
+		const accountId = getOrElseL(UUIDv4.decode(args.accountId))(
+			(errors) => {
+				// FIXME: Replace with Either
+				throw new ValidationFailedError(
+					'spending/repository/dynamodb/findByAccountId()',
+					errors,
+				)
+			},
+		)
 
 		const { Items, LastEvaluatedKey } = await dynamodb.send(
 			new QueryCommand({
@@ -68,7 +70,6 @@ export const findByAccountId = (
 				'description',
 				'amount',
 				'currencyId',
-				'paidWith',
 			],
 			itemToAggregate,
 			Items,

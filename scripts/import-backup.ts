@@ -52,7 +52,7 @@ type importData = [
 			.then(JSON.parse),
 		fs
 			.readFile(process.argv[process.argv.length - 1])
-			.then(s => JSON.parse(s.toString())),
+			.then((s) => JSON.parse(s.toString())),
 	])) as importData
 
 	await accounts.reduce(
@@ -79,7 +79,7 @@ type importData = [
 					userId,
 				})
 
-				await new Promise(resolve => {
+				await new Promise((resolve) => {
 					setTimeout(resolve, 1000)
 				})
 
@@ -109,7 +109,6 @@ type importData = [
 									bookedAt: new Date(bookedAt).toISOString(),
 									currencyId:
 										name.indexOf('NOK') > 0 ? 'NOK' : 'EUR',
-									paidWith: null,
 								})
 							}),
 						Promise.resolve(),
@@ -117,7 +116,7 @@ type importData = [
 			}),
 		Promise.resolve(),
 	)
-})().catch(err => {
+})().catch((err) => {
 	console.error(err.message)
 	process.exit(1)
 })

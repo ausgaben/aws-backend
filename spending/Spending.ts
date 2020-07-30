@@ -10,5 +10,4 @@ export type Spending = Aggregate & {
 	amount: number
 	currencyId: string
 	booked: boolean
-	paidWith?: string
 }

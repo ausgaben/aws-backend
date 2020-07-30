@@ -17,23 +17,26 @@ export const processEvents = async (
 	persist: persistFn,
 ): Promise<void> => {
 	await Promise.all(
-		Object.keys(events).map(async accountId => {
+		Object.keys(events).map(async (accountId) => {
 			const autoCompleteStrings = await findByAccountId({ accountId })
 
 			// Incorporate new entries
-			events[accountId].forEach(event => {
+			events[accountId].forEach((event) => {
 				if (event.eventName === SpendingDeletedEventName) {
 					return
 				}
-				;['category', 'paidWith'].forEach(field => {
+				const props = ['category']
+				props.forEach((field) => {
 					const v = ((event as SpendingCreatedEvent)
 						.eventPayload as any)[field]
 					autoCompleteStrings[field] = [
 						...new Set([
-							...(autoCompleteStrings[field]
-								? autoCompleteStrings[field].map(s => s.trim())
+							...(autoCompleteStrings[field] !== undefined
+								? autoCompleteStrings[field].map((s) =>
+										s.trim(),
+								  )
 								: []),
-							...(v ? [v.trim()] : []),
+							...(v !== undefined ? [v.trim()] : []),
 						]),
 					]
 					autoCompleteStrings[field].sort((a, b) =>
@@ -46,10 +49,11 @@ export const processEvents = async (
 				}`
 				autoCompleteStrings[categoryDescriptions] = [
 					...new Set([
-						...(autoCompleteStrings[categoryDescriptions]
-							? autoCompleteStrings[categoryDescriptions].map(s =>
-									s.trim(),
-							  )
+						...(autoCompleteStrings[categoryDescriptions] !==
+						undefined
+							? autoCompleteStrings[
+									categoryDescriptions
+							  ].map((s) => s.trim())
 							: []),
 						((event as SpendingCreatedEvent)
 							.eventPayload as any).description.trim(),

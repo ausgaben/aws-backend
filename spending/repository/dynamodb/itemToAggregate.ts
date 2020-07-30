@@ -13,6 +13,5 @@ export const itemToAggregate = (
 	description: item.description.S as string,
 	amount: +(item.amount.N as string),
 	currencyId: item.currencyId.S as string,
-	paidWith: item.paidWith ? (item.paidWith.S as string) : undefined,
 	_meta,
 })

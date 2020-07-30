@@ -24,10 +24,9 @@ export const handler = async (
 		amount: number
 		currencyId: string
 		booked: boolean
-		paidWith?: string
 	},
 	context: Context,
-) => {
+): Promise<{ id: string } | ReturnType<typeof GQLError>> => {
 	const createdSpending = await create({
 		userId: event.cognitoIdentityId,
 		...event,
