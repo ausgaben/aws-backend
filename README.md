@@ -1,8 +1,10 @@
 # Ausgaben AWS Backend
 
-[![Build Status](https://travis-ci.org/ausgaben/aws-backend.svg?branch=saga)](https://travis-ci.org/ausgaben/aws-backend)
-[![Greenkeeper badge](https://badges.greenkeeper.io/ausgaben/aws-backend.svg)](https://greenkeeper.io/)
+![Build](https://github.com/ausgaben/aws-backend/workflows/Build/badge.svg)
 [![Mergify Status](https://img.shields.io/endpoint.svg?url=https://dashboard.mergify.io/badges/ausgaben/aws-backend&style=flat)](https://mergify.io)
+[![Known Vulnerabilities](https://snyk.io/test/github/ausgaben/aws-backend/badge.svg)](https://snyk.io/test/github/ausgaben/aws-backend)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 5th iteration of the Ausgaben backend, built using AWS serverless components.
 
