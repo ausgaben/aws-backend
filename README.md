@@ -1,6 +1,8 @@
 # Ausgaben AWS Backend
 
-[![Build Status](https://travis-ci.org/ausgaben/aws-backend.svg?branch=saga)](https://travis-ci.org/ausgaben/aws-backend) [![Greenkeeper badge](https://badges.greenkeeper.io/ausgaben/aws-backend.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.org/ausgaben/aws-backend.svg?branch=saga)](https://travis-ci.org/ausgaben/aws-backend)
+[![Greenkeeper badge](https://badges.greenkeeper.io/ausgaben/aws-backend.svg)](https://greenkeeper.io/)
+[![Mergify Status](https://img.shields.io/endpoint.svg?url=https://dashboard.mergify.io/badges/ausgaben/aws-backend&style=flat)](https://mergify.io)
 
 5th iteration of the Ausgaben backend, built using AWS serverless components.
 
@@ -10,7 +12,7 @@ Make sure your have AWS credentials in your environment.
 
     npm ci
     npx tsc
-    
+
     # if this is the run the first time in an account
     npx cdk -a 'node dist/aws/cloudformation-sourcecode.js' deploy
 
