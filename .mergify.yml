@@ -3,6 +3,7 @@ pull_request_rules:
     conditions:
       - status-success=security/snyk (Ausgaben)
       - "#approved-reviews-by>=1"
+      - status-success=tests
     actions:
       merge:
         method: rebase

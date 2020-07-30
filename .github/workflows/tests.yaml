@@ -1,4 +1,4 @@
-name: Build and Release
+name: Tests
 
 on: push
 
@@ -6,7 +6,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  main:
+  tests:
     runs-on: ubuntu-latest
 
     steps:

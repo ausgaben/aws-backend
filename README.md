@@ -1,6 +1,6 @@
 # Ausgaben AWS Backend
 
-![Build](https://github.com/ausgaben/aws-backend/workflows/Build/badge.svg)
+![Build](https://github.com/ausgaben/aws-backend/workflows/Tests/badge.svg)
 [![Mergify Status](https://img.shields.io/endpoint.svg?url=https://dashboard.mergify.io/badges/ausgaben/aws-backend&style=flat)](https://mergify.io)
 [![Known Vulnerabilities](https://snyk.io/test/github/ausgaben/aws-backend/badge.svg)](https://snyk.io/test/github/ausgaben/aws-backend)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
