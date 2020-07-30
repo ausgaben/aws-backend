@@ -2,17 +2,14 @@ import { Construct, Stack } from '@aws-cdk/core'
 import {
 	CfnIdentityPool,
 	CfnIdentityPoolRoleAttachment,
-	IUserPool,
-	SignInType,
 	UserPool,
-	UserPoolAttribute,
 	UserPoolClient,
 } from '@aws-cdk/aws-cognito'
 
 import { FederatedPrincipal, Role } from '@aws-cdk/aws-iam'
 
 export class Cognito extends Construct {
-	public readonly userPool: IUserPool
+	public readonly userPool: UserPool
 	public readonly userRole: Role
 	public readonly identityPool: CfnIdentityPool
 	public readonly userPoolClient: UserPoolClient
@@ -21,8 +18,17 @@ export class Cognito extends Construct {
 		super(stack, id)
 
 		this.userPool = new UserPool(this, 'userPool', {
-			signInType: SignInType.EMAIL,
-			autoVerifiedAttributes: [UserPoolAttribute.EMAIL],
+			signInAliases: {
+				email: true,
+				username: false,
+			},
+			autoVerify: {
+				email: true,
+			},
+			selfSignUpEnabled: true,
+			passwordPolicy: {
+				requireSymbols: false,
+			},
 		})
 		this.userPoolClient = new UserPoolClient(this, 'userPoolClient', {
 			userPool: this.userPool,
