@@ -24,7 +24,7 @@ export const applyEvents = (
 	events.reduce((presentation, event) => {
 		switch (event.eventName) {
 			case SpendingCreatedEventName:
-				return (createPayload =>
+				return ((createPayload) =>
 					Create<Spending>({
 						...createPayload,
 						bookedAt: new Date(createPayload.bookedAt),
@@ -54,7 +54,7 @@ export const applyEvents = (
 					(event as SpendingUpdatedEvent).eventPayload,
 				)
 			case SpendingDeletedEventName:
-				return (aggregateToDelete =>
+				return ((aggregateToDelete) =>
 					Delete<Spending>({
 						...aggregateToDelete,
 						_meta: {

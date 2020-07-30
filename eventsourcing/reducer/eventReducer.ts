@@ -95,14 +95,14 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
 			eventName === 'INSERT' && eventSource === 'aws:dynamodb',
 	)
 		.map(parseRecord)
-		.filter(e => e !== undefined) as AggregateEvent[]
+		.filter((e) => e !== undefined) as AggregateEvent[]
 
 	const accountEvents = groupEvents(events, AccountAggregateName)
 	const accountUserEvents = groupEvents(events, AccountUserAggregateName)
 	const spendingEvents = groupEvents(events, SpendingAggregateName)
 	const spendingEventsByAccount = groupEvents<
 		SpendingCreatedEvent | SpendingDeletedEvent
-	>(events as SpendingCreatedEvent[], SpendingAggregateName, e =>
+	>(events as SpendingCreatedEvent[], SpendingAggregateName, (e) =>
 		e.eventName === SpendingCreatedEventName
 			? (e as SpendingCreatedEvent).eventPayload.accountId
 			: false,

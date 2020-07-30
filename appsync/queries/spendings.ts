@@ -21,7 +21,7 @@ export const handler = async (
 	event: {
 		cognitoIdentityId: string
 		accountId: string
-		filter?: {}
+		filter?: Record<string, any>
 		startDate: string
 		endDate: string
 		startKey?: string
@@ -41,7 +41,7 @@ export const handler = async (
 			startKey: decodeStartKey(event.startKey),
 		})
 		return {
-			items: items.map(item => ({
+			items: items.map((item) => ({
 				...item,
 				bookedAt: item.bookedAt.toISOString(),
 				currency: currencies.find(({ id }) => item.currencyId === id),

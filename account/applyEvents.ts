@@ -29,9 +29,10 @@ export const applyEvents = (
 					Create<Account>({
 						name,
 						isSavingsAccount,
-						defaultCurrency: defaultCurrencyId
-							? findCurrencyById(defaultCurrencyId) || EUR
-							: EUR,
+						defaultCurrency:
+							defaultCurrencyId !== undefined
+								? findCurrencyById(defaultCurrencyId) ?? EUR
+								: EUR,
 						_meta: {
 							name: AccountAggregateName,
 							id: snapshot.aggregateId,
@@ -48,7 +49,7 @@ export const applyEvents = (
 								defaultCurrency:
 									findCurrencyById(
 										updatePayload.defaultCurrencyId.set,
-									) || EUR,
+									) ?? EUR,
 							}),
 						...(updatePayload.name &&
 							'set' in updatePayload.name && {
@@ -65,7 +66,7 @@ export const applyEvents = (
 					(event as AccountUpdatedEvent).eventPayload,
 				)
 			case AccountDeletedEventName:
-				return (aggregate =>
+				return ((aggregate) =>
 					Delete({
 						...aggregate,
 						_meta: {

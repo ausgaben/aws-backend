@@ -31,7 +31,7 @@ export const applyEvents = (
 						},
 					}))((event as AccountUserCreatedEvent).eventPayload)
 			case AccountUserDeletedEventName:
-				return (aggregate =>
+				return ((aggregate) =>
 					Delete({
 						...aggregate,
 						_meta: {

@@ -40,11 +40,11 @@ Promise.all([
 				) as Outputs,
 		)
 		.then(({ exchangeRatesTableName }) => exchangeRatesTableName),
-	fs.readFile(importFile, 'utf-8').then(s =>
+	fs.readFile(importFile, 'utf-8').then((s) =>
 		s
 			.trim()
 			.split('\n')
-			.map(l => {
+			.map((l) => {
 				const [date, rate] = l.trim().split('\t')
 				return [date, parseFloat(rate)]
 			}),
@@ -52,7 +52,7 @@ Promise.all([
 ])
 	.then(async ([exchangeRatesTableName, rates]) =>
 		Promise.all(
-			chunk(rates, 25).map(async rates =>
+			chunk(rates, 25).map(async (rates) =>
 				db.send(
 					new BatchWriteItemCommand({
 						RequestItems: {
@@ -81,7 +81,7 @@ Promise.all([
 			console.log(`Imported ${rates.length} exchange rates.`)
 		}),
 	)
-	.catch(err => {
+	.catch((err) => {
 		console.error(err)
 		process.exit(1)
 	})

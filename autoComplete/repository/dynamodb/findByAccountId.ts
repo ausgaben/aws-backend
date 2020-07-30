@@ -9,7 +9,7 @@ export const findByAccountId = (
 	dynamodb: DynamoDBClient,
 	TableName: string,
 ): AccountAutoCompleteRepository.findByAccountId => {
-	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'autoComplete/repository/dynamodb/findByAccountId()',
@@ -21,13 +21,15 @@ export const findByAccountId = (
 	}): Promise<{
 		[field: string]: string[]
 	}> => {
-		const accountId = getOrElseL(UUIDv4.decode(args.accountId))(errors => {
-			// FIXME: Replace with Either
-			throw new ValidationFailedError(
-				'autoComplete/repository/dynamodb/findByAccountId()',
-				errors,
-			)
-		})
+		const accountId = getOrElseL(UUIDv4.decode(args.accountId))(
+			(errors) => {
+				// FIXME: Replace with Either
+				throw new ValidationFailedError(
+					'autoComplete/repository/dynamodb/findByAccountId()',
+					errors,
+				)
+			},
+		)
 
 		const { Items } = await dynamodb.send(
 			new QueryCommand({

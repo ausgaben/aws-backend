@@ -8,17 +8,17 @@ export const groupEvents = <
 >(
 	events: E[],
 	aggregateName: string,
-	getGroupKey: (e: E) => string | false = e => e.aggregateId,
+	getGroupKey: (e: E) => string | false = (e) => e.aggregateId,
 ): { [key: string]: E[] } =>
 	events
 		.filter(({ aggregateName: a }) => a === aggregateName)
 		.reduce(
 			(grouped, event) => {
 				const k = getGroupKey(event)
-				if (!k) {
+				if (k === false) {
 					return grouped
 				}
-				if (!grouped[k]) {
+				if (grouped[k] === undefined) {
 					grouped[k] = []
 				}
 				grouped[k].push(event)

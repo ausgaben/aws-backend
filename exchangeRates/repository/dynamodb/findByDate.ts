@@ -10,7 +10,7 @@ export const findByDate = (
 	dynamodb: DynamoDBClient,
 	TableName: string,
 ): ExchangeRatesRepository.findByDate => {
-	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'exchangeRates/repository/dynamodb/findByDate()',

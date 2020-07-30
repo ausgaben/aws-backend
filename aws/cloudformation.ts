@@ -31,7 +31,7 @@ import { stackName } from './stackName'
 		}),
 		layeredLambdas,
 	).synth()
-})().catch(err => {
+})().catch((err) => {
 	console.error(err.message)
 	process.exit(1)
 })

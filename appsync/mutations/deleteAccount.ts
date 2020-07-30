@@ -37,7 +37,7 @@ const remove = deleteAccount(
 	persist,
 	getAccountById,
 	findAccountUserByUserId,
-	async args =>
+	async (args) =>
 		removeAccountUser({ accountUserId: args.accountUser._meta.id }),
 )
 

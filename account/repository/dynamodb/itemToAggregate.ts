@@ -9,7 +9,8 @@ export const itemToAggregate = (
 ): Account => ({
 	name: item.name.S as string,
 	isSavingsAccount: item.isSavingsAccount.BOOL as boolean,
-	defaultCurrency: (dc => (dc ? findCurrencyById(dc) || EUR : EUR))(
+	defaultCurrency: ((dc) =>
+		dc !== undefined ? findCurrencyById(dc) ?? EUR : EUR)(
 		item.defaultCurrencyId?.S,
 	),
 	_meta,

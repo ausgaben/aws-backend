@@ -28,7 +28,7 @@ export const persist = <A extends Aggregate>(
 	TableName: string,
 	aggregateToItem: (aggregate: A) => DynamoDBItem,
 ): AggregateRepository.persist<A> => {
-	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'aggregateRepository/dynamodb/persist()',
@@ -38,7 +38,7 @@ export const persist = <A extends Aggregate>(
 	return async (aggregate: A): Promise<void> => {
 		const Item = aggregateToItem(aggregate)
 		const itemKeys = Object.keys(Item)
-		itemKeys.forEach(key => {
+		itemKeys.forEach((key) => {
 			if (reservedItemKeys.includes(key)) {
 				// FIXME: Replace with Either
 				throw new TypeError(
@@ -49,7 +49,7 @@ export const persist = <A extends Aggregate>(
 			}
 		})
 		const fields: string[] = [
-			...itemKeys.map(key => `#${key}`),
+			...itemKeys.map((key) => `#${key}`),
 			'#version',
 			'#createdAt',
 		]
@@ -69,17 +69,19 @@ export const persist = <A extends Aggregate>(
 		if (aggregate._meta.updatedAt) {
 			fields.push('#updatedAt')
 			values[':updatedAt'] = {
-				S: aggregate._meta.updatedAt
-					? aggregate._meta.updatedAt.toISOString()
-					: undefined,
+				S:
+					aggregate._meta.updatedAt !== undefined
+						? aggregate._meta.updatedAt.toISOString()
+						: undefined,
 			}
 		}
 		if (aggregate._meta.deletedAt) {
 			fields.push('#deletedAt')
 			values[':deletedAt'] = {
-				S: aggregate._meta.deletedAt
-					? aggregate._meta.deletedAt.toISOString()
-					: '',
+				S:
+					aggregate._meta.deletedAt !== undefined
+						? aggregate._meta.deletedAt.toISOString()
+						: '',
 			}
 		}
 		let ConditionExpression
@@ -102,7 +104,7 @@ export const persist = <A extends Aggregate>(
 						},
 					},
 					UpdateExpression: `SET ${fields
-						.map(f => `${f} = :${f.substr(1)}`)
+						.map((f) => `${f} = :${f.substr(1)}`)
 						.join(',')}`,
 					ExpressionAttributeNames: fields.reduce(
 						(map, key) => {

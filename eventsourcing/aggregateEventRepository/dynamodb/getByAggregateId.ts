@@ -45,7 +45,7 @@ export const getByAggregateId = (
 	dynamodb: DynamoDBClient,
 	TableName: string,
 ): AggregateEventRepository.getByAggregateId => {
-	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'aggregateEventRepository/dynamodb/getByAggregateId()',
@@ -53,7 +53,7 @@ export const getByAggregateId = (
 		)
 	})
 	return async (aggregateId: string): Promise<PersistedEvent[]> => {
-		aggregateId = getOrElseL(UUIDv4.decode(aggregateId))(errors => {
+		aggregateId = getOrElseL(UUIDv4.decode(aggregateId))((errors) => {
 			// FIXME: Replace with Either
 			throw new ValidationFailedError(
 				'aggregateEventRepository/dynamodb/getByAggregateId()',
@@ -63,16 +63,17 @@ export const getByAggregateId = (
 
 		const events = await fetchEvents(dynamodb, TableName, aggregateId)
 
-		return events.map(event => ({
+		return events.map((event) => ({
 			eventId: event.eventId.S as string,
 			eventName: event.eventName.S as string,
 			eventCreatedAt: new Date(event.eventCreatedAt.S as string),
 			insertedAtNanotime: event.insertedAtNanotime.N as string,
 			aggregateName: event.aggregateName.S as string,
 			aggregateId: event.aggregateId.S as string,
-			eventPayload: event.eventPayload
-				? JSON.parse(event.eventPayload.S as string)
-				: undefined,
+			eventPayload:
+				event.eventPayload !== undefined
+					? JSON.parse(event.eventPayload.S as string)
+					: undefined,
 		}))
 	}
 }

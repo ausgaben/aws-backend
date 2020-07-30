@@ -27,7 +27,7 @@ const dynamoBatchGetItems = async (
 				RequestItems: {
 					[TableName]: {
 						ProjectionExpression: fields
-							.map(key => `#${key}`)
+							.map((key) => `#${key}`)
 							.join(','),
 						ExpressionAttributeNames: fields.reduce(
 							(map, key) => {
@@ -52,7 +52,7 @@ export const batchFetch = async <A extends Aggregate>(
 	fields: string[],
 	itemToAggregate: (item: DynamoDBItem, _meta: AggregateMeta) => A,
 	keys: DynamoDBItem[] = [],
-	nextStartKey?: any,
+	nextStartKey?: unknown,
 ): Promise<PaginatedResult<A>> => {
 	const items = keys.length
 		? (
@@ -62,14 +62,14 @@ export const batchFetch = async <A extends Aggregate>(
 					[...new Set([...fields, ...aggregateFields])],
 					keys,
 				)
-		  ).map(item => itemToAggregate(item, toMeta(aggregateName, item)))
+		  ).map((item) => itemToAggregate(item, toMeta(aggregateName, item)))
 		: []
 
 	// Sort items by given keys, so the returned list is stable.
 	// DynamoDB BatchGetItems does not guarantee the order of returned values
 	const sortedItems = keys.map(
 		({ aggregateId: { S: id } }) =>
-			items.find(item => item._meta.id === id) as A,
+			items.find((item) => item._meta.id === id) as A,
 	)
 
 	return {

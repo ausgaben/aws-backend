@@ -21,7 +21,7 @@ export const persist = (
 	dynamodb: DynamoDBClient,
 	TableName: string,
 ): AggregateEventRepository.persist => {
-	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'aggregateEventRepository/dynamodb/persist()',
@@ -61,7 +61,7 @@ export const persist = (
 			},
 		}
 
-		if ((event as AggregateEventWithPayload).eventPayload) {
+		if ((event as AggregateEventWithPayload).eventPayload !== undefined) {
 			Item.eventPayload = {
 				S: JSON.stringify(
 					(event as AggregateEventWithPayload).eventPayload,

@@ -30,7 +30,7 @@ export const processGroupedEvents = async <A extends Aggregate>(
 	remove: removeFn<A>,
 ): Promise<void> => {
 	await Promise.all(
-		Object.keys(events).map(async aggregateId => {
+		Object.keys(events).map(async (aggregateId) => {
 			try {
 				// Load the snapshot of the aggregate
 				const aggregate = await findAggregate(aggregateId)

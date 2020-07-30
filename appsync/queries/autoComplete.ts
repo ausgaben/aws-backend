@@ -37,7 +37,7 @@ export const handler = async (
 		const autoCompleteStrings = await findAutoCompleteByAccountId({
 			accountId: event.accountId,
 		})
-		return Object.keys(autoCompleteStrings).map(field => ({
+		return Object.keys(autoCompleteStrings).map((field) => ({
 			field,
 			strings: autoCompleteStrings[field],
 		}))

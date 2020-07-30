@@ -47,7 +47,7 @@ const persistAutoComplete = persist(db, accountAutoCompleteTable)
 	const spendingEventsByAccount = groupEvents<SpendingCreatedEvent>(
 		events as SpendingCreatedEvent[],
 		SpendingAggregateName,
-		e =>
+		(e) =>
 			e.eventName === SpendingCreatedEventName
 				? e.eventPayload.accountId
 				: false,
@@ -58,7 +58,7 @@ const persistAutoComplete = persist(db, accountAutoCompleteTable)
 		findAutoCompleteByAccountId,
 		persistAutoComplete,
 	)
-})().catch(err => {
+})().catch((err) => {
 	console.error(err.message)
 	process.exit(1)
 })

@@ -13,12 +13,12 @@ addAcountUser({
 	accountId: process.argv[process.argv.length - 1],
 	userId: process.argv[process.argv.length - 2],
 })
-	.then(addedUser => {
+	.then((addedUser) => {
 		if (isLeft(addedUser)) {
 			throw addedUser.left
 		}
 	})
-	.catch(error => {
+	.catch((error) => {
 		console.error(error)
 		process.exit(1)
 	})

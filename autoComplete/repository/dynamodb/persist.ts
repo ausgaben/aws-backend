@@ -13,7 +13,7 @@ export const persist = (
 	dynamodb: DynamoDBClient,
 	TableName: string,
 ): AccountAutoCompleteRepository.persist => {
-	TableName = getOrElseL(NonEmptyString.decode(TableName))(errors => {
+	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
 		throw new ValidationFailedError(
 			'autoComplete/repository/dynamodb/persist()',
@@ -34,7 +34,7 @@ export const persist = (
 					),
 				})
 				.decode(args),
-		)(errors => {
+		)((errors) => {
 			// FIXME: Replace with Either
 			throw new ValidationFailedError(
 				'autoComplete/repository/dynamodb/persist()',
@@ -43,7 +43,7 @@ export const persist = (
 		})
 
 		await Promise.all(
-			Object.keys(autoCompleteStrings).map(async field =>
+			Object.keys(autoCompleteStrings).map(async (field) =>
 				dynamodb.send(
 					new PutItemCommand({
 						TableName,
