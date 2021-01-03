@@ -1,7 +1,4 @@
-import {
-	DynamoDBClient,
-	DeleteItemCommand,
-} from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, DeleteItemCommand } from '@aws-sdk/client-dynamodb'
 import * as AggregateRepository from '../remove'
 import { Aggregate } from '../Aggregate'
 import { NonEmptyString } from '../../../validation/NonEmptyString'

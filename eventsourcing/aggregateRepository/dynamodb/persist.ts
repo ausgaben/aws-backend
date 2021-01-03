@@ -1,8 +1,8 @@
 import {
-	_AttributeValue,
 	DynamoDBClient,
 	UpdateItemCommand,
-} from '@aws-sdk/client-dynamodb-v2-node'
+	AttributeValue,
+} from '@aws-sdk/client-dynamodb'
 import * as AggregateRepository from '../persist'
 import { Aggregate } from '../Aggregate'
 import { NonEmptyString } from '../../../validation/NonEmptyString'
@@ -11,7 +11,7 @@ import { ConflictError } from '../../../errors/ConflictError'
 import { getOrElseL } from '../../../fp-compat/getOrElseL'
 
 type DynamoDBItem = {
-	[key: string]: _AttributeValue
+	[key: string]: AttributeValue
 }
 
 const reservedItemKeys = [
@@ -68,21 +68,21 @@ export const persist = <A extends Aggregate>(
 		}
 		if (aggregate._meta.updatedAt) {
 			fields.push('#updatedAt')
-			values[':updatedAt'] = {
-				S:
-					aggregate._meta.updatedAt !== undefined
-						? aggregate._meta.updatedAt.toISOString()
-						: undefined,
-			}
+			values[':updatedAt'] =
+				aggregate._meta.updatedAt !== undefined
+					? {
+							S: aggregate._meta.updatedAt.toISOString(),
+					  }
+					: { NULL: true }
 		}
 		if (aggregate._meta.deletedAt) {
 			fields.push('#deletedAt')
-			values[':deletedAt'] = {
-				S:
-					aggregate._meta.deletedAt !== undefined
-						? aggregate._meta.deletedAt.toISOString()
-						: '',
-			}
+			values[':deletedAt'] =
+				aggregate._meta.deletedAt !== undefined
+					? {
+							S: aggregate._meta.deletedAt.toISOString(),
+					  }
+					: { NULL: true }
 		}
 		let ConditionExpression
 		if (aggregate._meta.version === 1) {

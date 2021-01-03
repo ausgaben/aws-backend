@@ -1,5 +1,5 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRepository/dynamodb/persist'
 import { GQLError } from '../GQLError'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
@@ -32,7 +32,7 @@ export const handler = async (
 		booked?: boolean
 	},
 	context: Context,
-) => {
+): Promise<boolean | ReturnType<typeof GQLError>> => {
 	const updated = await update({
 		spendingId: event.spendingId,
 		userId: event.cognitoIdentityId,

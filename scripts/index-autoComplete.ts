@@ -1,4 +1,4 @@
-import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb'
 import { findByAccountId } from '../autoComplete/repository/dynamodb/findByAccountId'
 import { persist } from '../autoComplete/repository/dynamodb/persist'
 import { groupEvents } from '../eventsourcing/reducer/groupEvents'

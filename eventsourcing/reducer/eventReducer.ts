@@ -1,5 +1,5 @@
 import { DynamoDBStreamEvent } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { AggregateEvent } from '../AggregateEvent'
 import { Account, AccountAggregateName } from '../../account/Account'
 import { parseRecord } from './parseRecord'

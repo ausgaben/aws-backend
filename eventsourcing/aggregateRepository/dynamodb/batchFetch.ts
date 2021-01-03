@@ -1,7 +1,4 @@
-import {
-	DynamoDBClient,
-	BatchGetItemCommand,
-} from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, BatchGetItemCommand } from '@aws-sdk/client-dynamodb'
 import { PaginatedResult } from '../PaginatedResult'
 import { DynamoDBItem } from './DynamoDBItem'
 import { Aggregate, AggregateMeta } from '../Aggregate'

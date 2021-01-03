@@ -1,13 +1,13 @@
-import { CloudFormation } from 'aws-sdk'
+import {
+	CloudFormationClient,
+	DescribeStacksCommand,
+} from '@aws-sdk/client-cloudformation'
 import { stackName } from '../aws/stackName'
 import { Outputs } from '../aws/stacks/core'
 import { promises as fs } from 'fs'
-import {
-	DynamoDBClient,
-	BatchWriteItemCommand,
-} from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, BatchWriteItemCommand } from '@aws-sdk/client-dynamodb'
 
-const cf = new CloudFormation({ region: process.env.AWS_REGION })
+const cf = new CloudFormationClient({ region: process.env.AWS_REGION })
 const db = new DynamoDBClient({ region: process.env.AWS_REGION })
 
 const importFile = process.argv[process.argv.length - 1]
@@ -25,10 +25,11 @@ const chunk = <A>(array: A[], chunkSize: number): A[][] => {
 
 Promise.all([
 	cf
-		.describeStacks({
-			StackName: stackName(),
-		})
-		.promise()
+		.send(
+			new DescribeStacksCommand({
+				StackName: stackName(),
+			}),
+		)
 		.then(
 			({ Stacks }) =>
 				Stacks?.[0]?.Outputs?.reduce(

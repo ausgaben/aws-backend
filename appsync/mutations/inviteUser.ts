@@ -1,5 +1,5 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRepository/dynamodb/persist'
 import { GQLError } from '../GQLError'
 import { createAccountUser } from '../../commands/createAccountUser'
@@ -23,7 +23,7 @@ export const handler = async (
 		accountId: string
 	},
 	context: Context,
-) => {
+): Promise<{ id: string } | ReturnType<typeof GQLError>> => {
 	const userAccounts = await findAccountUserByUserId(event.cognitoIdentityId)
 	const accountUser = userAccounts.items.find(
 		({ accountId: a }) => a === event.accountId,

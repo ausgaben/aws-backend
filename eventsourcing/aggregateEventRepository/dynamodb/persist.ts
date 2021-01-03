@@ -1,7 +1,4 @@
-import {
-	DynamoDBClient,
-	PutItemCommand,
-} from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb'
 import { NonEmptyString } from '../../../validation/NonEmptyString'
 import { ValidationFailedError } from '../../../errors/ValidationFailedError'
 import { AggregateEvent, AggregateEventWithPayload } from '../../AggregateEvent'

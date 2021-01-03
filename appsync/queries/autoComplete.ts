@@ -1,5 +1,5 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { GQLError } from '../GQLError'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
 import { findByAccountId } from '../../autoComplete/repository/dynamodb/findByAccountId'
@@ -27,7 +27,9 @@ export const handler = async (
 		accountId: string
 	},
 	context: Context,
-) => {
+): Promise<
+	{ field: string; strings: string[] }[] | ReturnType<typeof GQLError>
+> => {
 	try {
 		const canAccess = await checkAccess({
 			userId: event.cognitoIdentityId,

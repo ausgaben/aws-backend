@@ -1,5 +1,5 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRepository/dynamodb/persist'
 import { createSpending } from '../../commands/createSpending'
 import { GQLError } from '../GQLError'

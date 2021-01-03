@@ -1,7 +1,4 @@
-import {
-	DynamoDBClient,
-	GetItemCommand,
-} from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb'
 import * as AggregateRepository from '../getById'
 import { Aggregate, AggregateMeta } from '../Aggregate'
 import { NonEmptyString } from '../../../validation/NonEmptyString'

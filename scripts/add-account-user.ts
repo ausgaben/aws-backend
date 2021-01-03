@@ -1,5 +1,5 @@
 import { createAccountUser } from '../commands/createAccountUser'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { persist as persistDynamoDB } from '../eventsourcing/aggregateEventRepository/dynamodb/persist'
 import { isLeft } from 'fp-ts/lib/Either'
 

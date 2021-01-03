@@ -1,5 +1,5 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { persist as persistDynamoDB } from '../../eventsourcing/aggregateEventRepository/dynamodb/persist'
 import { createAccount } from '../../commands/createAccount'
 import { GQLError } from '../GQLError'
@@ -22,12 +22,12 @@ export const handler = async (
 		defaultCurrencyId?: string
 	},
 	context: Context,
-) => {
+): Promise<{ id: string } | ReturnType<typeof GQLError>> => {
 	const createdAccount = await create({
 		name: event.name,
-		isSavingsAccount: !!event.isSavingsAccount,
+		isSavingsAccount: event.isSavingsAccount === true,
 		userId: event.cognitoIdentityId,
-		defaultCurrencyId: event.defaultCurrencyId || EUR.id,
+		defaultCurrencyId: event.defaultCurrencyId ?? EUR.id,
 	})
 	if (isLeft(createdAccount)) return GQLError(context, createdAccount.left)
 	const e = createdAccount.right

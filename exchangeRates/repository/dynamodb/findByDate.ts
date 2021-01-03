@@ -1,4 +1,4 @@
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb'
 import * as ExchangeRatesRepository from '../findByDate'
 import { NonEmptyString } from '../../../validation/NonEmptyString'
 import { ValidationFailedError } from '../../../errors/ValidationFailedError'

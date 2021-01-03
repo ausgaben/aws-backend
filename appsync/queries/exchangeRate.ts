@@ -1,8 +1,8 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { GQLError } from '../GQLError'
 import { findByDate } from '../../exchangeRates/repository/dynamodb/findByDate'
-import { findCurrencyById } from '../../currency/currencies'
+import { Currency, findCurrencyById } from '../../currency/currencies'
 import { EntityNotFoundError } from '../../errors/EntityNotFoundError'
 import { isNone } from 'fp-ts/lib/Option'
 
@@ -20,7 +20,10 @@ export const handler = async (
 		date: string
 	},
 	context: Context,
-) => {
+): Promise<
+	| { currency: Currency; rate: number; date: string }
+	| ReturnType<typeof GQLError>
+> => {
 	const currency = findCurrencyById(currencyId)
 	if (!currency)
 		return GQLError(

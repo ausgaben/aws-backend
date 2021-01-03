@@ -1,4 +1,4 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { AggregateEventWithPayload } from '../../AggregateEvent'
 import { v4 } from 'uuid'
 import { persist as persistDynamoDB } from './persist'
@@ -14,7 +14,7 @@ const TableName = process.env.AGGREGATE_EVENTS_TABLE as string
 describe('DynamoDBAggregateEventRepository', () => {
 	let persist: p, getByAggregateId: g
 
-	if (!process.env.AGGREGATE_EVENTS_TABLE) {
+	if (process.env.AGGREGATE_EVENTS_TABLE === undefined) {
 		test.only('skipped', () => {
 			console.warn(
 				'skipping tests (AGGREGATE_EVENTS_TABLE is not defined)',

@@ -1,9 +1,9 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { GQLError } from '../GQLError'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
 import { getById } from '../../eventsourcing/aggregateRepository/dynamodb/getById'
-import { AccountAggregateName } from '../../account/Account'
+import { Account, AccountAggregateName } from '../../account/Account'
 import { itemToAggregate } from '../../account/repository/dynamodb/itemToAggregate'
 import { decodeStartKey, encodeStartKey } from '../startKey'
 
@@ -28,7 +28,9 @@ export const handler = async (
 		startKey?: string
 	},
 	context: Context,
-) => {
+): Promise<
+	{ items: Account[]; nextStartKey?: string } | ReturnType<typeof GQLError>
+> => {
 	try {
 		const { items, nextStartKey } = await findAccountUserByUserId(
 			event.cognitoIdentityId,

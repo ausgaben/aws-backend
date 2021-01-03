@@ -1,7 +1,4 @@
-import {
-	DynamoDBClient,
-	PutItemCommand,
-} from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb'
 import * as AccountAutoCompleteRepository from '../persist'
 import { NonEmptyString } from '../../../validation/NonEmptyString'
 import { ValidationFailedError } from '../../../errors/ValidationFailedError'
@@ -54,14 +51,10 @@ export const persist = (
 							autoCompleteField: {
 								S: field,
 							},
-							autoCompleteValues: {
-								...(autoCompleteStrings[field].length && {
-									SS: autoCompleteStrings[field],
-								}),
-								...(!autoCompleteStrings[field].length && {
-									NULL: true,
-								}),
-							},
+							autoCompleteValues:
+								autoCompleteStrings[field].length === 0
+									? { NULL: true }
+									: { SS: autoCompleteStrings[field] },
 						},
 					}),
 				),

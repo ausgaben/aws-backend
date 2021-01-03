@@ -1,4 +1,4 @@
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb'
 import { NonEmptyString } from '../../../validation/NonEmptyString'
 import { ValidationFailedError } from '../../../errors/ValidationFailedError'
 import { UUIDv4 } from '../../../validation/UUIDv4'

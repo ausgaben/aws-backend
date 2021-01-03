@@ -1,12 +1,13 @@
 import { Context } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { GQLError } from '../GQLError'
 import { findByAccountId } from '../../spending/repository/dynamodb/findByAccountId'
 import { canAccessAccount } from '../../accountUser/canAccessAccount'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
-import { currencies } from '../../currency/currencies'
+import { currencies, Currency } from '../../currency/currencies'
 import { decodeStartKey, encodeStartKey } from '../startKey'
 import { isLeft } from 'fp-ts/lib/Either'
+import { Spending } from '../../spending/Spending'
 
 const db = new DynamoDBClient({})
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE as string
@@ -27,7 +28,16 @@ export const handler = async (
 		startKey?: string
 	},
 	context: Context,
-) => {
+): Promise<
+	| {
+			items: (Omit<Spending, 'bookedAt'> & {
+				bookedAt: string
+				currency?: Currency
+			})[]
+			nextStartKey?: string
+	  }
+	| ReturnType<typeof GQLError>
+> => {
 	try {
 		const canAccess = await checkAccess({
 			userId: event.cognitoIdentityId,

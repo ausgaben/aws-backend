@@ -1,7 +1,7 @@
 import { createAccountUser } from '../commands/createAccountUser'
 import { promises as fs } from 'fs'
 import { findByUserId } from '../accountUser/repository/dynamodb/findByUserId'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb-v2-node'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { persist as persistDynamoDB } from '../eventsourcing/aggregateEventRepository/dynamodb/persist'
 import { createAccount } from '../commands/createAccount'
 import { createSpending } from '../commands/createSpending'
