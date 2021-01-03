@@ -12,4 +12,9 @@ export type Delete = {
 
 export type SpendingUpdatedEvent = AggregateEventWithPayload<{
 	booked?: Change<boolean>
+	bookedAt?: Change<Date>
+	category?: Change<string>
+	description?: Change<string>
+	amount?: Change<number>
+	currencyId?: Change<string>
 }>

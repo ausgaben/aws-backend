@@ -43,6 +43,26 @@ export const applyEvents = (
 							'set' in updatePayload.booked && {
 								booked: updatePayload.booked.set,
 							}),
+						...(updatePayload.bookedAt &&
+							'set' in updatePayload.bookedAt && {
+								bookedAt: new Date(updatePayload.bookedAt.set),
+							}),
+						...(updatePayload.category &&
+							'set' in updatePayload.category && {
+								category: updatePayload.category.set,
+							}),
+						...(updatePayload.description &&
+							'set' in updatePayload.description && {
+								description: updatePayload.description.set,
+							}),
+						...(updatePayload.amount &&
+							'set' in updatePayload.amount && {
+								amount: updatePayload.amount.set,
+							}),
+						...(updatePayload.currencyId &&
+							'set' in updatePayload.currencyId && {
+								currencyId: updatePayload.currencyId.set,
+							}),
 						_meta: {
 							...aggregateToUpdate._meta,
 							version: aggregateToUpdate._meta.version + 1,

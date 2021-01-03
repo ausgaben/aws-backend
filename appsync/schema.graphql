@@ -1,103 +1,111 @@
 type Account {
-    name: String!
-    isSavingsAccount: Boolean!
-    defaultCurrency: Currency
-    _meta: EntityMeta!
+  name: String!
+  isSavingsAccount: Boolean!
+  defaultCurrency: Currency
+  _meta: EntityMeta!
 }
 
 type AccountsQueryResult {
-    nextStartKey: ID
-    items: [Account]!
+  nextStartKey: ID
+  items: [Account]!
 }
 
 type AutoCompleteStrings {
-    field: ID!
-    strings: [String!]!
+  field: ID!
+  strings: [String!]!
 }
 
 type CreateEntityResult {
-    id: ID!
+  id: ID!
 }
 
 type Currency {
-    id: ID!
-    symbol: String!
+  id: ID!
+  symbol: String!
 }
 
 type EntityMeta {
-    id: ID!
-    createdAt: String!
-    updatedAt: String
-    version: Int!
-    name: String!
+  id: ID!
+  createdAt: String!
+  updatedAt: String
+  version: Int!
+  name: String!
 }
 
 type ExchangeRate {
-    currency: Currency!
-    rate: Float!
-    date: String!
+  currency: Currency!
+  rate: Float!
+  date: String!
 }
 
 type Mutation {
-    createAccount(
-        name: String!
-        isSavingsAccount: Boolean
-        defaultCurrencyId: ID
-    ): CreateEntityResult!
-    deleteAccount(accountId: ID!): Boolean
-    createSpending(
-        accountId: ID!
-        bookedAt: String!
-        booked: Boolean
-        category: String!
-        description: String!
-        amount: Int!
-        currencyId: ID!
-    ): CreateEntityResult!
-    deleteSpending(spendingId: ID!): Boolean
-    inviteUser(accountId: ID!, userId: ID!): CreateEntityResult!
-    updateSpending(spendingId: ID!, booked: Boolean): Boolean
-    updateAccount(
-        accountId: ID!
-        expectedVersion: Int!
-        name: String!
-        defaultCurrencyId: ID
-    ): Boolean
-}
-
-type Query {
-    accounts(filter: accountsFilterInput, startKey: ID): AccountsQueryResult!
-    spendings(
-        accountId: ID!
-        startDate: String!
-        endDate: String!
-        startKey: ID
-    ): SpendingsQueryResult!
-    autoCompleteStrings(accountId: ID!): [AutoCompleteStrings!]!
-    exchangeRate(currencyId: ID!, date: String!): ExchangeRate!
-}
-
-type Schema {
-    mutation: Mutation
-    query: Query
-}
-
-type Spending {
-    account: Account!
+  createAccount(
+    name: String!
+    isSavingsAccount: Boolean
+    defaultCurrencyId: ID
+  ): CreateEntityResult!
+  deleteAccount(accountId: ID!): Boolean
+  createSpending(
+    accountId: ID!
     bookedAt: String!
-    booked: Boolean!
+    booked: Boolean
     category: String!
     description: String!
     amount: Int!
-    currency: Currency!
-    _meta: EntityMeta!
+    currencyId: ID!
+  ): CreateEntityResult!
+  deleteSpending(spendingId: ID!): Boolean
+  inviteUser(accountId: ID!, userId: ID!): CreateEntityResult!
+  updateSpending(
+    spendingId: ID!
+    booked: Boolean
+    bookedAt: String
+    category: String
+    description: String
+    amount: Int
+    currencyId: ID
+  ): Boolean
+  updateAccount(
+    accountId: ID!
+    expectedVersion: Int!
+    name: String!
+    defaultCurrencyId: ID
+  ): Boolean
+}
+
+type Query {
+  accounts(filter: accountsFilterInput, startKey: ID): AccountsQueryResult!
+  spendings(
+    accountId: ID!
+    startDate: String!
+    endDate: String!
+    startKey: ID
+  ): SpendingsQueryResult!
+  autoCompleteStrings(accountId: ID!): [AutoCompleteStrings!]!
+  exchangeRate(currencyId: ID!, date: String!): ExchangeRate!
+}
+
+type Schema {
+  mutation: Mutation
+  query: Query
+}
+
+type Spending {
+  account: Account!
+  bookedAt: String!
+  booked: Boolean!
+  category: String!
+  description: String!
+  amount: Int!
+  currency: Currency!
+  _meta: EntityMeta!
 }
 
 type SpendingsQueryResult {
-    nextStartKey: ID
-    items: [Spending]!
+  nextStartKey: ID
+  items: [Spending]!
 }
 
 input accountsFilterInput {
-    accountId: ID!
+  accountId: ID!
 }

@@ -30,13 +30,17 @@ export const handler = async (
 		cognitoIdentityId: string
 		spendingId: string
 		booked?: boolean
+		bookedAt?: string
+		category?: string
+		description?: string
+		amount?: number
+		currencyId?: string
 	},
 	context: Context,
 ): Promise<boolean | ReturnType<typeof GQLError>> => {
 	const updated = await update({
-		spendingId: event.spendingId,
+		...event,
 		userId: event.cognitoIdentityId,
-		booked: event.booked,
 	})
 	if (isLeft(updated)) return GQLError(context, updated.left)
 	return true
