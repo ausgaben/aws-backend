@@ -1,7 +1,7 @@
 import { LambdaSourcecodeStorageStack } from './stacks/lambda-sourcecode-storage'
 import { SourceCodeStackName } from './app/sourcecode'
 import * as fs from 'fs'
-import { packBaseLayer } from '@bifravst/package-layered-lambdas'
+import { packBaseLayer } from '@nordicsemiconductor/package-layered-lambdas'
 import { lambdas } from './resources/lambdas'
 import { AusgabenApp } from './app/ausgaben'
 import * as path from 'path'

@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { LayeredLambdas } from '@bifravst/package-layered-lambdas'
+import { LayeredLambdas } from '@nordicsemiconductor/package-layered-lambdas'
 import { packLayeredLambdasForCloudFormation } from '../packLambdas'
 
 export type AusgabenLayeredLambdas = LayeredLambdas<{
