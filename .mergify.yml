@@ -1,22 +1,15 @@
 pull_request_rules:
-  - name: Automatic merge when PR is approved
+  - name: Automatically approve security PRs
     conditions:
-      - status-success=security/snyk (Ausgaben)
-      - "#approved-reviews-by>=1"
+      - author~=^(dependabot\[bot\]|renovate\[bot\])$
       - status-success=tests
     actions:
       merge:
         method: rebase
         rebase_fallback: squash
-        bot_account: coderbyheart
+        bot_account: asset-tracker-cloud-ci
       label:
         add:
           - mergify
       rebase:
         bot_account: coderbyheart
-  - name: Automatically approve security PRs
-    conditions:
-      - author~=^(snyk-bot|dependabot\[bot\])$
-    actions:
-      review:
-        message: Automatically approved because PR is by a trusted service
