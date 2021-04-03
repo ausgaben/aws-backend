@@ -63,6 +63,18 @@ export const applyEvents = (
 							'set' in updatePayload.currencyId && {
 								currencyId: updatePayload.currencyId.set,
 							}),
+						...(updatePayload.savingForAccountId &&
+							((change) => {
+								if ('set' in change) {
+									return {
+										savingForAccountId: change.set,
+									}
+								} else {
+									return {
+										savingForAccountId: undefined,
+									}
+								}
+							})(updatePayload.savingForAccountId)),
 						_meta: {
 							...aggregateToUpdate._meta,
 							version: aggregateToUpdate._meta.version + 1,

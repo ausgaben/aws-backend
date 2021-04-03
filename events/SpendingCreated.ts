@@ -10,4 +10,5 @@ export type SpendingCreatedEvent = AggregateEventWithPayload<{
 	amount: number
 	currencyId: string
 	booked: boolean
+	savingForAccountId?: string
 }>

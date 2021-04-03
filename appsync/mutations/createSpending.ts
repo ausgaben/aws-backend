@@ -24,6 +24,7 @@ export const handler = async (
 		amount: number
 		currencyId: string
 		booked: boolean
+		savingForAccountId?: string
 	},
 	context: Context,
 ): Promise<{ id: string } | ReturnType<typeof GQLError>> => {

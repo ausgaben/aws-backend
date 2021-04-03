@@ -32,6 +32,7 @@ export const updateSpending = (
 	description?: string
 	amount?: number
 	currencyId?: string
+	savingForAccountId?: string
 }): Promise<Either<Error, SpendingUpdatedEvent>> => {
 	const validInput = t
 		.type({
@@ -51,6 +52,7 @@ export const updateSpending = (
 					}, {} as { [key: string]: null }),
 				),
 			]),
+			savingForAccountId: t.union([t.undefined, UUIDv4]),
 		})
 		.decode(args)
 
@@ -68,6 +70,7 @@ export const updateSpending = (
 		description,
 		amount,
 		currencyId,
+		savingForAccountId,
 	} = validInput.right
 
 	const spending = await getSpendingById(spendingId)
@@ -94,6 +97,9 @@ export const updateSpending = (
 			...(currencyId !== undefined && {
 				currencyId: { set: currencyId as string },
 			}),
+			...(savingForAccountId === undefined
+				? { savingForAccountId: { unset: true } }
+				: { savingForAccountId: { set: savingForAccountId } }),
 		},
 	}
 	await persist(updateSpendingEvent)

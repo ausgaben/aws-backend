@@ -31,6 +31,7 @@ export const createSpending = (
 	amount: number
 	currencyId: string
 	booked?: boolean
+	savingForAccountId?: string
 }): Promise<Either<Error, SpendingCreatedEvent>> => {
 	const validInput = t
 		.type({
@@ -47,6 +48,7 @@ export const createSpending = (
 				}, {} as { [key: string]: null }),
 			),
 			booked: t.boolean,
+			savingForAccountId: t.union([t.undefined, UUIDv4]),
 		})
 		.decode({
 			booked: true,
@@ -65,6 +67,7 @@ export const createSpending = (
 		amount,
 		currencyId,
 		booked,
+		savingForAccountId,
 	} = validInput.right
 
 	const userAccounts = await tryOrError(async () =>
@@ -101,6 +104,7 @@ export const createSpending = (
 			amount,
 			currencyId: currencyId as string,
 			booked,
+			savingForAccountId,
 		},
 	}
 	const eventPersisted = await tryOrError(async () => persist(e))
