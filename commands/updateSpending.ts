@@ -17,6 +17,7 @@ import { DateFromString } from '../validation/DateFromString'
 import { NonEmptyString } from '../validation/NonEmptyString'
 import { NonZeroInteger } from '../validation/NonZeroInteger'
 import { currencies } from '../currency/currencies'
+import { BadRequestError } from '../errors/BadRequestError'
 
 export const updateSpending = (
 	persist: (ev: AggregateEvent) => Promise<void>,
@@ -75,10 +76,17 @@ export const updateSpending = (
 
 	const spending = await getSpendingById(spendingId)
 
-	await canAccessAccount(findAccountUserByUserId)({
+	if (savingForAccountId === spending.accountId) {
+		return left(
+			new BadRequestError(`Cannot create a saving for the same account.`),
+		)
+	}
+
+	const canAccess = await canAccessAccount(findAccountUserByUserId)({
 		userId,
 		accountId: spending.accountId,
 	})
+	if (isLeft(canAccess)) return canAccess
 
 	const updateSpendingEvent: SpendingUpdatedEvent = {
 		eventId: v4(),

@@ -18,6 +18,7 @@ import { CognitoUserId } from '../validation/CognitoUserId'
 import { Either, isLeft, left, right } from 'fp-ts/lib/Either'
 import { tryOrError } from '../fp-compat/tryOrError'
 import { EntityNotFoundError } from '../errors/EntityNotFoundError'
+import { BadRequestError } from '../errors/BadRequestError'
 
 export const createSpending = (
 	persist: (ev: AggregateEventWithPayload) => Promise<void>,
@@ -69,6 +70,12 @@ export const createSpending = (
 		booked,
 		savingForAccountId,
 	} = validInput.right
+
+	if (accountId === savingForAccountId) {
+		return left(
+			new BadRequestError(`Cannot create a saving for the same account.`),
+		)
+	}
 
 	const userAccounts = await tryOrError(async () =>
 		findAccountUserByUserId(userId),

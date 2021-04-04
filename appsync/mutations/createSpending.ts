@@ -28,9 +28,15 @@ export const handler = async (
 	},
 	context: Context,
 ): Promise<{ id: string } | ReturnType<typeof GQLError>> => {
+	console.debug(JSON.stringify(event))
 	const createdSpending = await create({
 		userId: event.cognitoIdentityId,
 		...event,
+		savingForAccountId:
+			event.savingForAccountId === null ||
+			event.savingForAccountId === undefined
+				? undefined
+				: event.savingForAccountId,
 	})
 	if (isLeft(createdSpending)) return GQLError(context, createdSpending.left)
 	return {

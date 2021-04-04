@@ -36,28 +36,60 @@ export const findByAccountId = (
 			},
 		)
 
-		const { Items, LastEvaluatedKey } = await dynamodb.send(
-			new QueryCommand({
-				TableName,
-				IndexName: 'accountIdIndex',
-				KeyConditionExpression: `accountId = :accountId AND bookedAt BETWEEN :startDate AND :endDate`,
-				ExpressionAttributeValues: {
-					[`:accountId`]: {
-						S: accountId,
+		const { k1, k2 } = (args.startKey !== undefined
+			? JSON.parse(args.startKey)
+			: {}) as Record<string, any>
+
+		const [
+			{ Items: I1, LastEvaluatedKey: LK1 },
+			{ Items: I2, LastEvaluatedKey: LK2 },
+		] = await Promise.all([
+			dynamodb.send(
+				new QueryCommand({
+					TableName,
+					IndexName: 'accountIdIndex',
+					KeyConditionExpression: `accountId = :accountId AND bookedAt BETWEEN :startDate AND :endDate`,
+					ExpressionAttributeValues: {
+						[`:accountId`]: {
+							S: accountId,
+						},
+						[`:startDate`]: {
+							S: args.startDate.toISOString(),
+						},
+						[`:endDate`]: {
+							S: args.endDate.toISOString(),
+						},
 					},
-					[`:startDate`]: {
-						S: args.startDate.toISOString(),
+					ExclusiveStartKey: k1,
+					ScanIndexForward: false,
+					ProjectionExpression: 'aggregateId',
+					Limit: 100,
+				}),
+			),
+			dynamodb.send(
+				new QueryCommand({
+					TableName,
+					IndexName: 'savingForAccountIdIndex',
+					KeyConditionExpression: `savingForAccountId = :accountId AND bookedAt BETWEEN :startDate AND :endDate`,
+					ExpressionAttributeValues: {
+						[`:accountId`]: {
+							S: accountId,
+						},
+						[`:startDate`]: {
+							S: args.startDate.toISOString(),
+						},
+						[`:endDate`]: {
+							S: args.endDate.toISOString(),
+						},
 					},
-					[`:endDate`]: {
-						S: args.endDate.toISOString(),
-					},
-				},
-				ExclusiveStartKey: args.startKey,
-				ScanIndexForward: false,
-				ProjectionExpression: 'aggregateId',
-				Limit: 100,
-			}),
-		)
+					ExclusiveStartKey: k2,
+					ScanIndexForward: false,
+					ProjectionExpression: 'aggregateId',
+					Limit: 100,
+				}),
+			),
+		])
+		const nextStartKeys = { k1: LK1, k2: LK2 }
 		return batchFetch(
 			dynamodb,
 			TableName,
@@ -70,10 +102,13 @@ export const findByAccountId = (
 				'description',
 				'amount',
 				'currencyId',
+				'savingForAccountId',
 			],
 			itemToAggregate,
-			Items,
-			LastEvaluatedKey,
+			[...(I1 ?? []), ...(I2 ?? [])],
+			LK1 !== undefined || LK2 !== undefined
+				? JSON.stringify(nextStartKeys)
+				: undefined,
 		)
 	}
 }

@@ -17,6 +17,7 @@ import { AccountUsersTable } from '../resources/account-users-table'
 import { SpendingsTable } from '../resources/spendings-table'
 import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table'
 import { ExchangeRatesTable } from '../resources/exchange-rates-table'
+import { Table } from '@aws-cdk/aws-dynamodb'
 
 const gqlLambda = (
 	parent: Construct,
@@ -26,14 +27,14 @@ const gqlLambda = (
 	field: string,
 	type: 'Query' | 'Mutation',
 	lambda: Code,
-	policies: PolicyStatement[],
-	environment: {
-		[key: string]: any
+	dynamodb: {
+		read?: Record<string, { table: Table }>
+		write?: Record<string, { table: Table }>
 	},
 ) => {
 	const f = new Function(parent, `${field}${type}`, {
 		handler: 'index.handler',
-		runtime: Runtime.NODEJS_12_X,
+		runtime: Runtime.NODEJS_14_X,
 		timeout: Duration.seconds(30),
 		memorySize: 1792,
 		initialPolicy: [
@@ -47,9 +48,32 @@ const gqlLambda = (
 					`arn:aws:logs:${stack.region}:${stack.account}:/aws/lambda/*`,
 				],
 			}),
-			...policies,
+			...Object.values(dynamodb.read ?? {}).map(
+				({ table }) =>
+					new PolicyStatement({
+						actions: [
+							'dynamodb:Query',
+							'dynamodb:GetItem',
+							'dynamodb:BatchGetItem',
+						],
+						resources: [table.tableArn, `${table.tableArn}/*`],
+					}),
+			),
+			...Object.values(dynamodb.write ?? {}).map(
+				({ table }) =>
+					new PolicyStatement({
+						actions: ['dynamodb:PutItem'],
+						resources: [table.tableArn],
+					}),
+			),
 		],
-		environment,
+		environment: [
+			...Object.entries(dynamodb?.read ?? {}),
+			...Object.entries(dynamodb?.write ?? {}),
+		].reduce(
+			(env, [k, { table }]) => ({ ...env, [k]: table.tableName }),
+			{},
+		),
 		layers: [baseLayer],
 		code: lambda,
 	})
@@ -156,14 +180,8 @@ export class ApiFeature extends Construct {
 			'createAccount',
 			'Mutation',
 			lambdas.createAccountMutation,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:PutItem'],
-					resources: [aggregateEventsTable.table.tableArn],
-				}),
-			],
 			{
-				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
+				write: { AGGREGATE_EVENTS_TABLE: aggregateEventsTable },
 			},
 		)
 
@@ -175,29 +193,12 @@ export class ApiFeature extends Construct {
 			'deleteAccount',
 			'Mutation',
 			lambdas.deleteAccountMutation,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:PutItem'],
-					resources: [aggregateEventsTable.table.tableArn],
-				}),
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						accountsTable.table.tableArn,
-						`${accountsTable.table.tableArn}/*`,
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
-				ACCOUNTS_TABLE: accountsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				write: { AGGREGATE_EVENTS_TABLE: aggregateEventsTable },
+				read: {
+					ACCOUNTS_TABLE: accountsTable,
+					ACCOUNT_USERS_TABLE: accountUsersTable,
+				},
 			},
 		)
 
@@ -209,24 +210,11 @@ export class ApiFeature extends Construct {
 			'accounts',
 			'Query',
 			lambdas.accountsQuery,
-			[
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						accountsTable.table.tableArn,
-						`${accountsTable.table.tableArn}/*`,
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				ACCOUNTS_TABLE: accountsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				read: {
+					ACCOUNTS_TABLE: accountsTable,
+					ACCOUNT_USERS_TABLE: accountUsersTable,
+				},
 			},
 		)
 
@@ -238,27 +226,9 @@ export class ApiFeature extends Construct {
 			'createSpending',
 			'Mutation',
 			lambdas.createSpendingMutation,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:PutItem'],
-					resources: [aggregateEventsTable.table.tableArn],
-				}),
-
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				write: { AGGREGATE_EVENTS_TABLE: aggregateEventsTable },
+				read: { ACCOUNT_USERS_TABLE: accountUsersTable },
 			},
 		)
 
@@ -270,30 +240,12 @@ export class ApiFeature extends Construct {
 			'updateSpending',
 			'Mutation',
 			lambdas.updateSpendingMutation,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:PutItem'],
-					resources: [aggregateEventsTable.table.tableArn],
-				}),
-
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						spendingsTable.table.tableArn,
-						`${spendingsTable.table.tableArn}/*`,
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
-				SPENDINGS_TABLE: spendingsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				write: { AGGREGATE_EVENTS_TABLE: aggregateEventsTable },
+				read: {
+					SPENDINGS_TABLE: spendingsTable,
+					ACCOUNT_USERS_TABLE: accountUsersTable,
+				},
 			},
 		)
 
@@ -305,30 +257,12 @@ export class ApiFeature extends Construct {
 			'updateAccount',
 			'Mutation',
 			lambdas.updateAccountMutation,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:PutItem'],
-					resources: [aggregateEventsTable.table.tableArn],
-				}),
-
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-						accountsTable.table.tableArn,
-						`${accountsTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
-				ACCOUNTS_TABLE: accountsTable.table.tableName,
+				write: { AGGREGATE_EVENTS_TABLE: aggregateEventsTable },
+				read: {
+					ACCOUNT_USERS_TABLE: accountUsersTable,
+					ACCOUNTS_TABLE: accountsTable,
+				},
 			},
 		)
 
@@ -340,29 +274,12 @@ export class ApiFeature extends Construct {
 			'deleteSpending',
 			'Mutation',
 			lambdas.deleteSpendingMutation,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:PutItem'],
-					resources: [aggregateEventsTable.table.tableArn],
-				}),
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						spendingsTable.table.tableArn,
-						`${spendingsTable.table.tableArn}/*`,
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
-				SPENDINGS_TABLE: spendingsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				write: { AGGREGATE_EVENTS_TABLE: aggregateEventsTable },
+				read: {
+					SPENDINGS_TABLE: spendingsTable,
+					ACCOUNT_USERS_TABLE: accountUsersTable,
+				},
 			},
 		)
 
@@ -374,24 +291,12 @@ export class ApiFeature extends Construct {
 			'spendings',
 			'Query',
 			lambdas.spendingsQuery,
-			[
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						spendingsTable.table.tableArn,
-						`${spendingsTable.table.tableArn}/*`,
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				SPENDINGS_TABLE: spendingsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				read: {
+					SPENDINGS_TABLE: spendingsTable,
+					ACCOUNT_USERS_TABLE: accountUsersTable,
+					ACCOUNTS_TABLE: accountsTable,
+				},
 			},
 		)
 
@@ -403,26 +308,9 @@ export class ApiFeature extends Construct {
 			'inviteUser',
 			'Mutation',
 			lambdas.inviteUserMutation,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:PutItem'],
-					resources: [aggregateEventsTable.table.tableArn],
-				}),
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				AGGREGATE_EVENTS_TABLE: aggregateEventsTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				write: { AGGREGATE_EVENTS_TABLE: aggregateEventsTable },
+				read: { ACCOUNT_USERS_TABLE: accountUsersTable },
 			},
 		)
 
@@ -434,25 +322,11 @@ export class ApiFeature extends Construct {
 			'autoCompleteStrings',
 			'Query',
 			lambdas.autoCompleteStringsQuery,
-			[
-				new PolicyStatement({
-					actions: [
-						'dynamodb:Query',
-						'dynamodb:GetItem',
-						'dynamodb:BatchGetItem',
-					],
-					resources: [
-						accountAutoCompleteTable.table.tableArn,
-						`${accountAutoCompleteTable.table.tableArn}/*`,
-						accountUsersTable.table.tableArn,
-						`${accountUsersTable.table.tableArn}/*`,
-					],
-				}),
-			],
 			{
-				ACCOUNT_AUTOCOMPLETE_TABLE:
-					accountAutoCompleteTable.table.tableName,
-				ACCOUNT_USERS_TABLE: accountUsersTable.table.tableName,
+				read: {
+					ACCOUNT_AUTOCOMPLETE_TABLE: accountAutoCompleteTable,
+					ACCOUNT_USERS_TABLE: accountUsersTable,
+				},
 			},
 		)
 
@@ -464,14 +338,10 @@ export class ApiFeature extends Construct {
 			'exchangeRate',
 			'Query',
 			lambdas.exchangeRateQuery,
-			[
-				new PolicyStatement({
-					actions: ['dynamodb:Query'],
-					resources: [exchangeRatesTable.table.tableArn],
-				}),
-			],
 			{
-				EXCHANGE_RATES_TABLE: exchangeRatesTable.table.tableName,
+				read: {
+					EXCHANGE_RATES_TABLE: exchangeRatesTable,
+				},
 			},
 		)
 	}

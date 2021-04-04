@@ -5,7 +5,6 @@ import {
 } from '../events/AccountCreated'
 import { AggregateEventWithPayload } from '../eventsourcing/AggregateEvent'
 import { CognitoUserId } from '../validation/CognitoUserId'
-import { ValidationFailedError } from '../errors/ValidationFailedError'
 import { NonEmptyString } from '../validation/NonEmptyString'
 import { v4 } from 'uuid'
 import { AccountAggregateName } from '../account/Account'
@@ -13,6 +12,7 @@ import { findCurrencyById } from '../currency/currencies'
 import { EntityNotFoundError } from '../errors/EntityNotFoundError'
 import { Either, isLeft, left, right } from 'fp-ts/lib/Either'
 import { tryOrError } from '../fp-compat/tryOrError'
+import { ValidationFailedError } from '../errors/ValidationFailedError'
 
 export const createAccount = (
 	persist: (ev: AggregateEventWithPayload) => Promise<void>,

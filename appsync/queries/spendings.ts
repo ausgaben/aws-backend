@@ -8,13 +8,23 @@ import { currencies, Currency } from '../../currency/currencies'
 import { decodeStartKey, encodeStartKey } from '../startKey'
 import { isLeft } from 'fp-ts/lib/Either'
 import { Spending } from '../../spending/Spending'
+import { getById } from '../../eventsourcing/aggregateRepository/dynamodb/getById'
+import { AccountAggregateName } from '../../account/Account'
+import { itemToAggregate } from '../../account/repository/dynamodb/itemToAggregate'
 
 const db = new DynamoDBClient({})
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE as string
+const accountsTableName = process.env.ACCOUNTS_TABLE as string
 const spendingsTable = process.env.SPENDINGS_TABLE as string
 
 const findAccountUserByUserId = findByUserId(db, accountUsersTableName)
 const findSpendingsByAccountId = findByAccountId(db, spendingsTable)
+const getAccountById = getById(
+	db,
+	accountsTableName,
+	AccountAggregateName,
+	itemToAggregate,
+)
 
 const checkAccess = canAccessAccount(findAccountUserByUserId)
 
@@ -38,26 +48,46 @@ export const handler = async (
 	  }
 	| ReturnType<typeof GQLError>
 > => {
+	console.debug(JSON.stringify(event))
 	try {
 		const canAccess = await checkAccess({
 			userId: event.cognitoIdentityId,
 			accountId: event.accountId,
 		})
 		if (isLeft(canAccess)) return GQLError(context, canAccess.left)
-		const { items, nextStartKey } = await findSpendingsByAccountId({
-			startDate: new Date(event.startDate),
-			endDate: new Date(event.endDate),
-			accountId: event.accountId,
-			startKey: decodeStartKey(event.startKey),
-		})
-		return {
+		const [{ items, nextStartKey }, accounts] = await Promise.all([
+			findSpendingsByAccountId({
+				startDate: new Date(event.startDate),
+				endDate: new Date(event.endDate),
+				accountId: event.accountId,
+				startKey: decodeStartKey(event.startKey),
+			}),
+			findAccountUserByUserId(
+				event.cognitoIdentityId,
+			).then(async ({ items }) =>
+				Promise.all(
+					items.map(async ({ accountId }) =>
+						getAccountById(accountId),
+					),
+				),
+			),
+		])
+		const result = {
 			items: items.map((item) => ({
 				...item,
 				bookedAt: item.bookedAt.toISOString(),
 				currency: currencies.find(({ id }) => item.currencyId === id),
+				account: accounts.find(
+					({ _meta: { id } }) => id === item.accountId,
+				),
+				savingForAccount: accounts.find(
+					({ _meta: { id } }) => id === item.savingForAccountId,
+				),
 			})),
 			nextStartKey: encodeStartKey(nextStartKey),
 		}
+		console.debug(JSON.stringify(result))
+		return result
 	} catch (error) {
 		return GQLError(context, error)
 	}
