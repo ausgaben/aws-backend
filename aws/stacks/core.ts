@@ -110,7 +110,7 @@ export class CoreStack extends Stack {
 
 		const baseLayer = new LayerVersion(this, `${id}-layer`, {
 			code: Code.bucket(sourceCodeBucket, baseLayerZipFileName),
-			compatibleRuntimes: [Runtime.NODEJS_12_X],
+			compatibleRuntimes: [Runtime.NODEJS_14_X],
 		})
 
 		new EventSourcingFeature(
