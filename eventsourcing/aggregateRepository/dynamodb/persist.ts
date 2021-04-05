@@ -1,18 +1,14 @@
-import {
-	DynamoDBClient,
-	UpdateItemCommand,
-	AttributeValue,
-} from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
 import * as AggregateRepository from '../persist'
 import { Aggregate } from '../Aggregate'
 import { NonEmptyString } from '../../../validation/NonEmptyString'
 import { ValidationFailedError } from '../../../errors/ValidationFailedError'
 import { ConflictError } from '../../../errors/ConflictError'
 import { getOrElseL } from '../../../fp-compat/getOrElseL'
-
-type DynamoDBItem = {
-	[key: string]: AttributeValue
-}
+import {
+	DynamoDBItem,
+	DynamoDBItemWithRemovableProperties,
+} from './DynamoDBItem'
 
 const reservedItemKeys = [
 	'aggregateId',
@@ -26,7 +22,7 @@ const reservedItemKeys = [
 export const persist = <A extends Aggregate>(
 	dynamodb: DynamoDBClient,
 	TableName: string,
-	aggregateToItem: (aggregate: A) => DynamoDBItem,
+	aggregateToItem: (aggregate: A) => DynamoDBItemWithRemovableProperties,
 ): AggregateRepository.persist<A> => {
 	TableName = getOrElseL(NonEmptyString.decode(TableName))((errors) => {
 		// FIXME: Replace with Either
@@ -48,15 +44,24 @@ export const persist = <A extends Aggregate>(
 				)
 			}
 		})
-		const fields: string[] = [
-			...itemKeys.map((key) => `#${key}`),
-			'#version',
-			'#createdAt',
+
+		const updateFields = [
+			...Object.entries(Item)
+				.filter(([, v]) => !('remove' in v))
+				.map(([k]) => k),
+			'version',
+			'createdAt',
 		]
+
+		const removeFields = Object.entries(Item)
+			.filter(([, v]) => 'remove' in v)
+			.map(([k]) => k)
 
 		const values: DynamoDBItem = {
 			...Object.keys(Item).reduce((o, k) => {
-				o[`:${k}`] = Item[k]
+				if (!('remove' in Item[k])) {
+					o[`:${k}`] = Item[k]
+				}
 				return o
 			}, {} as DynamoDBItem),
 			':version': {
@@ -66,59 +71,67 @@ export const persist = <A extends Aggregate>(
 				S: aggregate._meta.createdAt.toISOString(),
 			},
 		}
-		if (aggregate._meta.updatedAt) {
-			fields.push('#updatedAt')
-			values[':updatedAt'] =
-				aggregate._meta.updatedAt !== undefined
-					? {
-							S: aggregate._meta.updatedAt.toISOString(),
-					  }
-					: { NULL: true }
+		if (aggregate._meta.updatedAt !== undefined) {
+			updateFields.push('updatedAt')
+			values[':updatedAt'] = {
+				S: aggregate._meta.updatedAt.toISOString(),
+			}
 		}
-		if (aggregate._meta.deletedAt) {
-			fields.push('#deletedAt')
-			values[':deletedAt'] =
-				aggregate._meta.deletedAt !== undefined
-					? {
-							S: aggregate._meta.deletedAt.toISOString(),
-					  }
-					: { NULL: true }
+		if (aggregate._meta.deletedAt !== undefined) {
+			updateFields.push('deletedAt')
+			values[':deletedAt'] = {
+				S: aggregate._meta.deletedAt.toISOString(),
+			}
 		}
 		let ConditionExpression
 		if (aggregate._meta.version === 1) {
 			ConditionExpression = 'attribute_not_exists(aggregateId)'
 		} else {
-			ConditionExpression = 'version < :nextversion'
+			ConditionExpression = '#version < :nextversion'
 			values[':nextversion'] = {
 				N: `${aggregate._meta.version}`,
 			}
 		}
 
-		try {
-			await dynamodb.send(
-				new UpdateItemCommand({
-					TableName,
-					Key: {
-						aggregateId: {
-							S: aggregate._meta.id,
-						},
-					},
-					UpdateExpression: `SET ${fields
-						.map((f) => `${f} = :${f.substr(1)}`)
-						.join(',')}`,
-					ExpressionAttributeNames: fields.reduce(
-						(map, key) => {
-							map[key] = key.substr(1)
-							return map
-						},
-						{} as {
-							[key: string]: string
-						},
-					),
-					ExpressionAttributeValues: values,
-					ConditionExpression,
+		let UpdateExpression = `SET ${updateFields
+			.map((f) => `#${f} = :${f}`)
+			.join(', ')}`
+
+		// Remove properties
+		const removeProperties = Object.entries(Item)
+			.filter(([, v]) => 'remove' in v)
+			.map(([k]) => k)
+		if (removeProperties.length > 0) {
+			UpdateExpression = `${UpdateExpression} REMOVE ${removeProperties
+				.map((f) => `#${f}`)
+				.join(', ')}`
+		}
+
+		const updateArgs = {
+			TableName,
+			Key: {
+				aggregateId: {
+					S: aggregate._meta.id,
+				},
+			},
+			UpdateExpression,
+			ExpressionAttributeNames: [...updateFields, ...removeFields].reduce(
+				(map, f) => ({
+					...map,
+					[`#${f}`]: f,
 				}),
-			)
+				{} as {
+					[key: string]: string
+				},
+			),
+			ExpressionAttributeValues: values,
+			ConditionExpression,
+		}
+
+		console.debug(JSON.stringify(updateArgs))
+
+		try {
+			await dynamodb.send(new UpdateItemCommand(updateArgs))
 		} catch (error) {
 			if (error.name === 'ConditionalCheckFailedException') {
 				// FIXME: Replace with Either

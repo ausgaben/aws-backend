@@ -1,8 +1,10 @@
+import { DynamoDBItemWithRemovableProperties } from '../../../eventsourcing/aggregateRepository/dynamodb/DynamoDBItem'
 import { Spending } from '../../Spending'
-import { DynamoDBItem } from '../../../eventsourcing/aggregateRepository/dynamodb/DynamoDBItem'
 
-export const aggregateToItem = (aggregate: Spending): DynamoDBItem => {
-	const item: DynamoDBItem = {
+export const aggregateToItem = (
+	aggregate: Spending,
+): DynamoDBItemWithRemovableProperties => {
+	const item: DynamoDBItemWithRemovableProperties = {
 		accountId: {
 			S: aggregate.accountId,
 		},
@@ -27,6 +29,8 @@ export const aggregateToItem = (aggregate: Spending): DynamoDBItem => {
 	}
 	if (aggregate.savingForAccountId !== undefined) {
 		item.savingForAccountId = { S: aggregate.savingForAccountId }
+	} else {
+		item.savingForAccountId = { remove: true }
 	}
 	return item
 }

@@ -1,6 +1,6 @@
 import { AggregateMeta } from '../../../eventsourcing/aggregateRepository/Aggregate'
-import { Spending } from '../../Spending'
 import { DynamoDBItem } from '../../../eventsourcing/aggregateRepository/dynamodb/DynamoDBItem'
+import { Spending } from '../../Spending'
 
 export const itemToAggregate = (
 	item: DynamoDBItem,
