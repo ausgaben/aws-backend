@@ -11,6 +11,7 @@ import { AccountUsersTable } from '../resources/account-users-table'
 import { ExchangeRatesTable } from '../resources/exchange-rates-table'
 import { SpendingsTable } from '../resources/spendings-table'
 import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table'
+import { Sparebank1ImportFeature } from '../../sparebank1/aws/sparebank1Import'
 
 export class CoreStack extends Stack {
 	public readonly aggregateEventsTable: AggregateEventsTable
@@ -109,14 +110,14 @@ export class CoreStack extends Stack {
 		)
 
 		const baseLayer = new LayerVersion(this, `${id}-layer`, {
-			code: Code.bucket(sourceCodeBucket, baseLayerZipFileName),
+			code: Code.fromBucket(sourceCodeBucket, baseLayerZipFileName),
 			compatibleRuntimes: [Runtime.NODEJS_14_X],
 		})
 
 		new EventSourcingFeature(
 			this,
 			'eventsourcing',
-			Code.bucket(
+			Code.fromBucket(
 				sourceCodeBucket,
 				layeredLambdas.lambdaZipFileNames.eventReducer,
 			),
@@ -132,47 +133,47 @@ export class CoreStack extends Stack {
 			this,
 			'api',
 			{
-				createAccountMutation: Code.bucket(
+				createAccountMutation: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.createAccountMutation,
 				),
-				deleteAccountMutation: Code.bucket(
+				deleteAccountMutation: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.deleteAccountMutation,
 				),
-				accountsQuery: Code.bucket(
+				accountsQuery: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.accountsQuery,
 				),
-				createSpendingMutation: Code.bucket(
+				createSpendingMutation: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.createSpendingMutation,
 				),
-				updateSpendingMutation: Code.bucket(
+				updateSpendingMutation: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.updateSpendingMutation,
 				),
-				updateAccountMutation: Code.bucket(
+				updateAccountMutation: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.updateAccountMutation,
 				),
-				deleteSpendingMutation: Code.bucket(
+				deleteSpendingMutation: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.deleteSpendingMutation,
 				),
-				spendingsQuery: Code.bucket(
+				spendingsQuery: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.spendingsQuery,
 				),
-				inviteUserMutation: Code.bucket(
+				inviteUserMutation: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.inviteUserMutation,
 				),
-				autoCompleteStringsQuery: Code.bucket(
+				autoCompleteStringsQuery: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.autoCompleteStringsQuery,
 				),
-				exchangeRateQuery: Code.bucket(
+				exchangeRateQuery: Code.fromBucket(
 					sourceCodeBucket,
 					layeredLambdas.lambdaZipFileNames.exchangeRateQuery,
 				),
@@ -190,6 +191,33 @@ export class CoreStack extends Stack {
 		new CfnOutput(this, 'apiUrl', {
 			value: api.api.attrGraphQlUrl,
 			exportName: `${this.stackName}:apiUrl`,
+		})
+
+		const sparebank1Import = new Sparebank1ImportFeature(
+			this,
+			'sparebank1Import',
+			{
+				sparebank1OAuthCallback: Code.fromBucket(
+					sourceCodeBucket,
+					layeredLambdas.lambdaZipFileNames.sparebank1OAuthCallback,
+				),
+				sparebank1accounts: Code.fromBucket(
+					sourceCodeBucket,
+					layeredLambdas.lambdaZipFileNames.sparebank1accounts,
+				),
+				sparebank1transactions: Code.fromBucket(
+					sourceCodeBucket,
+					layeredLambdas.lambdaZipFileNames.sparebank1transactions,
+				),
+			},
+			baseLayer,
+			this.aggregateEventsTable,
+			api,
+		)
+
+		new CfnOutput(this, 'sparebank1Import:tokensTableName', {
+			value: sparebank1Import.tokensTable.table.tableName,
+			exportName: `${this.stackName}:sparebank1Import:tokensTableName`,
 		})
 	}
 }

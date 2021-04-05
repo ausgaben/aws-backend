@@ -15,6 +15,9 @@ export type AusgabenLayeredLambdas = LayeredLambdas<{
 	inviteUserMutation: string
 	autoCompleteStringsQuery: string
 	exchangeRateQuery: string
+	sparebank1OAuthCallback: string
+	sparebank1accounts: string
+	sparebank1transactions: string
 }>
 
 export const lambdas = async (
@@ -94,5 +97,26 @@ export const lambdas = async (
 			'appsync',
 			'queries',
 			'exchangeRate.ts',
+		),
+		sparebank1OAuthCallback: path.resolve(
+			rootDir,
+			'sparebank1',
+			'appsync',
+			'mutations',
+			'oAuthCallback.ts',
+		),
+		sparebank1accounts: path.resolve(
+			rootDir,
+			'sparebank1',
+			'appsync',
+			'queries',
+			'accounts.ts',
+		),
+		sparebank1transactions: path.resolve(
+			rootDir,
+			'sparebank1',
+			'appsync',
+			'queries',
+			'transactions.ts',
 		),
 	})

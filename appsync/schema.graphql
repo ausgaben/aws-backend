@@ -73,10 +73,13 @@ type Mutation {
     name: String!
     defaultCurrencyId: ID
   ): Boolean
+  sparebank1OAuthCallback(code: ID!): Boolean
 }
 
 type Query {
   accounts(filter: accountsFilterInput, startKey: ID): AccountsQueryResult!
+  sparebank1accounts: AccountsQueryResult!
+  sparebank1transactions(accountId: ID!): SpendingsQueryResult!
   spendings(
     accountId: ID!
     startDate: String!

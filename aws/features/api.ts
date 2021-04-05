@@ -1,93 +1,22 @@
-import { Construct, RemovalPolicy, Stack, Duration } from '@aws-cdk/core'
+import { Construct, RemovalPolicy, Stack } from '@aws-cdk/core'
 import {
 	IRole,
 	PolicyStatement,
 	Role,
 	ServicePrincipal,
 } from '@aws-cdk/aws-iam'
-import { Code, Function, ILayerVersion, Runtime } from '@aws-cdk/aws-lambda'
+import { Code, ILayerVersion } from '@aws-cdk/aws-lambda'
 import { LogGroup, RetentionDays } from '@aws-cdk/aws-logs'
 import { AggregateEventsTable } from '../resources/aggregate-events-table'
 import { CfnGraphQLApi, CfnGraphQLSchema } from '@aws-cdk/aws-appsync'
 import { readFileSync } from 'fs'
 import * as path from 'path'
-import { GQLLambdaResolver } from '../resources/GQLLambdaResolver'
 import { AccountsTable } from '../resources/accounts-table'
 import { AccountUsersTable } from '../resources/account-users-table'
 import { SpendingsTable } from '../resources/spendings-table'
 import { AccountAutoCompleteTable } from '../resources/account-autoComplete-table'
 import { ExchangeRatesTable } from '../resources/exchange-rates-table'
-import { Table } from '@aws-cdk/aws-dynamodb'
-
-const gqlLambda = (
-	parent: Construct,
-	stack: Stack,
-	baseLayer: ILayerVersion,
-	api: CfnGraphQLApi,
-	field: string,
-	type: 'Query' | 'Mutation',
-	lambda: Code,
-	dynamodb: {
-		read?: Record<string, { table: Table }>
-		write?: Record<string, { table: Table }>
-	},
-) => {
-	const f = new Function(parent, `${field}${type}`, {
-		handler: 'index.handler',
-		runtime: Runtime.NODEJS_14_X,
-		timeout: Duration.seconds(30),
-		memorySize: 1792,
-		initialPolicy: [
-			new PolicyStatement({
-				actions: [
-					'logs:CreateLogGroup',
-					'logs:CreateLogStream',
-					'logs:PutLogEvents',
-				],
-				resources: [
-					`arn:aws:logs:${stack.region}:${stack.account}:/aws/lambda/*`,
-				],
-			}),
-			...Object.values(dynamodb.read ?? {}).map(
-				({ table }) =>
-					new PolicyStatement({
-						actions: [
-							'dynamodb:Query',
-							'dynamodb:GetItem',
-							'dynamodb:BatchGetItem',
-						],
-						resources: [table.tableArn, `${table.tableArn}/*`],
-					}),
-			),
-			...Object.values(dynamodb.write ?? {}).map(
-				({ table }) =>
-					new PolicyStatement({
-						actions: ['dynamodb:PutItem'],
-						resources: [table.tableArn],
-					}),
-			),
-		],
-		environment: [
-			...Object.entries(dynamodb?.read ?? {}),
-			...Object.entries(dynamodb?.write ?? {}),
-		].reduce(
-			(env, [k, { table }]) => ({ ...env, [k]: table.tableName }),
-			{},
-		),
-		layers: [baseLayer],
-		code: lambda,
-	})
-
-	f.node.addDependency(api)
-
-	new LogGroup(parent, `${field}${type}LogGroup`, {
-		removalPolicy: RemovalPolicy.DESTROY,
-		logGroupName: `/aws/lambda/${f.functionName}`,
-		retention: RetentionDays.ONE_WEEK,
-	})
-
-	new GQLLambdaResolver(parent, api, field, type, f)
-}
+import { gqlLambda } from '../resources/gqlLambda'
 
 export class ApiFeature extends Construct {
 	public readonly api: CfnGraphQLApi
