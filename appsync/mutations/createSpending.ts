@@ -24,7 +24,7 @@ export const handler = async (
 		amount: number
 		currencyId: string
 		booked: boolean
-		savingForAccountId?: string
+		transferToAccountId?: string
 	},
 	context: Context,
 ): Promise<{ id: string } | ReturnType<typeof GQLError>> => {
@@ -32,11 +32,11 @@ export const handler = async (
 	const createdSpending = await create({
 		userId: event.cognitoIdentityId,
 		...event,
-		savingForAccountId:
-			event.savingForAccountId === null ||
-			event.savingForAccountId === undefined
+		transferToAccountId:
+			event.transferToAccountId === null ||
+			event.transferToAccountId === undefined
 				? undefined
-				: event.savingForAccountId,
+				: event.transferToAccountId,
 	})
 	if (isLeft(createdSpending)) return GQLError(context, createdSpending.left)
 	return {

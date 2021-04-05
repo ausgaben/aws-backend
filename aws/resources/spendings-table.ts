@@ -36,10 +36,10 @@ export class SpendingsTable extends Construct {
 		})
 
 		this.table.addGlobalSecondaryIndex({
-			indexName: 'savingForAccountIdIndex',
+			indexName: 'transferToAccountIdIndex',
 			projectionType: ProjectionType.KEYS_ONLY,
 			partitionKey: {
-				name: 'savingForAccountId',
+				name: 'transferToAccountId',
 				type: AttributeType.STRING,
 			},
 			sortKey: {

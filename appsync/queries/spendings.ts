@@ -80,8 +80,8 @@ export const handler = async (
 				account: accounts.find(
 					({ _meta: { id } }) => id === item.accountId,
 				),
-				savingForAccount: accounts.find(
-					({ _meta: { id } }) => id === item.savingForAccountId,
+				transferToAccount: accounts.find(
+					({ _meta: { id } }) => id === item.transferToAccountId,
 				),
 			})),
 			nextStartKey: encodeStartKey(nextStartKey),

@@ -15,5 +15,5 @@ export type SpendingUpdatedEvent = AggregateEventWithPayload<{
 	description?: Change<string>
 	amount?: Change<number>
 	currencyId?: Change<string>
-	savingForAccountId?: Change<string>
+	transferToAccountId?: Change<string>
 }>

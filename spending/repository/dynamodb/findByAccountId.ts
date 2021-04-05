@@ -69,8 +69,8 @@ export const findByAccountId = (
 			dynamodb.send(
 				new QueryCommand({
 					TableName,
-					IndexName: 'savingForAccountIdIndex',
-					KeyConditionExpression: `savingForAccountId = :accountId AND bookedAt BETWEEN :startDate AND :endDate`,
+					IndexName: 'transferToAccountIdIndex',
+					KeyConditionExpression: `transferToAccountId = :accountId AND bookedAt BETWEEN :startDate AND :endDate`,
 					ExpressionAttributeValues: {
 						[`:accountId`]: {
 							S: accountId,
@@ -102,7 +102,7 @@ export const findByAccountId = (
 				'description',
 				'amount',
 				'currencyId',
-				'savingForAccountId',
+				'transferToAccountId',
 			],
 			itemToAggregate,
 			[...(I1 ?? []), ...(I2 ?? [])],

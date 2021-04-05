@@ -32,7 +32,7 @@ export const createSpending = (
 	amount: number
 	currencyId: string
 	booked?: boolean
-	savingForAccountId?: string
+	transferToAccountId?: string
 }): Promise<Either<Error, SpendingCreatedEvent>> => {
 	const validInput = t
 		.type({
@@ -49,7 +49,7 @@ export const createSpending = (
 				}, {} as { [key: string]: null }),
 			),
 			booked: t.boolean,
-			savingForAccountId: t.union([t.undefined, t.null, UUIDv4]),
+			transferToAccountId: t.union([t.undefined, t.null, UUIDv4]),
 		})
 		.decode({
 			booked: true,
@@ -68,10 +68,10 @@ export const createSpending = (
 		amount,
 		currencyId,
 		booked,
-		savingForAccountId,
+		transferToAccountId,
 	} = validInput.right
 
-	if (accountId === savingForAccountId) {
+	if (accountId === transferToAccountId) {
 		return left(
 			new BadRequestError(`Cannot create a saving for the same account.`),
 		)
@@ -96,14 +96,14 @@ export const createSpending = (
 			),
 		)
 	}
-	if (savingForAccountId !== undefined && savingForAccountId !== null) {
+	if (transferToAccountId !== undefined && transferToAccountId !== null) {
 		const savingAccount = userAccounts.right.items.find(
-			({ accountId }) => accountId === savingForAccountId,
+			({ accountId }) => accountId === transferToAccountId,
 		)
 		if (!savingAccount) {
 			return left(
 				new AccessDeniedError(
-					`User "${userId}" is not allowed to access savings account "${savingForAccountId}"!`,
+					`User "${userId}" is not allowed to access savings account "${transferToAccountId}"!`,
 				),
 			)
 		}
@@ -123,9 +123,10 @@ export const createSpending = (
 			amount,
 			currencyId: currencyId as string,
 			booked,
-			savingForAccountId:
-				savingForAccountId !== undefined && savingForAccountId !== null
-					? savingForAccountId
+			transferToAccountId:
+				transferToAccountId !== undefined &&
+				transferToAccountId !== null
+					? transferToAccountId
 					: undefined,
 		},
 	}

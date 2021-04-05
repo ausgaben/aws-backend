@@ -27,10 +27,10 @@ export const aggregateToItem = (
 			S: aggregate.currencyId,
 		},
 	}
-	if (aggregate.savingForAccountId !== undefined) {
-		item.savingForAccountId = { S: aggregate.savingForAccountId }
+	if (aggregate.transferToAccountId !== undefined) {
+		item.transferToAccountId = { S: aggregate.transferToAccountId }
 	} else {
-		item.savingForAccountId = { remove: true }
+		item.transferToAccountId = { remove: true }
 	}
 	return item
 }

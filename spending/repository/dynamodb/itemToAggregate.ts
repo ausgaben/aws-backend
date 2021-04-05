@@ -13,6 +13,6 @@ export const itemToAggregate = (
 	description: item.description.S as string,
 	amount: +(item.amount.N as string),
 	currencyId: item.currencyId.S as string,
-	savingForAccountId: item.savingForAccountId?.S as string | undefined,
+	transferToAccountId: item.transferToAccountId?.S as string | undefined,
 	_meta,
 })

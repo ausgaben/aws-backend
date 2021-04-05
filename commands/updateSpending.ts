@@ -33,7 +33,7 @@ export const updateSpending = (
 	description?: string
 	amount?: number
 	currencyId?: string
-	savingForAccountId?: string
+	transferToAccountId?: string
 }): Promise<Either<Error, SpendingUpdatedEvent>> => {
 	const validInput = t
 		.type({
@@ -53,7 +53,7 @@ export const updateSpending = (
 					}, {} as { [key: string]: null }),
 				),
 			]),
-			savingForAccountId: t.union([t.undefined, t.null, UUIDv4]),
+			transferToAccountId: t.union([t.undefined, t.null, UUIDv4]),
 		})
 		.decode(args)
 
@@ -71,12 +71,12 @@ export const updateSpending = (
 		description,
 		amount,
 		currencyId,
-		savingForAccountId,
+		transferToAccountId,
 	} = validInput.right
 
 	const spending = await getSpendingById(spendingId)
 
-	if (savingForAccountId === spending.accountId) {
+	if (transferToAccountId === spending.accountId) {
 		return left(
 			new BadRequestError(`Cannot create a saving for the same account.`),
 		)
@@ -105,9 +105,10 @@ export const updateSpending = (
 			...(currencyId !== undefined && {
 				currencyId: { set: currencyId as string },
 			}),
-			...(savingForAccountId === undefined || savingForAccountId === null
-				? { savingForAccountId: { unset: true } }
-				: { savingForAccountId: { set: savingForAccountId } }),
+			...(transferToAccountId === undefined ||
+			transferToAccountId === null
+				? { transferToAccountId: { unset: true } }
+				: { transferToAccountId: { set: transferToAccountId } }),
 		},
 	}
 	await persist(updateSpendingEvent)
