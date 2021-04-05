@@ -88,7 +88,7 @@ export const handler = async (
 								new Error(`Request failed: ${res.statusCode}`),
 							)
 						}
-						const token = JSON.parse(response.join())
+						const token = JSON.parse(response.join(''))
 						resolve({
 							...token,
 							userinfo: JSON.parse(token.userinfo),
@@ -136,6 +136,7 @@ export const handler = async (
 
 		return true
 	} catch (err) {
-		return GQLError(context, new InternalError(err))
+		console.error(err)
+		return GQLError(context, new InternalError(err.message))
 	}
 }

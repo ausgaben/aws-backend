@@ -4,9 +4,9 @@ import { Context } from 'aws-lambda'
 import { InternalError } from '../../../errors/InternalError'
 import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb'
 import { AccessDeniedError } from '../../../errors/AccessDeniedError'
-import { Spending } from '../../../spending/Spending'
 import { Sparebank1Transaction } from '../types'
 import { findCurrencyById, NOK } from '../../../currency/currencies'
+import { GraphQLSpending } from '../../../appsync/types'
 
 const tokensTable = process.env.TOKENS_TABLE
 const db = new DynamoDBClient({})
@@ -19,7 +19,7 @@ export const handler = async (
 	context: Context,
 ): Promise<
 	| {
-			items: Spending[]
+			items: GraphQLSpending[]
 			nextStartKey?: string
 	  }
 	| ReturnType<typeof GQLError>
@@ -38,12 +38,12 @@ export const handler = async (
 			}),
 		)
 
-		if (Item === undefined)
+		const token = Item?.accessToken.S
+
+		if (token === undefined)
 			throw new AccessDeniedError(
 				`No token configured for ${event.cognitoIdentityId}`,
 			)
-
-		const token = Item.accessToken.S
 
 		const { transactions } = await new Promise<{
 			transactions: Sparebank1Transaction[]
@@ -62,6 +62,7 @@ export const handler = async (
 					res.setEncoding('utf8')
 					const response: string[] = []
 					res.on('data', (chunk: string) => {
+						console.debug(chunk)
 						response.push(chunk)
 					})
 					res.on('end', () => {
@@ -71,7 +72,7 @@ export const handler = async (
 								new Error(`Request failed: ${res.statusCode}`),
 							)
 						}
-						resolve(JSON.parse(response.join()))
+						resolve(JSON.parse(response.join('')))
 					})
 				},
 			)
@@ -94,14 +95,16 @@ export const handler = async (
 				accountId: event.accountId,
 				amount: Math.round(t.amount.amount * 100),
 				booked: true,
-				bookedAt: new Date(`${t.accountingDate}T12:00:00Z`), // FIXME: which timezone?
-				category: t.transactionType,
-				currencyId:
-					findCurrencyById(t.amount.currencyCode)?.id ?? NOK.id,
-				description: t.description,
+				bookedAt: new Date(
+					`${t.accountingDate}T12:00:00Z`,
+				).toISOString(), // FIXME: which timezone?
+				category: t.transactionType ?? 'N/A',
+				currency: findCurrencyById(t.amount.currencyCode) ?? NOK,
+				description: t.description ?? 'N/A',
 			})),
 		}
 	} catch (err) {
-		return GQLError(context, new InternalError(err))
+		console.error(err)
+		return GQLError(context, new InternalError(err.message))
 	}
 }

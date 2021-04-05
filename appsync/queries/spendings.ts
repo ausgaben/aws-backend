@@ -4,13 +4,13 @@ import { GQLError } from '../GQLError'
 import { findByAccountId } from '../../spending/repository/dynamodb/findByAccountId'
 import { canAccessAccount } from '../../accountUser/canAccessAccount'
 import { findByUserId } from '../../accountUser/repository/dynamodb/findByUserId'
-import { currencies, Currency } from '../../currency/currencies'
+import { currencies } from '../../currency/currencies'
 import { decodeStartKey, encodeStartKey } from '../startKey'
 import { isLeft } from 'fp-ts/lib/Either'
-import { Spending } from '../../spending/Spending'
 import { getById } from '../../eventsourcing/aggregateRepository/dynamodb/getById'
 import { AccountAggregateName } from '../../account/Account'
 import { itemToAggregate } from '../../account/repository/dynamodb/itemToAggregate'
+import { GraphQLSpending } from '../types'
 
 const db = new DynamoDBClient({})
 const accountUsersTableName = process.env.ACCOUNT_USERS_TABLE as string
@@ -40,10 +40,7 @@ export const handler = async (
 	context: Context,
 ): Promise<
 	| {
-			items: (Omit<Spending, 'bookedAt'> & {
-				bookedAt: string
-				currency?: Currency
-			})[]
+			items: GraphQLSpending[]
 			nextStartKey?: string
 	  }
 	| ReturnType<typeof GQLError>

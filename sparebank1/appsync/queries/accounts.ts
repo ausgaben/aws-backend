@@ -37,12 +37,12 @@ export const handler = async (
 			}),
 		)
 
-		if (Item === undefined)
+		const token = Item?.accessToken.S
+
+		if (token === undefined)
 			throw new AccessDeniedError(
 				`No token configured for ${event.cognitoIdentityId}`,
 			)
-
-		const token = Item.accessToken.S
 
 		const { accounts } = await new Promise<{
 			accounts: Sparebank1Account[]
@@ -59,9 +59,11 @@ export const handler = async (
 					},
 				},
 				(res) => {
+					console.debug(JSON.stringify(res.headers))
 					res.setEncoding('utf8')
 					const response: string[] = []
 					res.on('data', (chunk: string) => {
+						console.debug(chunk)
 						response.push(chunk)
 					})
 					res.on('end', () => {
@@ -71,7 +73,7 @@ export const handler = async (
 								new Error(`Request failed: ${res.statusCode}`),
 							)
 						}
-						resolve(JSON.parse(response.join()))
+						resolve(JSON.parse(response.join('')))
 					})
 				},
 			)
@@ -94,6 +96,7 @@ export const handler = async (
 			})),
 		}
 	} catch (err) {
-		return GQLError(context, new InternalError(err))
+		console.error(err)
+		return GQLError(context, new InternalError(err.message))
 	}
 }

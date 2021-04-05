@@ -30,9 +30,9 @@ export type Sparebank1Transaction = {
 		currencyCode: 'NOK'
 	}
 	accountingDate: string // '2021-04-03'
-	description: string //'REMA BROMSTAD'
-	remoteAccount: string //"90010720965",
+	description?: string //'REMA BROMSTAD'
+	remoteAccount?: string //"90010720965",
 	transactionCode: string //'943'
-	transactionType: string // "Visa",
+	transactionType?: string // "Visa",
 	_links: Links
 }
