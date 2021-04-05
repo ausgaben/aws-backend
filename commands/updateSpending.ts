@@ -53,7 +53,7 @@ export const updateSpending = (
 					}, {} as { [key: string]: null }),
 				),
 			]),
-			savingForAccountId: t.union([t.undefined, UUIDv4]),
+			savingForAccountId: t.union([t.undefined, t.null, UUIDv4]),
 		})
 		.decode(args)
 
@@ -105,7 +105,7 @@ export const updateSpending = (
 			...(currencyId !== undefined && {
 				currencyId: { set: currencyId as string },
 			}),
-			...(savingForAccountId === undefined
+			...(savingForAccountId === undefined || savingForAccountId === null
 				? { savingForAccountId: { unset: true } }
 				: { savingForAccountId: { set: savingForAccountId } }),
 		},

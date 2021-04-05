@@ -35,6 +35,7 @@ export const handler = async (
 		description?: string
 		amount?: number
 		currencyId?: string
+		savingForAccountId?: string
 	},
 	context: Context,
 ): Promise<boolean | ReturnType<typeof GQLError>> => {

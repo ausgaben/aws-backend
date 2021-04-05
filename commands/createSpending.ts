@@ -49,7 +49,7 @@ export const createSpending = (
 				}, {} as { [key: string]: null }),
 			),
 			booked: t.boolean,
-			savingForAccountId: t.union([t.undefined, UUIDv4]),
+			savingForAccountId: t.union([t.undefined, t.null, UUIDv4]),
 		})
 		.decode({
 			booked: true,
@@ -96,6 +96,18 @@ export const createSpending = (
 			),
 		)
 	}
+	if (savingForAccountId !== undefined && savingForAccountId !== null) {
+		const savingAccount = userAccounts.right.items.find(
+			({ accountId }) => accountId === savingForAccountId,
+		)
+		if (!savingAccount) {
+			return left(
+				new AccessDeniedError(
+					`User "${userId}" is not allowed to access savings account "${savingForAccountId}"!`,
+				),
+			)
+		}
+	}
 
 	const e: SpendingCreatedEvent = {
 		eventId: v4(),
@@ -111,7 +123,10 @@ export const createSpending = (
 			amount,
 			currencyId: currencyId as string,
 			booked,
-			savingForAccountId,
+			savingForAccountId:
+				savingForAccountId !== undefined && savingForAccountId !== null
+					? savingForAccountId
+					: undefined,
 		},
 	}
 	const eventPersisted = await tryOrError(async () => persist(e))
