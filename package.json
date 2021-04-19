@@ -58,7 +58,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.13.0",
     "@aws-sdk/client-ssm": "3.13.0",
-    "fp-ts": "2.10.2",
+    "fp-ts": "2.10.3",
     "io-ts": "2.2.16",
     "uuid": "8.3.2"
   },
