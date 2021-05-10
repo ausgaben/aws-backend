@@ -30,7 +30,7 @@
     "@aws-cdk/core": "1.102.0",
     "@aws-sdk/client-cloudformation": "3.14.0",
     "@nordicsemiconductor/asset-tracker-cloud-code-style": "9.0.2",
-    "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "7.0.19",
+    "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "7.0.20",
     "@nordicsemiconductor/package-layered-lambdas": "7.4.8",
     "@types/aws-lambda": "8.10.76",
     "@types/jest": "26.0.23",
