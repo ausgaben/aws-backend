@@ -28,7 +28,7 @@
     "@aws-cdk/aws-dynamodb": "1.107.0",
     "@aws-cdk/aws-iam": "1.107.0",
     "@aws-cdk/core": "1.107.0",
-    "@aws-sdk/client-cloudformation": "3.17.0",
+    "@aws-sdk/client-cloudformation": "3.352.0",
     "@nordicsemiconductor/asset-tracker-cloud-code-style": "9.0.4",
     "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "7.0.23",
     "@nordicsemiconductor/package-layered-lambdas": "7.4.21",
@@ -56,8 +56,8 @@
     ]
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "3.17.0",
-    "@aws-sdk/client-ssm": "3.17.0",
+    "@aws-sdk/client-dynamodb": "3.352.0",
+    "@aws-sdk/client-ssm": "3.352.0",
     "fp-ts": "2.10.5",
     "io-ts": "2.2.16",
     "uuid": "8.3.2"
