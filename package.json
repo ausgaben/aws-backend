@@ -32,7 +32,7 @@
     "@nordicsemiconductor/asset-tracker-cloud-code-style": "9.0.4",
     "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "7.0.23",
     "@nordicsemiconductor/package-layered-lambdas": "7.4.21",
-    "@types/aws-lambda": "8.10.76",
+    "@types/aws-lambda": "8.10.119",
     "@types/jest": "26.0.23",
     "@types/node": "14.17.2",
     "@types/uuid": "8.3.0",
